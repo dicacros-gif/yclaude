@@ -277,7 +277,7 @@ def fetch_api_tab(existing_ids: set) -> list[dict]:
 
 def fetch_country_api(name: str, region_code: str | None, query: str,
                        existing_ids: set, max_new: int = 12) -> list[dict]:
-    """국가별 — chart=mostPopular + search.list (YouTube 공식 순위)"""
+    """국가별 — chart=mostPopular(Music) + 다중 검색 (YouTube 공식 순위)"""
     youtube = _api_build()
     if not youtube:
         return []
@@ -285,40 +285,45 @@ def fetch_country_api(name: str, region_code: str | None, query: str,
     cands: list[str] = []
     regions = [region_code] if region_code else ["US", "JP", "KR", "BR", "IN"]
 
-    # ① 국가별 트렌딩 차트 (mostPopular)
+    # ① 트렌딩 차트 — 전체 + Music 카테고리(10) (Shorts 비율↑)
     for rc in regions:
+        for cat in (None, "10"):  # None=전체, 10=Music
+            try:
+                params = dict(part="id", chart="mostPopular",
+                              regionCode=rc, maxResults=50)
+                if cat: params["videoCategoryId"] = cat
+                resp = youtube.videos().list(**params).execute()
+                added = 0
+                for it in resp.get("items", []):
+                    vid = it["id"]
+                    if vid not in cands:
+                        cands.append(vid); added += 1
+                label = f"{rc}/{cat or 'all'}"
+                print(f"    [trending {label}] +{added}")
+            except Exception as e:
+                print(f"    [trending {rc}/{cat}] {e}")
+
+    # ② 다중 검색 — primary query + 일반 fallback 키워드
+    since = (datetime.now(timezone.utc) - timedelta(days=14)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    primary_rc = region_code or "US"
+    queries = [query, "shorts viral", "trending shorts dance"]
+    for q in queries:
         try:
-            resp = youtube.videos().list(
-                part="id", chart="mostPopular",
-                regionCode=rc, maxResults=50,
+            resp = youtube.search().list(
+                q=q, part="id", type="video",
+                videoDuration="short", order="viewCount",
+                publishedAfter=since, regionCode=primary_rc,
+                maxResults=15,
             ).execute()
             added = 0
             for it in resp.get("items", []):
-                vid = it["id"]
+                vid = it["id"]["videoId"]
                 if vid not in cands:
                     cands.append(vid); added += 1
-            print(f"    [trending {rc}] +{added}")
+            print(f"    [search {primary_rc} {q!r}] +{added}")
         except Exception as e:
-            print(f"    [trending {rc}] {e}")
-
-    # ② 검색 보조 (Shorts 키워드 + 지역)
-    since = (datetime.now(timezone.utc) - timedelta(days=14)).strftime("%Y-%m-%dT%H:%M:%SZ")
-    primary_rc = region_code or "US"
-    try:
-        resp = youtube.search().list(
-            q=query, part="id", type="video",
-            videoDuration="short", order="viewCount",
-            publishedAfter=since, regionCode=primary_rc,
-            maxResults=15,
-        ).execute()
-        added = 0
-        for it in resp.get("items", []):
-            vid = it["id"]["videoId"]
-            if vid not in cands:
-                cands.append(vid); added += 1
-        print(f"    [search {primary_rc}] +{added}")
-    except Exception as e:
-        print(f"    [search] {e}")
+            print(f"    [search {q!r}] {e}")
+            break  # 쿼터 초과 시 중단
 
     if not cands:
         return []
