@@ -753,41 +753,66 @@ def regenerate_html(api_data: list[dict], all_data: list[tuple]) -> None:
 
 
 # ── 메인 ─────────────────────────────────────────────────
-def main():
-    print("=== YouTube Shorts 수집 시작 ===")
+def main() -> int:
+    import traceback
+    print("=== YouTube Shorts 수집 시작 ===", flush=True)
+    print(f"API_KEY 설정: {'YES' if API_KEY else 'NO'}", flush=True)
 
     global_seen: set[str] = set()
-    api_stored = load_json(VIDEOS_API)
-    global_seen.update(v["id"] for v in api_stored["videos"])
-    for _, code, _, _, _ in COUNTRIES:
-        data = load_json(json_path(code))
-        global_seen.update(v["id"] for v in data["videos"])
-    print(f"기존 전체 영상: {len(global_seen)}개 (중복 검사 기준)")
+    try:
+        api_stored = load_json(VIDEOS_API)
+        global_seen.update(v["id"] for v in api_stored["videos"])
+        for _, code, _, _, _ in COUNTRIES:
+            data = load_json(json_path(code))
+            global_seen.update(v["id"] for v in data["videos"])
+        print(f"기존 전체 영상: {len(global_seen)}개", flush=True)
+    except Exception as e:
+        print(f"[ERROR] 초기 로드 실패: {e}", flush=True)
+        traceback.print_exc()
+        api_stored = {"last_updated": "", "videos": []}
 
-    print("\n[🔑 YouTube API 탭]")
-    new_api = fetch_api_tab(global_seen)
-    global_seen.update(v["id"] for v in new_api)
-    if new_api:
-        api_stored["videos"] = new_api + api_stored["videos"]
-        api_stored["videos"] = api_stored["videos"][:MAX_API * 3]
-    save_json(VIDEOS_API, api_stored)
+    # YouTube API 탭
+    print("\n[🔑 YouTube API 탭]", flush=True)
+    try:
+        new_api = fetch_api_tab(global_seen)
+        global_seen.update(v["id"] for v in new_api)
+        if new_api:
+            api_stored["videos"] = new_api + api_stored["videos"]
+            api_stored["videos"] = api_stored["videos"][:MAX_API * 3]
+        save_json(VIDEOS_API, api_stored)
+    except Exception as e:
+        print(f"[ERROR] API 탭 실패: {e}", flush=True)
+        traceback.print_exc()
     api_data = api_stored["videos"][:MAX_API]
 
+    # 국가별 yt-dlp (개별 실패가 전체를 죽이지 않게)
     all_data = []
     for name, code, geo, query, flag in COUNTRIES:
-        print(f"\n[{flag} {name} / {code}]")
+        print(f"\n[{flag} {name} / {code}]", flush=True)
         p    = json_path(code)
         data = load_json(p)
-        new = fetch_country(name, code, geo, query, global_seen)
-        global_seen.update(v["id"] for v in new)
-        if new:
-            data["videos"] = new + data["videos"]
-        save_json(p, data)
+        try:
+            new = fetch_country(name, code, geo, query, global_seen)
+            global_seen.update(v["id"] for v in new)
+            if new:
+                data["videos"] = new + data["videos"]
+            save_json(p, data)
+        except Exception as e:
+            print(f"  [ERROR] {name} 수집 실패: {e}", flush=True)
+            traceback.print_exc()
         all_data.append((name, code, flag, data))
 
-    regenerate_html(api_data, all_data)
-    print("\n=== 완료 ===")
+    # HTML 재생성은 항상 수행
+    try:
+        regenerate_html(api_data, all_data)
+    except Exception as e:
+        print(f"[ERROR] HTML 생성 실패: {e}", flush=True)
+        traceback.print_exc()
+        return 1
+
+    print("\n=== 완료 ===", flush=True)
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

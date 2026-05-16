@@ -3,7 +3,17 @@ name: Daily Shorts Update
 on:
   schedule:
     - cron: '0 8 * * *'   # 08:00 UTC = 17:00 KST
-  workflow_dispatch:        # 수동 실행 가능
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'videos_*.json'
+      - 'index.html'
+      - 'README.md'
+
+concurrency:
+  group: daily-update
+  cancel-in-progress: false
 
 jobs:
   update:
@@ -11,34 +21,54 @@ jobs:
     permissions:
       contents: write
 
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+      PYTHONIOENCODING: utf-8
+      PYTHONUNBUFFERED: '1'
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.12'
+          cache: pip
 
       - name: Install dependencies
         run: |
-          pip install \
-            google-api-python-client \
-            yt-dlp \
-            requests \
-            beautifulsoup4
+          python -m pip install --upgrade pip
+          pip install google-api-python-client yt-dlp requests beautifulsoup4
 
-      - name: Fetch trending Shorts (17개국)
-        run: python fetch_shorts.py
+      - name: Fetch trending Shorts
+        id: fetch
+        continue-on-error: true
         env:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
-          PYTHONIOENCODING: utf-8
+        run: python fetch_shorts.py
 
       - name: Commit & Push
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add videos_*.json index.html
-          git diff --staged --quiet || \
-            git commit -m "chore: daily shorts update $(date +'%Y-%m-%d %H:%M KST')"
-          git push
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin main || true
+          git add -A videos_*.json index.html 2>/dev/null || true
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git commit -m "chore: shorts update $(TZ=Asia/Seoul date +'%Y-%m-%d %H:%M KST')"
+          for i in 1 2 3; do
+            git pull --rebase origin main || true
+            if git push origin main; then
+              echo "Push success"
+              exit 0
+            fi
+            echo "Push failed (attempt $i/3), retrying..."
+            sleep 3
+          done
+          echo "Push failed after 3 attempts"
+          exit 1
