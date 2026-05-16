@@ -15,15 +15,10 @@ MAX_API     = 40
 DUR_RE      = re.compile(r'PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?')
 API_KEY     = os.environ.get("YOUTUBE_API_KEY", "")
 
-API_QUERIES = [
-    ("dance shorts viral bgm 2025",         "US"),
-    ("dance challenge couple shorts music",  "US"),
-    ("solo dance shorts background music",   "BR"),
-    ("baile shorts viral bgm trending",      "MX"),
-    ("tanz shorts viral bgm",                "DE"),
-    ("danca shorts viral bgm",               "BR"),
-    ("dance shorts no lyrics trending",      "PH"),
-    ("viral dance bgm shorts music",         "JP"),
+# 글로벌 API 탭 — 주요 14개 시장의 mostPopular 차트 집계 (키워드 편향 제거)
+GLOBAL_REGIONS = [
+    "US", "JP", "KR", "GB", "BR", "MX",
+    "DE", "FR", "ID", "AU", "CA", "ES", "IT", "TH",
 ]
 
 # (한국어 이름, 파일코드, geo, 검색어, 국기, relevanceLanguage)
@@ -105,67 +100,94 @@ CHALLENGE_KW= ("challenge", "챌린지", "reto", "trend", "viral", "tiktok")
 MUSIC_KW    = ("bgm", "music", "음악", "song", "노래", "musica", "musik")
 
 def analyze_video(v: dict, rich: bool = False) -> str:
-    """카드에 표시할 인기 이유 분석 텍스트 (1~3개 사유)"""
+    """카드 인기 이유 분석 — 다중 라인 HTML (조회수·참여도·길이·성장·카테고리·인사이트)"""
     views   = int(v.get("view_count", 0) or 0)
     likes   = int(v.get("like_count", 0) or 0)
+    comments= int(v.get("comment_count", 0) or 0)
     dur_s   = int(v.get("duration_sec", 0) or 0)
     pub     = v.get("published_at", "")
     title   = (v.get("title", "") or "").lower()
-    reasons: list[str] = []
+    lines: list[str] = []
 
-    # ① 조회수 등급
+    # ① 조회수 등급 + 백분위
     if views >= 100_000_000:
-        reasons.append("⚡ 1억뷰 슈퍼바이럴")
+        lines.append(f"🔥 <b class='k'>1억뷰 슈퍼바이럴</b> · 글로벌 상위 <b class='num'>0.001%</b>")
     elif views >= 10_000_000:
-        reasons.append("🔥 천만뷰 검증 콘텐츠")
+        lines.append(f"🔥 <b class='k'>천만뷰 검증</b> · 상위 <b class='num'>0.01%</b> 영상")
     elif views >= 1_000_000:
-        reasons.append("📈 백만뷰 돌파")
+        lines.append(f"📈 <b>백만뷰 돌파</b> · 상위 <b class='num'>1%</b> 진입")
     elif views >= 100_000:
-        reasons.append("✨ 10만뷰 상승세")
+        lines.append(f"✨ <b>10만뷰 상승세</b> · 알고리즘 추천 활성")
+    elif views > 0:
+        lines.append(f"🎯 <b class='num'>{fmt_views(views)}뷰</b> · 신규 트렌딩 후보")
 
-    # ② 일일 성장 속도 (API 카드만)
-    if rich and pub:
+    # ② 좋아요 + 비율
+    if likes > 0 and views > 0:
+        lr = likes / views * 100
+        if lr >= 5:    tag = "<b class='k'>매우 높음</b> (평균 1~3% 대비)"
+        elif lr >= 2:  tag = "<b>양호</b>"
+        else:          tag = "평균 수준"
+        lines.append(f"💖 좋아요 <b class='num'>{likes:,}</b> · 비율 <b class='num'>{lr:.2f}%</b> · {tag}")
+    elif likes > 0:
+        lines.append(f"💖 좋아요 <b class='num'>{likes:,}</b>")
+
+    # ③ 댓글
+    if comments > 0 and views > 0:
+        cr = comments / views * 100
+        lines.append(f"💬 댓글 <b class='num'>{comments:,}</b> · 비율 <b class='num'>{cr:.3f}%</b>")
+    elif comments > 0:
+        lines.append(f"💬 댓글 <b class='num'>{comments:,}</b>")
+
+    # ④ 길이 — Shorts 알고리즘 적합성
+    if dur_s:
+        if 5 <= dur_s <= 15:
+            lines.append(f"⏱ <b class='num'>{dur_s}초</b> · <b class='k'>반복 시청 유도형</b> (골든존)")
+        elif 16 <= dur_s <= 30:
+            lines.append(f"⏱ <b class='num'>{dur_s}초</b> · <b class='k'>완주율 최적</b> (골든존)")
+        elif dur_s <= 60:
+            lines.append(f"⏱ <b class='num'>{dur_s}초</b> · 표준 Shorts 길이")
+        elif dur_s <= 180:
+            lines.append(f"⏱ <b class='num'>{dur_s}초</b> · 확장 Shorts (3분 이내)")
+
+    # ⑤ 성장 속도
+    if pub:
         try:
             pub_d = datetime.strptime(pub, "%Y-%m-%d").date()
             days  = max((datetime.now(KST).date() - pub_d).days, 1)
             vpd   = views // days
             if vpd >= 5_000_000:
-                reasons.append(f"🚀 일 {fmt_views(vpd)}뷰 폭발")
-            elif vpd >= 500_000:
-                reasons.append(f"📊 일 {fmt_views(vpd)}뷰 성장")
+                lines.append(f"🚀 일평균 <b class='num'>{fmt_views(vpd)}뷰</b> · <b class='k'>폭발적 성장</b> ({days}일간)")
+            elif vpd >= 1_000_000:
+                lines.append(f"📊 일평균 <b class='num'>{fmt_views(vpd)}뷰</b> · <b>강한 상승세</b> ({days}일간)")
+            elif vpd >= 100_000:
+                lines.append(f"📊 일평균 <b class='num'>{fmt_views(vpd)}뷰</b> · 안정 성장 ({days}일간)")
+            else:
+                lines.append(f"📅 발행 <b>{days}일</b> 경과 · 일평균 <b class='num'>{fmt_views(vpd)}뷰</b>")
         except Exception:
             pass
 
-    # ③ 참여도 (API 카드만)
-    if rich and views > 0 and likes > 0:
-        like_rate = likes / views * 100
-        if like_rate >= 5:
-            reasons.append(f"💖 좋아요율 {like_rate:.1f}% (평균↑↑)")
-        elif like_rate >= 2.5:
-            reasons.append(f"👍 좋아요율 {like_rate:.1f}%")
+    # ⑥ 콘텐츠 유형 태그
+    types = []
+    if any(k in title for k in DANCE_KW):     types.append("💃 댄스")
+    if any(k in title for k in KPOP_KW):      types.append("🎤 K-팝")
+    if any(k in title for k in COUPLE_KW):    types.append("👥 2인 관계")
+    if any(k in title for k in CHALLENGE_KW): types.append("🌐 바이럴 챌린지")
+    if any(k in title for k in MUSIC_KW):     types.append("🎵 음악/BGM")
+    if types:
+        lines.append("🏷 " + " · ".join(f"<b>{t}</b>" for t in types[:4]))
 
-    # ④ 길이 (Shorts 알고리즘 최적)
-    if 8 <= dur_s <= 15:
-        reasons.append(f"⏱ {dur_s}초 — 반복 시청 유도")
-    elif 16 <= dur_s <= 30:
-        reasons.append(f"⏱ {dur_s}초 — 완주율 최적")
+    # ⑦ 종합 인사이트
+    if views >= 10_000_000 and 0 < dur_s <= 30:
+        lines.append("🎯 <b class='k'>완벽한 알고리즘 적합</b> — 짧은 길이 + 고조회수 = 무한 노출 루프")
+    elif views >= 1_000_000 and likes and likes / max(views,1) * 100 >= 3:
+        lines.append("🎯 <b>높은 참여 신호</b> — 알고리즘 추가 노출 가능성↑")
+    elif views >= 100_000 and 0 < dur_s <= 15:
+        lines.append("🎯 <b>반복 재생 가능성</b> — 짧은 길이로 노출 확대 중")
 
-    # ⑤ 콘텐츠 유형
-    if any(k in title for k in DANCE_KW):
-        reasons.append("💃 댄스/챌린지 포맷")
-    if any(k in title for k in KPOP_KW):
-        reasons.append("🎤 K-팝 글로벌 팬덤")
-    if any(k in title for k in COUPLE_KW):
-        reasons.append("👥 2인 관계 공감")
-    if any(k in title for k in CHALLENGE_KW) and not any("챌린지" in r for r in reasons):
-        reasons.append("🌐 바이럴 챌린지 트렌드")
-    if any(k in title for k in MUSIC_KW) and not any("음악" in r or "사운드" in r for r in reasons):
-        reasons.append("🎵 트렌딩 사운드")
+    if not lines:
+        lines.append("🎯 신규 트렌딩 후보 — 알고리즘 평가 중")
 
-    if not reasons:
-        reasons.append("🎯 알고리즘 추천")
-
-    return " · ".join(reasons[:3])
+    return "".join(f'<div class="wl">{l}</div>' for l in lines[:7])
 
 
 # ── YouTube Data API ─────────────────────────────────────
@@ -245,36 +267,36 @@ def _enrich_videos(youtube, vid_ids: list[str], existing_ids: set,
 
 
 def fetch_api_tab(existing_ids: set) -> list[dict]:
-    """API 탭 — 8개 글로벌 검색어로 수집"""
+    """글로벌 API 탭 — 14개 주요 시장 mostPopular 차트 통합 · 조회수 순"""
     youtube = _api_build()
     if not youtube:
         print("[API 탭] YOUTUBE_API_KEY 없음 또는 라이브러리 미설치 — 스킵")
         return []
 
-    since = (datetime.now(timezone.utc) - timedelta(days=14)).strftime("%Y-%m-%dT%H:%M:%SZ")
     cands: list[str] = []
+    for rc in GLOBAL_REGIONS:
+        for cat in (None, "10"):  # 전체 트렌딩 + Music 카테고리
+            try:
+                params = dict(part="id", chart="mostPopular",
+                              regionCode=rc, maxResults=50)
+                if cat: params["videoCategoryId"] = cat
+                resp = youtube.videos().list(**params).execute()
+                added = 0
+                for it in resp.get("items", []):
+                    vid = it["id"]
+                    if vid not in cands:
+                        cands.append(vid); added += 1
+                print(f"  [global {rc}/{cat or 'all'}] +{added}")
+            except Exception as e:
+                print(f"  [global {rc}/{cat}] {e}")
+            time.sleep(0.1)
 
-    for query, region in API_QUERIES:
-        print(f"  [API] {query!r} ({region})")
-        try:
-            resp = youtube.search().list(
-                q=query, part="id", type="video",
-                videoDuration="short", order="viewCount",
-                publishedAfter=since, regionCode=region,
-                maxResults=20,
-            ).execute()
-            for it in resp.get("items", []):
-                vid = it["id"]["videoId"]
-                if vid not in cands:
-                    cands.append(vid)
-        except Exception as e:
-            print(f"    검색 오류: {e}")
-        time.sleep(0.3)
-
+    if not cands:
+        return []
     new = _enrich_videos(youtube, cands, existing_ids)
     new.sort(key=lambda v: v["view_count"], reverse=True)
     result = new[:MAX_API]
-    print(f"[API 탭] 신규 {len(result)}개")
+    print(f"[API 탭] {len(result)}개 (글로벌 {len(GLOBAL_REGIONS)}개 시장 통합)")
     return result
 
 
@@ -406,13 +428,19 @@ def _esc(s: str) -> str:
     return (s or "").replace("&","&amp;").replace("<","&lt;").replace(">","&gt;").replace('"',"&quot;")
 
 def _card(v: dict, idx: int) -> str:
-    views = fmt_views(v.get("view_count", 0))
-    date  = v.get("added_date", "")
-    title = _esc(v.get("title", "") or v["id"])
-    why   = analyze_video(v, rich=False)
+    views   = fmt_views(v.get("view_count", 0))
+    likes_n = int(v.get("like_count", 0) or 0)
+    comm_n  = int(v.get("comment_count", 0) or 0)
+    date    = v.get("added_date", "")
+    title   = _esc(v.get("title", "") or v["id"])
+    why     = analyze_video(v)
     rank_cls = "rank top" if idx < 3 else "rank"
     new_badge = '<span class="new">NEW</span>' if date == now_kst() else ""
-    return f"""<div class="card" data-views="{v.get('view_count',0)}" data-date="{date}" data-title="{title.lower()}">
+    stats = f'<span>👁 {views}</span>'
+    if likes_n: stats += f'<span>❤️ {fmt_views(likes_n)}</span>'
+    if comm_n:  stats += f'<span>💬 {fmt_views(comm_n)}</span>'
+    stats += f'<span>📅 {date}</span>'
+    return f"""<div class="card" data-views="{v.get('view_count',0)}" data-likes="{likes_n}" data-date="{date}" data-title="{title.lower()}">
   <span class="{rank_cls}">{idx+1}</span>
   {new_badge}
   <a class="tw" href="{v['url']}" target="_blank" rel="noopener" aria-label="{title}">
@@ -421,8 +449,8 @@ def _card(v: dict, idx: int) -> str:
   </a>
   <div class="info">
     <p class="tt">{title or '(제목 없음)'}</p>
-    <div class="meta"><span>👁 {views}</span><span>📅 {date}</span></div>
-    <p class="why">💡 {why}</p>
+    <div class="stats">{stats}</div>
+    <div class="why"><div class="wh">💡 인기 이유 분석</div>{why}</div>
   </div>
 </div>"""
 
@@ -442,7 +470,7 @@ def _api_card(v: dict, idx: int) -> str:
                  if ch_thumb else '<span class="ch-ph">▶</span>')
     tag_html  = "".join(f'<span class="tag">#{_esc(t)}</span>' for t in tags[:2])
     rank_cls  = "rank top" if idx < 3 else "rank"
-    why       = analyze_video(v, rich=True)
+    why       = analyze_video(v)
     added     = v.get("added_date", "")
     new_badge = '<span class="new">NEW</span>' if added == now_kst() else ""
     return f"""<div class="card api-card" data-views="{v.get('view_count',0)}" data-likes="{v.get('like_count',0)}" data-date="{pub}" data-title="{title.lower()}">
@@ -457,7 +485,7 @@ def _api_card(v: dict, idx: int) -> str:
     <p class="tt">{title or '(제목 없음)'}</p>
     <div class="ch">{ch_av}<span class="ch-nm">{ch_title}</span></div>
     <div class="stats"><span>👁 {views}</span><span>❤️ {likes}</span><span>💬 {comments}</span></div>
-    <p class="why">💡 {why}</p>
+    <div class="why"><div class="wh">💡 인기 이유 분석</div>{why}</div>
     {f'<div class="tags">{tag_html}</div>' if tag_html else ''}
     <p class="pub">📅 {pub}</p>
   </div>
@@ -898,10 +926,24 @@ def regenerate_html(api_data: list[dict], all_data: list[tuple]) -> None:
     .pub{{font-size:.62rem;color:var(--tx3);margin-top:.32rem;font-weight:500}}
 
     /* ── 인기 이유 (each card) ── */
-    .why{{font-size:.65rem;color:#ffb380;background:rgba(255,140,0,.08);
-      padding:.38rem .55rem;border-radius:8px;margin-top:.42rem;
-      line-height:1.42;font-weight:500;border-left:2px solid #ff8c00}}
-    :root[data-theme="light"] .why{{color:#cc5500;background:rgba(255,140,0,.1)}}
+    .why{{margin-top:.5rem;padding:.55rem .6rem;border-radius:8px;
+      background:linear-gradient(135deg,rgba(255,140,0,.07),rgba(255,0,80,.04));
+      border-left:3px solid #ff8c00;font-size:.64rem;line-height:1.6;color:var(--tx2)}}
+    .why .wh{{font-size:.6rem;font-weight:800;color:#ff7e3a;
+      margin-bottom:.32rem;letter-spacing:.04em;text-transform:uppercase}}
+    .why .wl{{margin-top:.18rem;display:block}}
+    .why b{{color:#ff7e3a;font-weight:700}}
+    .why b.k{{color:#ff0050;font-weight:800;
+      background:linear-gradient(135deg,rgba(255,0,80,.14),rgba(255,140,0,.06));
+      padding:0 .25rem;border-radius:3px}}
+    .why b.num{{color:#00d970;font-weight:800;font-variant-numeric:tabular-nums}}
+    :root[data-theme="light"] .why{{color:var(--tx2);
+      background:linear-gradient(135deg,rgba(255,140,0,.08),rgba(255,0,80,.04))}}
+    :root[data-theme="light"] .why .wh{{color:#cc4400}}
+    :root[data-theme="light"] .why b{{color:#cc4400}}
+    :root[data-theme="light"] .why b.k{{color:#aa0030;
+      background:linear-gradient(135deg,rgba(255,0,80,.1),rgba(255,140,0,.05))}}
+    :root[data-theme="light"] .why b.num{{color:#00874a}}
 
     /* ── 분석 탭 ── */
     .ana{{width:100%;margin:0 auto;padding:.5rem .7rem 2rem}}
@@ -1125,23 +1167,16 @@ def main() -> int:
     print("=== YouTube Shorts 수집 시작 ===", flush=True)
     print(f"API_KEY 설정: {'YES' if API_KEY else 'NO'}", flush=True)
 
-    # API 탭은 자체 dedup (이전 API 탭 영상과만 중복 검사)
+    # 글로벌 API 탭 — 매번 통째로 교체 (조회수 순 글로벌 순위)
+    print("\n[🔑 YouTube API 탭 — 글로벌 14개 시장 통합]", flush=True)
+    api_stored = load_json(VIDEOS_API)
     try:
-        api_stored = load_json(VIDEOS_API)
-        api_seen = {v["id"] for v in api_stored["videos"]}
-        print(f"API 탭 기존: {len(api_seen)}개", flush=True)
-    except Exception as e:
-        print(f"[ERROR] API 로드: {e}", flush=True); traceback.print_exc()
-        api_stored = {"last_updated": "", "videos": []}; api_seen = set()
-
-    # YouTube API 탭 수집
-    print("\n[🔑 YouTube API 탭]", flush=True)
-    try:
-        new_api = fetch_api_tab(api_seen)
+        new_api = fetch_api_tab(existing_ids=set())  # dedup 없이 매번 fresh
         if new_api:
-            api_stored["videos"] = new_api + api_stored["videos"]
-            api_stored["videos"] = api_stored["videos"][:MAX_API * 3]
-        save_json(VIDEOS_API, api_stored)
+            api_stored = {"last_updated": "", "videos": new_api}
+            save_json(VIDEOS_API, api_stored)
+        else:
+            print("[API 탭] 빈 결과 — 기존 데이터 유지", flush=True)
     except Exception as e:
         print(f"[ERROR] API 탭: {e}", flush=True); traceback.print_exc()
     api_data = api_stored["videos"][:MAX_API]
