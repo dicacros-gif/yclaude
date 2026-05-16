@@ -165,76 +165,52 @@ def analyze_video(v: dict, rich: bool = False) -> str:
     return " · ".join(reasons[:3])
 
 
-# ── YouTube Data API 탭 ──────────────────────────────────
-def fetch_api_tab(existing_ids: set) -> list[dict]:
-    if not API_KEY:
-        print("[API 탭] YOUTUBE_API_KEY 없음 — 스킵")
-        return []
+# ── YouTube Data API ─────────────────────────────────────
+def _api_build():
+    if not API_KEY: return None
     try:
         from googleapiclient.discovery import build
+        return build("youtube", "v3", developerKey=API_KEY)
     except ImportError:
-        print("[API 탭] google-api-python-client 미설치")
-        return []
+        return None
 
-    youtube = build("youtube", "v3", developerKey=API_KEY)
-    since   = (datetime.now(timezone.utc) - timedelta(days=14)).strftime("%Y-%m-%dT%H:%M:%SZ")
-    seen    = set(existing_ids)
-    cands: list[str] = []
+def _enrich_videos(youtube, vid_ids: list[str], existing_ids: set,
+                   max_dur: int = 90) -> list[dict]:
+    """비디오 ID → 상세 정보 + 채널 썸네일 (Shorts 필터링 포함)"""
+    if not vid_ids: return []
+    out: list[dict] = []
+    ch_ids_set: set[str] = set()
 
-    for query, region in API_QUERIES:
-        print(f"  [API] {query!r} ({region})")
-        try:
-            resp = youtube.search().list(
-                q=query, part="id", type="video",
-                videoDuration="short", order="viewCount",
-                publishedAfter=since, regionCode=region,
-                maxResults=20,
-            ).execute()
-            for it in resp.get("items", []):
-                vid = it["id"]["videoId"]
-                if vid not in seen and vid not in cands:
-                    cands.append(vid)
-        except Exception as e:
-            print(f"    검색 오류: {e}")
-        time.sleep(0.3)
-
-    if not cands:
-        return []
-
-    new: list[dict] = []
-    for i in range(0, len(cands), 50):
-        batch = cands[i:i+50]
+    for i in range(0, len(vid_ids), 50):
+        batch = vid_ids[i:i+50]
         try:
             det = youtube.videos().list(
                 part="snippet,contentDetails,statistics",
                 id=",".join(batch),
             ).execute()
         except Exception as e:
-            print(f"  [API] 상세 조회 오류: {e}")
+            print(f"    [details] {e}")
             continue
-
-        ch_ids = []
-        raw: list[dict] = []
         for item in det.get("items", []):
+            vid_id = item["id"]
+            if vid_id in existing_ids: continue
             secs = iso_to_sec(item["contentDetails"]["duration"])
-            if secs > 90: continue
+            if secs == 0 or secs > max_dur: continue
             snip  = item["snippet"]
             stats = item.get("statistics", {})
             title = snip.get("title", "")
             if is_excluded(title): continue
-            vid_id = item["id"]
-            seen.add(vid_id)
-            pub = snip.get("publishedAt", "")[:10]
+            existing_ids.add(vid_id)
             ch_id = snip.get("channelId", "")
-            if ch_id: ch_ids.append(ch_id)
-            raw.append({
+            if ch_id: ch_ids_set.add(ch_id)
+            out.append({
                 "id":            vid_id,
                 "title":         title,
                 "thumbnail":     f"https://img.youtube.com/vi/{vid_id}/maxresdefault.jpg",
                 "thumbnail_hq":  f"https://img.youtube.com/vi/{vid_id}/hqdefault.jpg",
                 "url":           f"https://www.youtube.com/shorts/{vid_id}",
                 "added_date":    now_kst(),
-                "published_at":  pub,
+                "published_at":  snip.get("publishedAt", "")[:10],
                 "view_count":    int(stats.get("viewCount", 0)),
                 "like_count":    int(stats.get("likeCount", 0)),
                 "comment_count": int(stats.get("commentCount", 0)),
@@ -248,26 +224,108 @@ def fetch_api_tab(existing_ids: set) -> list[dict]:
                 "description":   snip.get("description", "")[:120],
             })
 
-        if ch_ids:
-            try:
-                ch_resp = youtube.channels().list(
-                    part="snippet", id=",".join(set(ch_ids))
-                ).execute()
-                ch_map = {
-                    c["id"]: c["snippet"]["thumbnails"].get("default", {}).get("url", "")
-                    for c in ch_resp.get("items", [])
-                }
-                for v in raw:
-                    v["channel_thumb"] = ch_map.get(v["channel_id"], "")
-            except Exception:
-                pass
+    if ch_ids_set:
+        try:
+            ch_resp = youtube.channels().list(
+                part="snippet", id=",".join(ch_ids_set)
+            ).execute()
+            ch_map = {
+                c["id"]: c["snippet"]["thumbnails"].get("default", {}).get("url", "")
+                for c in ch_resp.get("items", [])
+            }
+            for v in out:
+                v["channel_thumb"] = ch_map.get(v["channel_id"], "")
+        except Exception as e:
+            print(f"    [channels] {e}")
 
-        new.extend(raw)
+    return out
 
+
+def fetch_api_tab(existing_ids: set) -> list[dict]:
+    """API 탭 — 8개 글로벌 검색어로 수집"""
+    youtube = _api_build()
+    if not youtube:
+        print("[API 탭] YOUTUBE_API_KEY 없음 또는 라이브러리 미설치 — 스킵")
+        return []
+
+    since = (datetime.now(timezone.utc) - timedelta(days=14)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    cands: list[str] = []
+
+    for query, region in API_QUERIES:
+        print(f"  [API] {query!r} ({region})")
+        try:
+            resp = youtube.search().list(
+                q=query, part="id", type="video",
+                videoDuration="short", order="viewCount",
+                publishedAfter=since, regionCode=region,
+                maxResults=20,
+            ).execute()
+            for it in resp.get("items", []):
+                vid = it["id"]["videoId"]
+                if vid not in cands:
+                    cands.append(vid)
+        except Exception as e:
+            print(f"    검색 오류: {e}")
+        time.sleep(0.3)
+
+    new = _enrich_videos(youtube, cands, existing_ids)
     new.sort(key=lambda v: v["view_count"], reverse=True)
     result = new[:MAX_API]
     print(f"[API 탭] 신규 {len(result)}개")
     return result
+
+
+def fetch_country_api(name: str, region_code: str | None, query: str,
+                       existing_ids: set, max_new: int = 12) -> list[dict]:
+    """국가별 — chart=mostPopular + search.list (YouTube 공식 순위)"""
+    youtube = _api_build()
+    if not youtube:
+        return []
+
+    cands: list[str] = []
+    regions = [region_code] if region_code else ["US", "JP", "KR", "BR", "IN"]
+
+    # ① 국가별 트렌딩 차트 (mostPopular)
+    for rc in regions:
+        try:
+            resp = youtube.videos().list(
+                part="id", chart="mostPopular",
+                regionCode=rc, maxResults=50,
+            ).execute()
+            added = 0
+            for it in resp.get("items", []):
+                vid = it["id"]
+                if vid not in cands:
+                    cands.append(vid); added += 1
+            print(f"    [trending {rc}] +{added}")
+        except Exception as e:
+            print(f"    [trending {rc}] {e}")
+
+    # ② 검색 보조 (Shorts 키워드 + 지역)
+    since = (datetime.now(timezone.utc) - timedelta(days=14)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    primary_rc = region_code or "US"
+    try:
+        resp = youtube.search().list(
+            q=query, part="id", type="video",
+            videoDuration="short", order="viewCount",
+            publishedAfter=since, regionCode=primary_rc,
+            maxResults=15,
+        ).execute()
+        added = 0
+        for it in resp.get("items", []):
+            vid = it["id"]["videoId"]
+            if vid not in cands:
+                cands.append(vid); added += 1
+        print(f"    [search {primary_rc}] +{added}")
+    except Exception as e:
+        print(f"    [search] {e}")
+
+    if not cands:
+        return []
+
+    new = _enrich_videos(youtube, cands, existing_ids)
+    new.sort(key=lambda v: v["view_count"], reverse=True)
+    return new[:max_new]
 
 
 # ── yt-dlp 수집 ──────────────────────────────────────────
@@ -344,8 +402,10 @@ def _card(v: dict, idx: int) -> str:
     title = _esc(v.get("title", "") or v["id"])
     why   = analyze_video(v, rich=False)
     rank_cls = "rank top" if idx < 3 else "rank"
+    new_badge = '<span class="new">NEW</span>' if date == now_kst() else ""
     return f"""<div class="card" data-views="{v.get('view_count',0)}" data-date="{date}" data-title="{title.lower()}">
   <span class="{rank_cls}">{idx+1}</span>
+  {new_badge}
   <a class="tw" href="{v['url']}" target="_blank" rel="noopener" aria-label="{title}">
     <img loading="lazy" src="{v['thumbnail']}" alt="">
     <span class="pi">▶</span>
@@ -374,8 +434,11 @@ def _api_card(v: dict, idx: int) -> str:
     tag_html  = "".join(f'<span class="tag">#{_esc(t)}</span>' for t in tags[:2])
     rank_cls  = "rank top" if idx < 3 else "rank"
     why       = analyze_video(v, rich=True)
+    added     = v.get("added_date", "")
+    new_badge = '<span class="new">NEW</span>' if added == now_kst() else ""
     return f"""<div class="card api-card" data-views="{v.get('view_count',0)}" data-likes="{v.get('like_count',0)}" data-date="{pub}" data-title="{title.lower()}">
   <span class="{rank_cls}">{idx+1}</span>
+  {new_badge}
   <a class="tw" href="{v['url']}" target="_blank" rel="noopener" aria-label="{title}">
     <img loading="lazy" src="{thumb}" alt="">
     {dur_html}
@@ -778,6 +841,11 @@ def regenerate_html(api_data: list[dict], all_data: list[tuple]) -> None:
       font-size:.72rem;font-weight:800;letter-spacing:.02em}}
     .rank.top{{background:linear-gradient(135deg,#ff0050,#ff7e3a);
       box-shadow:0 5px 14px rgba(255,0,80,.5)}}
+    .new{{position:absolute;top:.5rem;right:.5rem;z-index:5;
+      padding:.18rem .42rem;background:linear-gradient(135deg,#00d970,#00b4d8);
+      color:#fff;border-radius:6px;font-size:.6rem;font-weight:800;letter-spacing:.05em;
+      box-shadow:0 3px 10px rgba(0,217,112,.45);animation:newPop .35s cubic-bezier(.4,0,.2,1)}}
+    @keyframes newPop{{0%{{transform:scale(.6);opacity:0}}100%{{transform:scale(1);opacity:1}}}}
 
     .tw{{position:relative;display:block;aspect-ratio:9/16;
       overflow:hidden;background:#000;text-decoration:none}}
@@ -1051,18 +1119,26 @@ def main() -> int:
         traceback.print_exc()
     api_data = api_stored["videos"][:MAX_API]
 
-    # 국가별 yt-dlp (개별 실패가 전체를 죽이지 않게)
+    # 국가별 — YouTube Data API 우선 (공식 트렌딩 차트), 실패 시 yt-dlp 폴백
+    MAX_KEEP_PER_COUNTRY = 100
     all_data = []
     for name, code, geo, query, flag in COUNTRIES:
         print(f"\n[{flag} {name} / {code}]", flush=True)
         p    = json_path(code)
         data = load_json(p)
         try:
-            new = fetch_country(name, code, geo, query, global_seen)
+            new = fetch_country_api(name, geo, query, global_seen)
+            if not new:
+                print("  ↳ API 결과 없음 — yt-dlp 폴백 시도", flush=True)
+                new = fetch_country(name, code, geo, query, global_seen)
             global_seen.update(v["id"] for v in new)
             if new:
+                # 신규 위, 기존 아래 (prepend) — 매일 새 영상이 최상단
                 data["videos"] = new + data["videos"]
+                # 누적 한도 — 오래된 영상 자동 삭제
+                data["videos"] = data["videos"][:MAX_KEEP_PER_COUNTRY]
             save_json(p, data)
+            print(f"  → 신규 {len(new)}개 / 누적 {len(data['videos'])}개", flush=True)
         except Exception as e:
             print(f"  [ERROR] {name} 수집 실패: {e}", flush=True)
             traceback.print_exc()
