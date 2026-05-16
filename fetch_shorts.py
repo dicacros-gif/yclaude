@@ -284,16 +284,16 @@ def _card(v: dict) -> str:
     views = fmt_views(v.get("view_count", 0))
     date  = v.get("added_date", "")
     title = _esc(v.get("title", "") or v["id"])
-    return f"""<a class="card" href="{v['url']}" target="_blank" rel="noopener">
-  <div class="tw">
+    return f"""<div class="card">
+  <a class="tw" href="{v['url']}" target="_blank" rel="noopener">
     <img loading="lazy" src="{v['thumbnail']}" alt="{title}">
     <span class="pi">&#9654;</span>
-  </div>
+  </a>
   <div class="info">
     <p class="tt">{title or '(제목 없음)'}</p>
     <p class="meta"><span>👁 {views}</span><span>📅 {date}</span></p>
   </div>
-</a>"""
+</div>"""
 
 def _api_card(v: dict) -> str:
     title     = _esc(v.get("title","") or v["id"])
@@ -311,12 +311,12 @@ def _api_card(v: dict) -> str:
     ch_av     = (f'<img class="ch-img" src="{ch_thumb}" alt="">'
                  if ch_thumb else '<span class="ch-ph">▶</span>')
     tag_html  = "".join(f'<span class="tag">#{_esc(t)}</span>' for t in tags[:3])
-    return f"""<a class="card api-card" href="{v['url']}" target="_blank" rel="noopener">
-  <div class="tw">
+    return f"""<div class="card api-card">
+  <a class="tw" href="{v['url']}" target="_blank" rel="noopener">
     <img loading="lazy" src="{thumb}" alt="{title}">
     {dur_html}
     <span class="pi">&#9654;</span>
-  </div>
+  </a>
   <div class="info">
     <p class="tt">{title or '(제목 없음)'}</p>
     <div class="ch"><span class="ch-av">{ch_av}</span><span class="ch-nm">{ch_title}</span></div>
@@ -325,7 +325,7 @@ def _api_card(v: dict) -> str:
     {f'<div class="tags">{tag_html}</div>' if tag_html else ''}
     <p class="pub">📅 {pub}</p>
   </div>
-</a>"""
+</div>"""
 
 def _grid(videos: list[dict]) -> str:
     if not videos:
@@ -440,27 +440,32 @@ def regenerate_html(api_data: list[dict], all_data: list[tuple]) -> None:
       max-width:1400px;margin:0 auto}}
     .tc{{display:none}}.tc.active{{display:block}}
 
-    /* grid */
+    /* grid — 가로형 카드 목록 */
     .grid{{display:grid;
-      grid-template-columns:repeat(auto-fill,minmax(165px,1fr));
-      gap:.85rem;padding:.85rem 1rem;max-width:1400px;margin:0 auto}}
-    .api-grid{{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}}
+      grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+      gap:.55rem;padding:.85rem 1rem;max-width:1400px;margin:0 auto}}
+    .api-grid{{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}}
 
-    /* card */
-    .card{{display:block;text-decoration:none;background:var(--bg2);
-      border-radius:12px;overflow:hidden;border:1px solid var(--bd);
-      transition:transform .2s,border-color .2s,box-shadow .2s}}
-    .card:hover{{transform:translateY(-4px);border-color:#e63946;
-      box-shadow:0 8px 24px var(--sh)}}
-    .tw{{position:relative;aspect-ratio:9/16;overflow:hidden;background:#111}}
+    /* card — 썸네일 왼쪽, 정보 오른쪽 */
+    .card{{display:flex;flex-direction:row;align-items:flex-start;
+      background:var(--bg2);border-radius:10px;overflow:hidden;
+      border:1px solid var(--bd);
+      transition:border-color .2s,box-shadow .2s}}
+    .card:hover{{border-color:#e63946;box-shadow:0 4px 18px var(--sh)}}
+
+    /* 썸네일 — 작은 세로형 고정 크기 */
+    .tw{{position:relative;flex-shrink:0;
+      width:72px;height:128px;overflow:hidden;background:#111;display:block}}
     .tw img{{width:100%;height:100%;object-fit:cover;display:block}}
     .pi{{position:absolute;inset:0;display:flex;align-items:center;
-      justify-content:center;font-size:2rem;color:rgba(255,255,255,.9);
-      opacity:0;background:rgba(0,0,0,.28);transition:opacity .2s}}
-    .card:hover .pi{{opacity:1}}
-    .info{{padding:.5rem .6rem .65rem}}
-    .tt{{font-size:.79rem;font-weight:600;line-height:1.35;
-      display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+      justify-content:center;font-size:1.4rem;color:rgba(255,255,255,.95);
+      opacity:0;background:rgba(0,0,0,.32);transition:opacity .2s;
+      text-decoration:none}}
+    .tw:hover .pi{{opacity:1}}
+
+    .info{{flex:1;min-width:0;padding:.45rem .6rem .5rem}}
+    .tt{{font-size:.8rem;font-weight:600;line-height:1.38;
+      display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;
       overflow:hidden;color:var(--tx)}}
     .meta{{display:flex;justify-content:space-between;
       margin-top:.38rem;font-size:.67rem;color:var(--tx3)}}
@@ -492,8 +497,8 @@ def regenerate_html(api_data: list[dict], all_data: list[tuple]) -> None:
       color:var(--tx3);border-top:1px solid var(--fbd);margin-top:1rem}}
 
     @media(max-width:480px){{
-      .grid{{grid-template-columns:repeat(2,1fr);gap:.5rem;padding:.55rem}}
-      .api-grid{{grid-template-columns:repeat(2,1fr)}}
+      .grid{{grid-template-columns:1fr;gap:.4rem;padding:.5rem}}
+      .tw{{width:64px;height:114px}}
       .tb{{padding:.35rem .65rem;font-size:.74rem}}
     }}
   </style>
