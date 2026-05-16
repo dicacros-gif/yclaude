@@ -21,9 +21,9 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install google-api-python-client
+        run: pip install google-api-python-client yt-dlp
 
-      - name: Fetch trending Shorts
+      - name: Fetch trending Shorts (API + crawl)
         run: python fetch_shorts.py
         env:
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
@@ -32,6 +32,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add videos.json index.html
+          git add videos_api.json videos_crawl.json index.html
           git diff --staged --quiet || git commit -m "chore: daily shorts update $(date +'%Y-%m-%d %H:%M KST')"
           git push

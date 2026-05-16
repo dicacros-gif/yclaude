@@ -6,36 +6,21 @@
   <title>인기 YouTube Shorts</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
       background: #0f0f0f;
       color: #e8e8e8;
       font-family: 'Segoe UI', 'Apple SD Gothic Neo', sans-serif;
       min-height: 100vh;
     }
-
     header {
       background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
       padding: 2rem 1rem 1.5rem;
       text-align: center;
       border-bottom: 2px solid #e63946;
     }
-
-    header h1 {
-      font-size: clamp(1.4rem, 4vw, 2.2rem);
-      font-weight: 800;
-      letter-spacing: -0.5px;
-      color: #fff;
-    }
-
+    header h1 { font-size: clamp(1.4rem, 4vw, 2.2rem); font-weight: 800; color: #fff; }
     header h1 span { color: #e63946; }
-
-    .subtitle {
-      margin-top: 0.5rem;
-      font-size: 0.82rem;
-      color: #aaa;
-    }
-
+    .subtitle { margin-top: 0.5rem; font-size: 0.82rem; color: #aaa; }
     .update-badge {
       display: inline-block;
       margin-top: 0.8rem;
@@ -46,26 +31,49 @@
       color: #fff;
       font-weight: 600;
     }
-
     .conditions {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
       gap: 0.4rem;
-      padding: 1rem;
+      padding: 0.8rem 1rem;
       max-width: 900px;
       margin: 0 auto;
     }
-
     .conditions span {
       background: #1e1e2e;
       border: 1px solid #333;
       border-radius: 20px;
-      padding: 0.3rem 0.75rem;
-      font-size: 0.75rem;
+      padding: 0.28rem 0.7rem;
+      font-size: 0.73rem;
       color: #ccc;
     }
-
+    .tab-bar {
+      display: flex;
+      gap: 0.5rem;
+      padding: 1rem 1rem 0;
+      max-width: 1200px;
+      margin: 0 auto;
+      border-bottom: 2px solid #222;
+    }
+    .tab-btn {
+      padding: 0.55rem 1.4rem;
+      border: none;
+      border-radius: 8px 8px 0 0;
+      cursor: pointer;
+      font-size: 0.88rem;
+      font-weight: 600;
+      background: #1e1e2e;
+      color: #999;
+      transition: all 0.2s;
+      position: relative;
+      bottom: -2px;
+    }
+    .tab-btn:hover { color: #fff; background: #2a2a3e; }
+    .tab-btn.active { background: #e63946; color: #fff; border-bottom: 2px solid #e63946; }
+    .tab-meta { font-size: 0.7rem; color: #888; padding: 0.4rem 1rem; max-width: 1200px; margin: 0 auto; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -74,7 +82,6 @@
       max-width: 1200px;
       margin: 0 auto;
     }
-
     .card {
       display: block;
       text-decoration: none;
@@ -84,27 +91,13 @@
       border: 1px solid #2a2a2a;
       transition: transform .2s, border-color .2s, box-shadow .2s;
     }
-
     .card:hover {
       transform: translateY(-4px);
       border-color: #e63946;
       box-shadow: 0 8px 24px rgba(230,57,70,.25);
     }
-
-    .thumb-wrap {
-      position: relative;
-      aspect-ratio: 9/16;
-      overflow: hidden;
-      background: #111;
-    }
-
-    .thumb-wrap img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
+    .thumb-wrap { position: relative; aspect-ratio: 9/16; overflow: hidden; background: #111; }
+    .thumb-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .play-icon {
       position: absolute;
       inset: 0;
@@ -117,13 +110,8 @@
       background: rgba(0,0,0,.35);
       transition: opacity .2s;
     }
-
     .card:hover .play-icon { opacity: 1; }
-
-    .info {
-      padding: 0.6rem 0.7rem 0.75rem;
-    }
-
+    .info { padding: 0.6rem 0.7rem 0.75rem; }
     .title {
       font-size: 0.82rem;
       font-weight: 600;
@@ -134,33 +122,20 @@
       overflow: hidden;
       color: #eee;
     }
-
-    .meta {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 0.45rem;
-      font-size: 0.7rem;
-      color: #888;
-    }
-
-    .empty {
-      text-align: center;
-      padding: 4rem 1rem;
-      color: #555;
-    }
-
+    .meta { display: flex; justify-content: space-between; margin-top: 0.45rem; font-size: 0.7rem; color: #888; }
+    .empty { text-align: center; padding: 4rem 1rem; color: #555; }
     .empty p { margin-top: 0.5rem; font-size: 0.9rem; }
-
     footer {
       text-align: center;
       padding: 2rem 1rem;
       font-size: 0.75rem;
       color: #444;
       border-top: 1px solid #1e1e1e;
+      margin-top: 1rem;
     }
-
     @media (max-width: 480px) {
       .grid { grid-template-columns: repeat(2, 1fr); gap: 0.6rem; padding: 0.6rem; }
+      .tab-btn { padding: 0.45rem 0.9rem; font-size: 0.8rem; }
     }
   </style>
 </head>
@@ -177,21 +152,49 @@
   <span>&#128683; 자막 없음</span>
   <span>&#128100; 인물 1~2명</span>
   <span>&#128131; 댄스 / 상황</span>
-  <span>&#128200; 매일 17:00 KST 업데이트</span>
+  <span>&#128200; 매일 17:00 KST 자동 업데이트</span>
 </div>
 
-<main>
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="showTab('tab-api', this)">
+    &#128273; YouTube API
+  </button>
+  <button class="tab-btn" onclick="showTab('tab-crawl', this)">
+    &#127760; 트렌드 크롤링
+  </button>
+</div>
+
+<div id="tab-api" class="tab-content active">
+  <p class="tab-meta">YouTube Data API v3 · 업데이트: —</p>
   <div class="empty">
     <div style="font-size:3rem">&#127916;</div>
     <p>첫 업데이트를 기다리는 중입니다.</p>
     <p>GitHub Actions가 오후 5시에 자동으로 채웁니다.</p>
   </div>
-</main>
+</div>
+
+<div id="tab-crawl" class="tab-content">
+  <p class="tab-meta">YouTube 트렌딩 크롤링 · 업데이트: —</p>
+  <div class="empty">
+    <div style="font-size:3rem">&#127760;</div>
+    <p>첫 업데이트를 기다리는 중입니다.</p>
+    <p>GitHub Actions가 오후 5시에 자동으로 채웁니다.</p>
+  </div>
+</div>
 
 <footer>
   자동 수집 · 매일 17:00 KST · YouTube Shorts 트렌드 기반<br>
   &copy; 2026 yclaude
 </footer>
+
+<script>
+  function showTab(id, btn) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    btn.classList.add('active');
+  }
+</script>
 
 </body>
 </html>
