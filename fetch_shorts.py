@@ -270,12 +270,16 @@ def fetch_api_tab(existing_ids: set) -> list[dict]:
     """글로벌 API 탭 — 14개 주요 시장 mostPopular 차트 통합 · 조회수 순"""
     youtube = _api_build()
     if not youtube:
-        print("[API 탭] YOUTUBE_API_KEY 없음 또는 라이브러리 미설치 — 스킵")
+        print("[API 탭] YOUTUBE_API_KEY 없음 — 스킵", flush=True)
+        _write_debug({"error": "no API key", "candidates": 0, "passed": 0})
         return []
 
     cands: list[str] = []
+    errors: list[str] = []
+    region_stats: dict = {}
     for rc in GLOBAL_REGIONS:
-        for cat in (None, "10"):  # 전체 트렌딩 + Music 카테고리
+        rs = {}
+        for cat in (None, "10"):
             try:
                 params = dict(part="id", chart="mostPopular",
                               regionCode=rc, maxResults=50)
@@ -286,18 +290,39 @@ def fetch_api_tab(existing_ids: set) -> list[dict]:
                     vid = it["id"]
                     if vid not in cands:
                         cands.append(vid); added += 1
-                print(f"  [global {rc}/{cat or 'all'}] +{added}")
+                rs[cat or "all"] = added
+                print(f"  [global {rc}/{cat or 'all'}] +{added}", flush=True)
             except Exception as e:
-                print(f"  [global {rc}/{cat}] {e}")
+                em = f"{rc}/{cat}: {e}"
+                errors.append(em)
+                print(f"  [global ERR] {em}", flush=True)
             time.sleep(0.1)
+        region_stats[rc] = rs
+
+    print(f"[API 탭] 후보 ID 합계: {len(cands)}개 / 에러 {len(errors)}개", flush=True)
 
     if not cands:
+        _write_debug({"candidates": 0, "passed": 0, "regions": region_stats, "errors": errors})
         return []
     new = _enrich_videos(youtube, cands, existing_ids)
     new.sort(key=lambda v: v["view_count"], reverse=True)
     result = new[:MAX_API]
-    print(f"[API 탭] {len(result)}개 (글로벌 {len(GLOBAL_REGIONS)}개 시장 통합)")
+    print(f"[API 탭] enrich 후 {len(new)}개 → 상위 {len(result)}개 반환", flush=True)
+    _write_debug({
+        "candidates": len(cands), "passed": len(new), "returned": len(result),
+        "regions": region_stats, "errors": errors,
+        "top_durations": sorted([v["duration_sec"] for v in new])[:10] if new else [],
+    })
     return result
+
+
+def _write_debug(info: dict) -> None:
+    try:
+        info["timestamp"] = datetime.now(KST).strftime("%Y-%m-%d %H:%M KST")
+        with open(BASE / "_debug_api.json", "w", encoding="utf-8") as f:
+            json.dump(info, f, ensure_ascii=False, indent=2)
+    except Exception:
+        pass
 
 
 def fetch_country_api(name: str, region_code: str | None, query: str,
