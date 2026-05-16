@@ -328,28 +328,25 @@ def fetch_country_api(name: str, region_code: str | None, query: str,
             except Exception as e:
                 print(f"    [trending {rc}/{cat}] {e}")
 
-    # ② 다중 검색 — 로컬 언어 가중치 + 일반 fallback
+    # ② 단일 검색 — 로컬 언어 가중치 (quota 절감: 100 units per call)
     since = (datetime.now(timezone.utc) - timedelta(days=14)).strftime("%Y-%m-%dT%H:%M:%SZ")
     primary_rc = region_code or "US"
-    queries = [(query, lang), ("shorts viral", lang), ("trending shorts dance", "en")]
-    for q, rl in queries:
-        try:
-            resp = youtube.search().list(
-                q=q, part="id", type="video",
-                videoDuration="short", order="viewCount",
-                publishedAfter=since, regionCode=primary_rc,
-                relevanceLanguage=rl,
-                maxResults=15,
-            ).execute()
-            added = 0
-            for it in resp.get("items", []):
-                vid = it["id"]["videoId"]
-                if vid not in cands:
-                    cands.append(vid); added += 1
-            print(f"    [search {primary_rc}/{rl} {q!r}] +{added}")
-        except Exception as e:
-            print(f"    [search {q!r}] {e}")
-            break
+    try:
+        resp = youtube.search().list(
+            q=query, part="id", type="video",
+            videoDuration="short", order="viewCount",
+            publishedAfter=since, regionCode=primary_rc,
+            relevanceLanguage=lang,
+            maxResults=20,
+        ).execute()
+        added = 0
+        for it in resp.get("items", []):
+            vid = it["id"]["videoId"]
+            if vid not in cands:
+                cands.append(vid); added += 1
+        print(f"    [search {primary_rc}/{lang}] +{added}")
+    except Exception as e:
+        print(f"    [search] {e}")
 
     if not cands:
         return []
