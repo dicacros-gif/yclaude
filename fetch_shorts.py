@@ -225,32 +225,23 @@ def regenerate_html(all_data: list[tuple]) -> None:
       font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;
       min-height:100vh;transition:background .25s,color .25s}}
 
-    /* header */
-    header{{background:var(--hbg);padding:.5rem 1rem .45rem;
-      text-align:center;border-bottom:2px solid #e63946;position:relative}}
-    header h1{{font-size:clamp(.95rem,2.5vw,1.25rem);font-weight:800;color:#fff}}
-    header h1 span{{color:#f4a261}}
-    .sub{{margin-top:.15rem;font-size:.65rem;color:rgba(255,255,255,.6)}}
-    .badge{{display:inline-block;margin-top:.22rem;padding:.1rem .55rem;
-      background:#e63946;border-radius:20px;font-size:.63rem;color:#fff;font-weight:600}}
+    /* 최소 상단바 */
+    .topbar{{display:flex;align-items:center;justify-content:space-between;
+      padding:.28rem .7rem;background:var(--hbg);border-bottom:2px solid #e63946}}
+    .topbar .upd{{font-size:.62rem;color:rgba(255,255,255,.6)}}
+    .topbar .upd b{{color:#f4a261;font-weight:700}}
 
     /* theme toggle */
-    .tog{{position:absolute;top:.4rem;right:.7rem;background:var(--tog);
-      border:none;border-radius:20px;padding:.2rem .55rem;font-size:.72rem;
-      cursor:pointer;color:#fff;display:flex;align-items:center;gap:.25rem;
-      font-weight:600;box-shadow:0 2px 6px rgba(0,0,0,.3);transition:opacity .2s}}
+    .tog{{background:var(--tog);border:none;border-radius:16px;
+      padding:.18rem .5rem;font-size:.68rem;cursor:pointer;color:#fff;
+      display:flex;align-items:center;gap:.22rem;font-weight:600;
+      box-shadow:0 1px 4px rgba(0,0,0,.3);transition:opacity .2s;flex-shrink:0}}
     .tog:hover{{opacity:.8}}
 
-    /* conditions */
-    .conds{{display:flex;flex-wrap:wrap;justify-content:center;
-      gap:.3rem;padding:.65rem 1rem;max-width:960px;margin:0 auto}}
-    .conds span{{background:var(--bg3);border:1px solid var(--bd);
-      border-radius:20px;padding:.22rem .65rem;font-size:.7rem;color:var(--tx2)}}
-
-    /* tab bar */
+    /* tab bar — 맨 위 고정 */
     .tabbar{{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;
-      scrollbar-width:none;padding:.8rem 1rem 0;
-      border-bottom:2px solid var(--bd);gap:.3rem;
+      scrollbar-width:none;padding:.5rem .7rem 0;
+      border-bottom:2px solid var(--bd);gap:.25rem;
       position:sticky;top:0;z-index:10;
       background:var(--bg);backdrop-filter:blur(8px)}}
     .tabbar::-webkit-scrollbar{{display:none}}
@@ -300,29 +291,17 @@ def regenerate_html(all_data: list[tuple]) -> None:
 
     @media(max-width:480px){{
       .grid{{grid-template-columns:repeat(2,1fr);gap:.5rem;padding:.55rem}}
-      .tb{{padding:.38rem .75rem;font-size:.76rem}}
-      .tog{{top:.55rem;right:.55rem;padding:.25rem .6rem;font-size:.76rem}}
+      .tb{{padding:.35rem .65rem;font-size:.74rem}}
     }}
   </style>
 </head>
 <body>
 
-<header>
+<div class="topbar">
+  <span class="upd">🕔 <b>{last}</b></span>
   <button class="tog" onclick="toggleTheme()">
     <span id="ti">☀️</span><span id="tl">라이트</span>
   </button>
-  <h1>🎬 국가별 인기 <span>YouTube Shorts</span></h1>
-  <div class="sub">배경음악 · 자막없음 · 1~2명 · 댄스/상황</div>
-  <div class="badge">마지막 업데이트: {last}</div>
-</header>
-
-<div class="conds">
-  <span>🎵 배경음악만</span>
-  <span>🚫 자막 없음</span>
-  <span>👤 인물 1~2명</span>
-  <span>💃 댄스 / 상황</span>
-  <span>📈 매일 17:00 KST 자동 업데이트</span>
-  <span>🌍 17개국 트렌딩</span>
 </div>
 
 <div class="tabbar">
