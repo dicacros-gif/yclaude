@@ -14,25 +14,32 @@ MAX_NEW    = 15   # 국가별 최대 신규 영상 수
 DUR_RE     = re.compile(r'PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?')
 
 # ── 국가 정의 ────────────────────────────────────────────
+# 처리 순서 = 중복 제거 우선순위 (앞 국가가 바이럴 영상 독점)
+# → 글로벌·주요 시장 먼저, 한국은 뒤쪽 처리
 # (한국어 이름, 파일코드, geo_bypass_country, 검색 키워드, 국기)
 COUNTRIES = [
-    ("글로벌",       "GLOBAL", None, "dance shorts viral bgm 2025 #shorts",          "🌍"),
-    ("한국",         "KR",     "KR", "#shorts 댄스 챌린지 bgm",                       "🇰🇷"),
-    ("미국",         "US",     "US", "dance challenge shorts bgm viral",               "🇺🇸"),
-    ("일본",         "JP",     "JP", "ダンス ショーツ bgm #shorts",                    "🇯🇵"),
+    # ① 글로벌 우선
+    ("글로벌",       "GLOBAL", None, "dance viral shorts bgm music trending 2025",    "🌍"),
+    # ② 북미·남미 (YouTube 최대 시장)
+    ("미국",         "US",     "US", "dance challenge shorts bgm viral music",        "🇺🇸"),
     ("멕시코",       "MX",     "MX", "baile reto shorts viral bgm",                   "🇲🇽"),
-    ("독일",         "DE",     "DE", "tanz challenge shorts bgm viral",               "🇩🇪"),
-    ("브라질",       "BR",     "BR", "dança desafio shorts bgm viral",                "🇧🇷"),
-    ("인도네시아",   "ID",     "ID", "dance challenge shorts bgm viral",              "🇮🇩"),
+    ("브라질",       "BR",     "BR", "danca desafio shorts bgm viral",                "🇧🇷"),
     ("아르헨티나",   "AR",     "AR", "baile reto shorts bgm viral",                   "🇦🇷"),
-    ("필리핀",       "PH",     "PH", "dance challenge shorts bgm viral",              "🇵🇭"),
+    # ③ 유럽
+    ("독일",         "DE",     "DE", "tanz challenge shorts bgm viral",               "🇩🇪"),
     ("스페인",       "ES",     "ES", "baile reto shorts bgm viral",                   "🇪🇸"),
-    ("이탈리아",     "IT",     "IT", "ballo sfida shorts bgm viral",                  "🇮🇹"),
     ("프랑스",       "FR",     "FR", "danse defi shorts bgm viral",                   "🇫🇷"),
+    ("이탈리아",     "IT",     "IT", "ballo sfida shorts bgm viral",                  "🇮🇹"),
+    # ④ 동남아·아시아
+    ("인도네시아",   "ID",     "ID", "dance challenge shorts bgm viral",              "🇮🇩"),
+    ("필리핀",       "PH",     "PH", "dance challenge shorts bgm viral",              "🇵🇭"),
+    ("베트남",       "VN",     "VN", "nhay shorts viral bgm thinh hanh",              "🇻🇳"),
+    ("일본",         "JP",     "JP", "dance shorts bgm viral #shorts",                "🇯🇵"),
+    ("한국",         "KR",     "KR", "dance shorts bgm viral #shorts",                "🇰🇷"),
+    # ⑤ 중앙아·아프리카
     ("우즈베키스탄", "UZ",     "UZ", "dance shorts viral bgm challenge",              "🇺🇿"),
     ("알제리",       "DZ",     "DZ", "dance shorts viral bgm",                        "🇩🇿"),
     ("카자흐스탄",   "KZ",     "KZ", "dance shorts viral bgm challenge",              "🇰🇿"),
-    ("베트남",       "VN",     "VN", "nhay shorts viral bgm thinh hanh",              "🇻🇳"),
 ]
 
 TRENDING_URL = "https://www.youtube.com/feed/trending?bp=4gIKGgh5dHNhX3Ntaw%3D%3D"
