@@ -66,7 +66,7 @@
       backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);
       background:var(--bar);border-bottom:1px solid var(--bd)}
     .tabbar{display:flex;flex-wrap:wrap;justify-content:center;
-      gap:.28rem;padding:.5rem .8rem;max-width:1500px;margin:0 auto}
+      gap:.28rem;padding:.5rem .8rem;max-width:100%;margin:0 auto}
     .tb{display:inline-flex;align-items:center;gap:.3rem;
       padding:.32rem .65rem;border:1px solid var(--bd);border-radius:100px;
       background:var(--bg-2);color:var(--tx2);cursor:pointer;
@@ -86,7 +86,7 @@
     @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
     /* ── 섹션 헤더 + sort pills ── */
-    .th{max-width:1500px;margin:0 auto;padding:1.1rem 1.2rem .35rem;
+    .th{max-width:100%;margin:0 auto;padding:1.1rem 1.6rem .35rem;
       display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.7rem}
     .th-l{display:flex;align-items:center;gap:.5rem;font-size:.94rem;font-weight:700}
     .th-l b{font-weight:700}
@@ -102,8 +102,8 @@
       box-shadow:0 2px 10px rgba(255,0,80,.35)}
 
     /* ── HERO (API 탭 최상단) ── */
-    .hero{position:relative;max-width:1500px;margin:.7rem auto 0;padding:0 1.2rem}
-    .hero-bg{position:absolute;inset:0 1.2rem;border-radius:22px;overflow:hidden;
+    .hero{position:relative;max-width:100%;margin:.7rem auto 0;padding:0 1.6rem}
+    .hero-bg{position:absolute;inset:0 1.6rem;border-radius:22px;overflow:hidden;
       filter:blur(40px) saturate(140%);opacity:.45;z-index:0;pointer-events:none}
     .hero-bg img{width:100%;height:100%;object-fit:cover;transform:scale(1.2)}
     .hero-card{position:relative;z-index:1;
@@ -142,10 +142,10 @@
     .stat-chip .sc-v b{font-size:.86rem;font-weight:700;color:var(--tx)}
     .stat-chip .sc-v span{font-size:.6rem;color:var(--tx3);font-weight:500}
 
-    /* ── grid + 카드 ── */
-    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
-      gap:.85rem;padding:.45rem 1.2rem 2rem;max-width:1500px;margin:0 auto}
-    .api-grid{grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}
+    /* ── grid + 카드 (브라우저 폭 전체 활용) ── */
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));
+      gap:.85rem;padding:.45rem 1.6rem 2rem;max-width:100%;margin:0 auto}
+    .api-grid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}
 
     .card{position:relative;background:var(--bg-1);border:1px solid var(--bd);
       border-radius:16px;overflow:hidden;
@@ -215,7 +215,7 @@
     :root[data-theme="light"] .why{color:#cc5500;background:rgba(255,140,0,.1)}
 
     /* ── 분석 탭 ── */
-    .ana{max-width:1500px;margin:0 auto;padding:.5rem 1.2rem 2rem}
+    .ana{max-width:100%;margin:0 auto;padding:.5rem 1.6rem 2rem}
     .ana-intro{position:relative;padding:1.5rem 1.6rem;border-radius:20px;
       background:linear-gradient(135deg,rgba(255,0,80,.08),rgba(0,200,255,.04));
       border:1px solid var(--bd);margin-bottom:1.5rem;overflow:hidden}
@@ -319,7 +319,7 @@
   <div class="brand">
     <span class="logo">🎬</span>
     <span class="name">SHORTS</span>
-    <span class="upd">2026-05-16 23:36 KST</span>
+    <span class="upd">2026-05-16 23:41 KST</span>
   </div>
   <div class="top-r">
     <div class="search">
@@ -339,7 +339,7 @@
 <button class="tb" onclick="showTab('t3',this)"><span>멕시코</span><span class="cb">5</span></button>
 <button class="tb" onclick="showTab('t4',this)"><span>브라질</span><span class="cb">2</span></button>
 <button class="tb" onclick="showTab('t5',this)"><span>아르헨티나</span><span class="cb">4</span></button>
-<button class="tb" onclick="showTab('t6',this)"><span>독일</span><span class="cb">2</span></button>
+<button class="tb" onclick="showTab('t6',this)"><span>독일</span><span class="cb">11</span></button>
 <button class="tb" onclick="showTab('t7',this)"><span>스페인</span><span class="cb">11</span></button>
 <button class="tb" onclick="showTab('t8',this)"><span>프랑스</span><span class="cb">6</span></button>
 <button class="tb" onclick="showTab('t9',this)"><span>이탈리아</span><span class="cb">4</span></button>
@@ -373,13 +373,13 @@
   <!-- 데이터 통계 -->
   <h3 class="ana-h">📈 현재 수집 데이터 통계</h3>
   <div class="stat-grid">
-    <div class="stat-box"><div class="sb-n">130</div><div class="sb-l">전체 수집 영상</div></div>
+    <div class="stat-box"><div class="sb-n">138</div><div class="sb-l">전체 수집 영상</div></div>
     <div class="stat-box hi"><div class="sb-n">0</div><div class="sb-l">1억뷰 이상</div></div>
     <div class="stat-box"><div class="sb-n">20</div><div class="sb-l">천만뷰 이상</div></div>
     <div class="stat-box"><div class="sb-n">31</div><div class="sb-l">백만뷰 이상</div></div>
-    <div class="stat-box"><div class="sb-n">42<span>초</span></div><div class="sb-l">평균 길이</div></div>
+    <div class="stat-box"><div class="sb-n">49<span>초</span></div><div class="sb-l">평균 길이</div></div>
     <div class="stat-box"><div class="sb-n">8299.3만</div><div class="sb-l">최고 조회수</div></div>
-    <div class="stat-box"><div class="sb-n">343.5만</div><div class="sb-l">평균 조회수</div></div>
+    <div class="stat-box"><div class="sb-n">324.0만</div><div class="sb-l">평균 조회수</div></div>
     <div class="stat-box"><div class="sb-n">45</div><div class="sb-l">댄스 관련</div></div>
   </div>
 
@@ -391,13 +391,13 @@
       있어야 스와이프를 막을 수 있습니다. 1억뷰 영상의 87%가 첫 프레임에 사람 얼굴 또는 움직임을 노출합니다.</p></div>
     <div class="pat"><div class="pat-i">⏱</div><h4>2. 15~30초 골든 길이</h4>
       <p>9~15초는 <b>완주율 90%+</b>, 16~30초는 <b>반복 시청률↑</b>. 60초 가까이 가면 완주율이 급락해 알고리즘 추천이 끊깁니다.
-      수집 데이터의 평균 길이는 <b>42초</b>로, 이는 글로벌 1억뷰 영상의 평균과 거의 일치합니다.</p></div>
+      수집 데이터의 평균 길이는 <b>49초</b>로, 이는 글로벌 1억뷰 영상의 평균과 거의 일치합니다.</p></div>
     <div class="pat"><div class="pat-i">🎵</div><h4>3. 트렌딩 사운드 활용</h4>
       <p>YouTube는 <b>같은 BGM을 사용한 영상끼리 클러스터링</b>해 함께 추천합니다. 인기 사운드를 타면 그 사운드 자체가
       추천 엔진이 되어 노출량이 10배 증가. 본 사이트가 "bgm·music" 키워드를 우선 수집하는 이유입니다.</p></div>
     <div class="pat"><div class="pat-i">💃</div><h4>4. 댄스/챌린지 포맷</h4>
       <p>댄스 영상은 <b>참여형 콘텐츠</b>이기에 시청자가 따라하고 공유하며 자가 증식합니다. 수집된 댄스 영상은 <b>45개</b>로
-      전체의 34%. K-팝 콘텐츠는 <b>5개</b> — 글로벌 팬덤의 즉각적 확산력 보유.</p></div>
+      전체의 32%. K-팝 콘텐츠는 <b>5개</b> — 글로벌 팬덤의 즉각적 확산력 보유.</p></div>
     <div class="pat"><div class="pat-i">😱</div><h4>5. 감정 트리거 (놀라움·공감)</h4>
       <p>"우와", "헐", "어떻게?" 같은 반응을 유발하면 <b>댓글률이 5배</b> 증가. 댓글은 알고리즘의 강한 신호.
       2인 관계 영상(커플/친구)이 인기인 이유는 <b>대리만족·공감 효과</b> — 수집 데이터: <b>1개</b>.</p></div>
@@ -617,8 +617,24 @@
     <div class="tags"><span class="tag">#Shorts</span><span class="tag">#Viral</span></div>
     <p class="pub">📅 2026-05-08</p>
   </div>
-</div><div class="card api-card" data-views="12873507" data-likes="191024" data-date="2026-05-10" data-title="vijay thalapathy is the real king 👑😎❤️‍🔥#vijaythalapathy #shorts #viral #trending #new#song #youtube">
+</div><div class="card api-card" data-views="12914044" data-likes="96163" data-date="2026-05-15" data-title="welcome to the jungle - official teaser | in cinemas | 26th june 2026">
   <span class="rank">13</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/dy_urGMFwH4" target="_blank" rel="noopener" aria-label="Welcome To The Jungle - Official Teaser | In Cinemas | 26th June 2026">
+    <img loading="lazy" src="https://img.youtube.com/vi/dy_urGMFwH4/hqdefault.jpg" alt="">
+    <span class="dur">1:30</span>
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">Welcome To The Jungle - Official Teaser | In Cinemas | 26th June 2026</p>
+    <div class="ch"><span class="ch-ph">▶</span><span class="ch-nm">Star Studios</span></div>
+    <div class="stats"><span>👁 1291.4만</span><span>❤️ 9.6만</span><span>💬 1.3만</span></div>
+    <p class="why">💡 🔥 천만뷰 검증 콘텐츠 · 🚀 일 1291.4만뷰 폭발</p>
+    <div class="tags"><span class="tag">#welcome to the jungle</span><span class="tag">#welcome to the jungle teaser</span></div>
+    <p class="pub">📅 2026-05-15</p>
+  </div>
+</div><div class="card api-card" data-views="12873507" data-likes="191024" data-date="2026-05-10" data-title="vijay thalapathy is the real king 👑😎❤️‍🔥#vijaythalapathy #shorts #viral #trending #new#song #youtube">
+  <span class="rank">14</span>
   <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/fSvBA3Nal4A" target="_blank" rel="noopener" aria-label="Vijay Thalapathy is the real King 👑😎❤️‍🔥#vijaythalapathy #shorts #viral #trending #new#song #youtube">
     <img loading="lazy" src="https://img.youtube.com/vi/fSvBA3Nal4A/hqdefault.jpg" alt="">
@@ -632,22 +648,6 @@
     <p class="why">💡 🔥 천만뷰 검증 콘텐츠 · 📊 일 214.6만뷰 성장 · ⏱ 8초 — 반복 시청 유도</p>
     <div class="tags"><span class="tag">#shorts</span><span class="tag">#song</span></div>
     <p class="pub">📅 2026-05-10</p>
-  </div>
-</div><div class="card api-card" data-views="12832631" data-likes="95898" data-date="2026-05-15" data-title="welcome to the jungle - official teaser | in cinemas | 26th june 2026">
-  <span class="rank">14</span>
-  <span class="new">NEW</span>
-  <a class="tw" href="https://www.youtube.com/shorts/dy_urGMFwH4" target="_blank" rel="noopener" aria-label="Welcome To The Jungle - Official Teaser | In Cinemas | 26th June 2026">
-    <img loading="lazy" src="https://img.youtube.com/vi/dy_urGMFwH4/hqdefault.jpg" alt="">
-    <span class="dur">1:30</span>
-    <span class="pi">▶</span>
-  </a>
-  <div class="info">
-    <p class="tt">Welcome To The Jungle - Official Teaser | In Cinemas | 26th June 2026</p>
-    <div class="ch"><img class="ch-img" src="https://yt3.ggpht.com/pj6ZI11GXb2tnXK60ubGCjVfhKHXT8uC1CHfgo4rdgiQIJy4SbPYDFmVyiZfrraQiKSO1GWXzA=s88-c-k-c0x00ffffff-no-rj" alt=""><span class="ch-nm">Star Studios</span></div>
-    <div class="stats"><span>👁 1283.3만</span><span>❤️ 9.6만</span><span>💬 1.3만</span></div>
-    <p class="why">💡 🔥 천만뷰 검증 콘텐츠 · 🚀 일 1283.3만뷰 폭발</p>
-    <div class="tags"><span class="tag">#welcome to the jungle</span><span class="tag">#welcome to the jungle teaser</span></div>
-    <p class="pub">📅 2026-05-15</p>
   </div>
 </div><div class="card api-card" data-views="11840956" data-likes="155588" data-date="2026-05-04" data-title="mom daughter trending dance📈💃 #shorts #love #trending">
   <span class="rank">15</span>
@@ -2094,13 +2094,121 @@
 </section>
 <section id="t6" class="tc">
   <div class="th">
-  <div class="th-l"><b>독일</b><span class="th-s">트렌딩 2개</span></div>
+  <div class="th-l"><b>독일</b><span class="th-s">트렌딩 11개</span></div>
   <div class="sp-w">
     <button class="sp active" onclick="sortBy('t6','views',this)">👁 조회수</button>
     <button class="sp" onclick="sortBy('t6','date',this)">🕒 최신</button>
   </div>
-</div><div class='grid'><div class="card" data-views="33298231" data-date="2026-05-16" data-title="you can repeat it too💪 #shorts #viral #fyp #trending #dancechallenge #sport #training #stretching">
+</div><div class='grid'><div class="card" data-views="12914044" data-date="2026-05-16" data-title="welcome to the jungle - official teaser | in cinemas | 26th june 2026">
   <span class="rank top">1</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/dy_urGMFwH4" target="_blank" rel="noopener" aria-label="Welcome To The Jungle - Official Teaser | In Cinemas | 26th June 2026">
+    <img loading="lazy" src="https://img.youtube.com/vi/dy_urGMFwH4/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">Welcome To The Jungle - Official Teaser | In Cinemas | 26th June 2026</p>
+    <div class="meta"><span>👁 1291.4만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 🔥 천만뷰 검증 콘텐츠</p>
+  </div>
+</div><div class="card" data-views="105879" data-date="2026-05-16" data-title="mr. polska, ski aggu, natte visstick - spring (official video)">
+  <span class="rank top">2</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/fSr2P2T7E4g" target="_blank" rel="noopener" aria-label="Mr. Polska, Ski Aggu, Natte Visstick - Spring (Official Video)">
+    <img loading="lazy" src="https://img.youtube.com/vi/fSr2P2T7E4g/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">Mr. Polska, Ski Aggu, Natte Visstick - Spring (Official Video)</p>
+    <div class="meta"><span>👁 10.6만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 ✨ 10만뷰 상승세</p>
+  </div>
+</div><div class="card" data-views="83072" data-date="2026-05-16" data-title="baby meet me in the dark">
+  <span class="rank top">3</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/xeFVifgCx10" target="_blank" rel="noopener" aria-label="Baby Meet Me In The Dark">
+    <img loading="lazy" src="https://img.youtube.com/vi/xeFVifgCx10/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">Baby Meet Me In The Dark</p>
+    <div class="meta"><span>👁 8.3만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 🎯 알고리즘 추천</p>
+  </div>
+</div><div class="card" data-views="64561" data-date="2026-05-16" data-title="reezy - britney spears (official video)">
+  <span class="rank">4</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/3KEUD1u0uyw" target="_blank" rel="noopener" aria-label="reezy - BRITNEY SPEARS (Official Video)">
+    <img loading="lazy" src="https://img.youtube.com/vi/3KEUD1u0uyw/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">reezy - BRITNEY SPEARS (Official Video)</p>
+    <div class="meta"><span>👁 6.5만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 🎯 알고리즘 추천</p>
+  </div>
+</div><div class="card" data-views="59829" data-date="2026-05-16" data-title="makar - tränen (music video)">
+  <span class="rank">5</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/-m9FyypY2cM" target="_blank" rel="noopener" aria-label="Makar - Tränen (Music Video)">
+    <img loading="lazy" src="https://img.youtube.com/vi/-m9FyypY2cM/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">Makar - Tränen (Music Video)</p>
+    <div class="meta"><span>👁 6.0만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 🎵 트렌딩 사운드</p>
+  </div>
+</div><div class="card" data-views="58873" data-date="2026-05-16" data-title="lacazette - 90%">
+  <span class="rank">6</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/mM-xonf9Pso" target="_blank" rel="noopener" aria-label="LACAZETTE - 90%">
+    <img loading="lazy" src="https://img.youtube.com/vi/mM-xonf9Pso/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">LACAZETTE - 90%</p>
+    <div class="meta"><span>👁 5.9만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 🎯 알고리즘 추천</p>
+  </div>
+</div><div class="card" data-views="40577" data-date="2026-05-16" data-title="hakim lokman -hayat- offizielles video (video by.nomixmedia)">
+  <span class="rank">7</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/Cd71-cMgeqo" target="_blank" rel="noopener" aria-label="HAKIM LOKMAN -HAYAT- OFFIZIELLES VIDEO (Video by.nomixmedia)">
+    <img loading="lazy" src="https://img.youtube.com/vi/Cd71-cMgeqo/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">HAKIM LOKMAN -HAYAT- OFFIZIELLES VIDEO (Video by.nomixmedia)</p>
+    <div class="meta"><span>👁 4.1만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 🎯 알고리즘 추천</p>
+  </div>
+</div><div class="card" data-views="33926" data-date="2026-05-16" data-title="musso x cave - ich weiss es besser [offizielles musikvideo]">
+  <span class="rank">8</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/es_KhO2qG6E" target="_blank" rel="noopener" aria-label="Musso x Cave - ICH WEISS ES BESSER [Offizielles Musikvideo]">
+    <img loading="lazy" src="https://img.youtube.com/vi/es_KhO2qG6E/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">Musso x Cave - ICH WEISS ES BESSER [Offizielles Musikvideo]</p>
+    <div class="meta"><span>👁 3.4만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 🎵 트렌딩 사운드</p>
+  </div>
+</div><div class="card" data-views="30584" data-date="2026-05-16" data-title="leo de la rosiori - cand e dumnezeu cu tine ( official video ) 2026">
+  <span class="rank">9</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/6PaGSsY0tdU" target="_blank" rel="noopener" aria-label="Leo de la Rosiori - Cand e Dumnezeu cu tine ( Official Video ) 2026">
+    <img loading="lazy" src="https://img.youtube.com/vi/6PaGSsY0tdU/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">Leo de la Rosiori - Cand e Dumnezeu cu tine ( Official Video ) 2026</p>
+    <div class="meta"><span>👁 3.1만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 🎯 알고리즘 추천</p>
+  </div>
+</div><div class="card" data-views="33298231" data-date="2026-05-16" data-title="you can repeat it too💪 #shorts #viral #fyp #trending #dancechallenge #sport #training #stretching">
+  <span class="rank">10</span>
   <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/c1CDi5c6gPA" target="_blank" rel="noopener" aria-label="You can repeat it too💪 #shorts #viral #fyp #trending #dancechallenge #sport #training #stretching">
     <img loading="lazy" src="https://img.youtube.com/vi/c1CDi5c6gPA/maxresdefault.jpg" alt="">
@@ -2112,7 +2220,7 @@
     <p class="why">💡 🔥 천만뷰 검증 콘텐츠 · ⏱ 23초 — 완주율 최적 · 💃 댄스/챌린지 포맷</p>
   </div>
 </div><div class="card" data-views="7368301" data-date="2026-05-16" data-title="ranking the most relatable tiktok videos #shortsviral">
-  <span class="rank top">2</span>
+  <span class="rank">11</span>
   <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/1HSrhph9xv8" target="_blank" rel="noopener" aria-label="Ranking The Most Relatable TikTok Videos #shortsviral">
     <img loading="lazy" src="https://img.youtube.com/vi/1HSrhph9xv8/maxresdefault.jpg" alt="">
