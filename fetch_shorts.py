@@ -1,21 +1,34 @@
 """
-YouTube Shorts 트렌드 수집 — 국가별 17개 탭 (GitHub Actions 전용)
-각 국가의 YouTube 트렌딩 Shorts + 국가별 언어 검색어로 수집
+YouTube Shorts 트렌드 수집 — YouTube API 탭 + 국가별 17개 탭 (GitHub Actions 전용)
 """
 
 import json, os, re, time
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
-KST        = timezone(timedelta(hours=9))
-BASE       = Path(__file__).parent
-INDEX_HTML = BASE / "index.html"
-MAX_NEW    = 15   # 국가별 최대 신규 영상 수
-DUR_RE     = re.compile(r'PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?')
+KST         = timezone(timedelta(hours=9))
+BASE        = Path(__file__).parent
+INDEX_HTML  = BASE / "index.html"
+VIDEOS_API  = BASE / "videos_api.json"
+MAX_NEW     = 15   # 국가별 최대 신규 영상 수
+MAX_API     = 40   # API 탭 최대 영상 수
+DUR_RE      = re.compile(r'PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?')
+API_KEY     = os.environ.get("YOUTUBE_API_KEY", "")
+
+# YouTube Data API 검색어 (지역 다양화)
+API_QUERIES = [
+    ("dance shorts viral bgm 2025",         "US"),
+    ("dance challenge couple shorts music",  "US"),
+    ("solo dance shorts background music",   "BR"),
+    ("baile shorts viral bgm trending",      "MX"),
+    ("tanz shorts viral bgm",                "DE"),
+    ("danca shorts viral bgm",               "BR"),
+    ("dance shorts no lyrics trending",      "PH"),
+    ("viral dance bgm shorts music",         "JP"),
+]
 
 # ── 국가 정의 ────────────────────────────────────────────
 # 처리 순서 = 중복 제거 우선순위 (앞 국가가 바이럴 영상 독점)
-# → 글로벌·주요 시장 먼저, 한국은 뒤쪽 처리
 # (한국어 이름, 파일코드, geo_bypass_country, 검색 키워드, 국기)
 COUNTRIES = [
     # ① 글로벌 우선
@@ -78,6 +91,125 @@ def fmt_views(n: int) -> str:
     if n >= 100_000_000: return f"{n/100_000_000:.1f}억"
     if n >= 10_000:      return f"{n/10_000:.1f}만"
     return f"{n:,}" if n else "—"
+
+def fmt_dur(secs: int) -> str:
+    if not secs: return ""
+    m, s = divmod(secs, 60)
+    return f"{m}:{s:02d}"
+
+def iso_to_sec(dur: str) -> int:
+    m = DUR_RE.match(dur or "")
+    if not m: return 0
+    h, mi, s = (int(x or 0) for x in m.groups())
+    return h*3600 + mi*60 + s
+
+
+# ── YouTube Data API 탭 ──────────────────────────────────
+def fetch_api_tab(existing_ids: set) -> list[dict]:
+    if not API_KEY:
+        print("[API 탭] YOUTUBE_API_KEY 없음 — 스킵")
+        return []
+    try:
+        from googleapiclient.discovery import build
+    except ImportError:
+        print("[API 탭] google-api-python-client 미설치")
+        return []
+
+    youtube = build("youtube", "v3", developerKey=API_KEY)
+    since   = (datetime.now(timezone.utc) - timedelta(days=14)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    seen    = set(existing_ids)
+    cands: list[str] = []
+
+    # ① 다중 검색어로 후보 ID 수집
+    for query, region in API_QUERIES:
+        print(f"  [API] {query!r} ({region})")
+        try:
+            resp = youtube.search().list(
+                q=query, part="id", type="video",
+                videoDuration="short", order="viewCount",
+                publishedAfter=since, regionCode=region,
+                maxResults=20,
+            ).execute()
+            for it in resp.get("items", []):
+                vid = it["id"]["videoId"]
+                if vid not in seen and vid not in cands:
+                    cands.append(vid)
+        except Exception as e:
+            print(f"    검색 오류: {e}")
+        time.sleep(0.3)
+
+    if not cands:
+        return []
+
+    # ② 상세 정보 (통계 + snippet + contentDetails)
+    new: list[dict] = []
+    for i in range(0, len(cands), 50):
+        batch = cands[i:i+50]
+        try:
+            det = youtube.videos().list(
+                part="snippet,contentDetails,statistics",
+                id=",".join(batch),
+            ).execute()
+        except Exception as e:
+            print(f"  [API] 상세 조회 오류: {e}")
+            continue
+
+        ch_ids = []
+        raw: list[dict] = []
+        for item in det.get("items", []):
+            secs = iso_to_sec(item["contentDetails"]["duration"])
+            if secs > 90: continue
+            snip  = item["snippet"]
+            stats = item.get("statistics", {})
+            title = snip.get("title", "")
+            if is_excluded(title): continue
+            vid_id = item["id"]
+            seen.add(vid_id)
+            pub = snip.get("publishedAt", "")[:10]
+            ch_id = snip.get("channelId", "")
+            if ch_id: ch_ids.append(ch_id)
+            raw.append({
+                "id":            vid_id,
+                "title":         title,
+                "thumbnail":     f"https://img.youtube.com/vi/{vid_id}/maxresdefault.jpg",
+                "thumbnail_hq":  f"https://img.youtube.com/vi/{vid_id}/hqdefault.jpg",
+                "url":           f"https://www.youtube.com/shorts/{vid_id}",
+                "added_date":    now_kst(),
+                "published_at":  pub,
+                "view_count":    int(stats.get("viewCount", 0)),
+                "like_count":    int(stats.get("likeCount", 0)),
+                "comment_count": int(stats.get("commentCount", 0)),
+                "duration_sec":  secs,
+                "duration_str":  fmt_dur(secs),
+                "channel_id":    ch_id,
+                "channel_title": snip.get("channelTitle", ""),
+                "channel_thumb": "",
+                "category_id":   snip.get("categoryId", ""),
+                "tags":          snip.get("tags", [])[:5],
+                "description":   snip.get("description", "")[:120],
+            })
+
+        # ③ 채널 썸네일 일괄 조회
+        if ch_ids:
+            try:
+                ch_resp = youtube.channels().list(
+                    part="snippet", id=",".join(set(ch_ids))
+                ).execute()
+                ch_map = {
+                    c["id"]: c["snippet"]["thumbnails"].get("default", {}).get("url", "")
+                    for c in ch_resp.get("items", [])
+                }
+                for v in raw:
+                    v["channel_thumb"] = ch_map.get(v["channel_id"], "")
+            except Exception:
+                pass
+
+        new.extend(raw)
+
+    new.sort(key=lambda v: v["view_count"], reverse=True)
+    result = new[:MAX_API]
+    print(f"[API 탭] 신규 {len(result)}개")
+    return result
 
 
 # ── yt-dlp 수집 ──────────────────────────────────────────
@@ -145,55 +277,104 @@ def fetch_country(name: str, code: str, geo: str | None,
 
 
 # ── HTML 생성 ────────────────────────────────────────────
+def _esc(s: str) -> str:
+    return s.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;")
+
 def _card(v: dict) -> str:
     views = fmt_views(v.get("view_count", 0))
     date  = v.get("added_date", "")
-    title = (v.get("title", "") or v["id"]).replace("<","&lt;").replace(">","&gt;")
+    title = _esc(v.get("title", "") or v["id"])
     return f"""<a class="card" href="{v['url']}" target="_blank" rel="noopener">
-      <div class="tw">
-        <img loading="lazy" src="{v['thumbnail']}" alt="{title}">
-        <span class="pi">&#9654;</span>
-      </div>
-      <div class="info">
-        <p class="tt">{title or '(제목 없음)'}</p>
-        <p class="meta"><span>👁 {views}</span><span>📅 {date}</span></p>
-      </div>
-    </a>"""
+  <div class="tw">
+    <img loading="lazy" src="{v['thumbnail']}" alt="{title}">
+    <span class="pi">&#9654;</span>
+  </div>
+  <div class="info">
+    <p class="tt">{title or '(제목 없음)'}</p>
+    <p class="meta"><span>👁 {views}</span><span>📅 {date}</span></p>
+  </div>
+</a>"""
+
+def _api_card(v: dict) -> str:
+    title     = _esc(v.get("title","") or v["id"])
+    views     = fmt_views(v.get("view_count", 0))
+    likes     = fmt_views(v.get("like_count", 0))
+    comments  = fmt_views(v.get("comment_count", 0))
+    dur       = v.get("duration_str","")
+    ch_title  = _esc(v.get("channel_title",""))
+    ch_thumb  = v.get("channel_thumb","")
+    pub       = v.get("published_at","")
+    tags      = v.get("tags",[])
+    desc      = _esc(v.get("description","") or "")
+    thumb     = v.get("thumbnail_hq") or v.get("thumbnail","")
+    dur_html  = f'<span class="dur">{dur}</span>' if dur else ""
+    ch_av     = (f'<img class="ch-img" src="{ch_thumb}" alt="">'
+                 if ch_thumb else '<span class="ch-ph">▶</span>')
+    tag_html  = "".join(f'<span class="tag">#{_esc(t)}</span>' for t in tags[:3])
+    return f"""<a class="card api-card" href="{v['url']}" target="_blank" rel="noopener">
+  <div class="tw">
+    <img loading="lazy" src="{thumb}" alt="{title}">
+    {dur_html}
+    <span class="pi">&#9654;</span>
+  </div>
+  <div class="info">
+    <p class="tt">{title or '(제목 없음)'}</p>
+    <div class="ch"><span class="ch-av">{ch_av}</span><span class="ch-nm">{ch_title}</span></div>
+    <div class="stats"><span>👁 {views}</span><span>❤️ {likes}</span><span>💬 {comments}</span></div>
+    {f'<p class="desc">{desc}</p>' if desc else ''}
+    {f'<div class="tags">{tag_html}</div>' if tag_html else ''}
+    <p class="pub">📅 {pub}</p>
+  </div>
+</a>"""
 
 def _grid(videos: list[dict]) -> str:
     if not videos:
         return """<div class="empty">
-      <div style="font-size:2.5rem">🎬</div>
-      <p>업데이트 대기 중</p>
-      <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
-    </div>"""
+  <div style="font-size:2.5rem">🎬</div>
+  <p>업데이트 대기 중</p>
+  <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
+</div>"""
     return "<div class='grid'>" + "".join(_card(v) for v in videos) + "</div>"
 
-def regenerate_html(all_data: list[tuple]) -> None:
-    """all_data: [(name, code, flag, data_dict), ...]"""
+def _api_grid(videos: list[dict]) -> str:
+    if not videos:
+        return """<div class="empty">
+  <div style="font-size:2.5rem">🔑</div>
+  <p>API 키 설정 필요</p>
+  <p class="sub">GitHub Secret에 YOUTUBE_API_KEY를 등록하세요</p>
+</div>"""
+    return "<div class='grid api-grid'>" + "".join(_api_card(v) for v in videos) + "</div>"
+
+
+def regenerate_html(api_data: list[dict], all_data: list[tuple]) -> None:
+    """api_data: API 탭 영상 / all_data: [(name, code, flag, data_dict), ...]"""
     last_times = [d.get("last_updated","") for _,_,_,d in all_data if d.get("last_updated")]
     last = max(last_times) if last_times else "—"
     year = datetime.now(KST).year
 
-    # 탭 버튼 — 숫자 ID 사용, 약어 노출 없음
-    tab_btns = ""
-    for i, (name, code, flag, data) in enumerate(all_data):
-        cnt    = len(data["videos"])
-        active = " active" if i == 0 else ""
-        tab_btns += (
-            f'<button class="tb{active}" '
-            f'onclick="showTab(\'t{i}\',this)">'
-            f'{flag} {name}'
-            f'<span class="cb">{cnt}</span></button>\n'
-        )
+    # t0 = YouTube API 탭
+    api_cnt = len(api_data)
+    tab_btns = (
+        f'<button class="tb active" onclick="showTab(\'t0\',this)">'
+        f'🔑 YouTube API<span class="cb">{api_cnt}</span></button>\n'
+    )
+    tab_contents = (
+        f'<div id="t0" class="tc active">\n'
+        f'  <p class="tm">🔑 YouTube Data API · 조회수 순 · 다양한 국가 검색 기반</p>\n'
+        f'  {_api_grid(api_data)}\n'
+        f'</div>\n'
+    )
 
-    # 탭 콘텐츠 — id는 t0·t1·t2… (국가 코드 없음)
-    tab_contents = ""
-    for i, (name, code, flag, data) in enumerate(all_data):
-        active  = " active" if i == 0 else ""
+    # t1~ = 국가별 탭
+    for i, (name, code, flag, data) in enumerate(all_data, start=1):
+        cnt     = len(data["videos"])
         updated = data.get("last_updated", "—")
+        tab_btns += (
+            f'<button class="tb" onclick="showTab(\'t{i}\',this)">'
+            f'{flag} {name}<span class="cb">{cnt}</span></button>\n'
+        )
         tab_contents += (
-            f'<div id="t{i}" class="tc{active}">\n'
+            f'<div id="t{i}" class="tc">\n'
             f'  <p class="tm">{flag} {name} · {updated}</p>\n'
             f'  {_grid(data["videos"])}\n'
             f'</div>\n'
@@ -238,7 +419,7 @@ def regenerate_html(all_data: list[tuple]) -> None:
       box-shadow:0 1px 4px rgba(0,0,0,.3);transition:opacity .2s;flex-shrink:0}}
     .tog:hover{{opacity:.8}}
 
-    /* tab bar — 맨 위 고정 */
+    /* tab bar */
     .tabbar{{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;
       scrollbar-width:none;padding:.5rem .7rem 0;
       border-bottom:2px solid var(--bd);gap:.25rem;
@@ -256,13 +437,16 @@ def regenerate_html(all_data: list[tuple]) -> None:
 
     /* tab content */
     .tm{{font-size:.7rem;color:var(--tx3);padding:.4rem 1rem .05rem;
-      max-width:1200px;margin:0 auto}}
+      max-width:1400px;margin:0 auto}}
     .tc{{display:none}}.tc.active{{display:block}}
 
     /* grid */
     .grid{{display:grid;
       grid-template-columns:repeat(auto-fill,minmax(165px,1fr));
-      gap:.85rem;padding:.85rem 1rem;max-width:1200px;margin:0 auto}}
+      gap:.85rem;padding:.85rem 1rem;max-width:1400px;margin:0 auto}}
+    .api-grid{{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}}
+
+    /* card */
     .card{{display:block;text-decoration:none;background:var(--bg2);
       border-radius:12px;overflow:hidden;border:1px solid var(--bd);
       transition:transform .2s,border-color .2s,box-shadow .2s}}
@@ -281,6 +465,24 @@ def regenerate_html(all_data: list[tuple]) -> None:
     .meta{{display:flex;justify-content:space-between;
       margin-top:.38rem;font-size:.67rem;color:var(--tx3)}}
 
+    /* API 카드 전용 */
+    .dur{{position:absolute;bottom:.35rem;right:.35rem;
+      background:rgba(0,0,0,.75);color:#fff;font-size:.65rem;
+      padding:.1rem .38rem;border-radius:4px;font-weight:700;letter-spacing:.02em}}
+    .ch{{display:flex;align-items:center;gap:.35rem;margin-top:.32rem}}
+    .ch-av{{flex-shrink:0;display:flex;align-items:center}}
+    .ch-img{{width:22px;height:22px;border-radius:50%;object-fit:cover}}
+    .ch-ph{{font-size:.75rem;color:var(--tx3)}}
+    .ch-nm{{font-size:.69rem;color:var(--tx2);
+      overflow:hidden;white-space:nowrap;text-overflow:ellipsis}}
+    .stats{{display:flex;gap:.45rem;font-size:.64rem;color:var(--tx3);margin-top:.22rem;flex-wrap:wrap}}
+    .desc{{font-size:.65rem;color:var(--tx3);margin-top:.2rem;line-height:1.4;
+      display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}}
+    .tags{{display:flex;flex-wrap:wrap;gap:.18rem;margin-top:.22rem}}
+    .tag{{font-size:.6rem;padding:.07rem .32rem;border-radius:6px;
+      background:rgba(230,57,70,.14);color:#e63946;font-weight:600}}
+    .pub{{font-size:.62rem;color:var(--tx3);margin-top:.28rem}}
+
     /* empty */
     .empty{{text-align:center;padding:3.5rem 1rem;color:var(--tx3)}}
     .empty p{{margin-top:.4rem;font-size:.85rem}}
@@ -291,6 +493,7 @@ def regenerate_html(all_data: list[tuple]) -> None:
 
     @media(max-width:480px){{
       .grid{{grid-template-columns:repeat(2,1fr);gap:.5rem;padding:.55rem}}
+      .api-grid{{grid-template-columns:repeat(2,1fr)}}
       .tb{{padding:.35rem .65rem;font-size:.74rem}}
     }}
   </style>
@@ -310,7 +513,7 @@ def regenerate_html(all_data: list[tuple]) -> None:
 {tab_contents}
 
 <footer>
-  17개국 YouTube Shorts 트렌딩 자동 수집 · 매일 17:00 KST<br>
+  YouTube API + 17개국 Shorts 트렌딩 자동 수집 · 매일 17:00 KST<br>
   GitHub Actions 완전 자동화 &copy; {year} yclaude
 </footer>
 
@@ -341,31 +544,41 @@ def regenerate_html(all_data: list[tuple]) -> None:
     with open(INDEX_HTML, "w", encoding="utf-8") as f:
         f.write(html)
     total = sum(len(d["videos"]) for _,_,_,d in all_data)
-    print(f"index.html 완료 — 총 {total}개 영상 / {len(all_data)}개국")
+    print(f"index.html 완료 — API {api_cnt}개 + 국가별 {total}개 영상 / {len(all_data)}개국")
 
 
 # ── 메인 ─────────────────────────────────────────────────
 def main():
-    print("=== YouTube Shorts 국가별 수집 시작 ===")
+    print("=== YouTube Shorts 수집 시작 ===")
 
-    # ① 모든 국가의 기존 영상 ID를 한 번에 수집 → 전역 중복 방지 세트
+    # ① 기존 전체 ID 수집 (전역 중복 방지)
     global_seen: set[str] = set()
+    api_stored = load_json(VIDEOS_API)
+    global_seen.update(v["id"] for v in api_stored["videos"])
     for _, code, _, _, _ in COUNTRIES:
         data = load_json(json_path(code))
         global_seen.update(v["id"] for v in data["videos"])
     print(f"기존 전체 영상: {len(global_seen)}개 (중복 검사 기준)")
 
-    all_data = []
+    # ② YouTube API 탭 수집
+    print("\n[🔑 YouTube API 탭]")
+    new_api = fetch_api_tab(global_seen)
+    global_seen.update(v["id"] for v in new_api)
+    if new_api:
+        api_stored["videos"] = new_api + api_stored["videos"]
+        # 최대 MAX_API * 3 보관 (과거 히스토리 유지)
+        api_stored["videos"] = api_stored["videos"][:MAX_API * 3]
+    save_json(VIDEOS_API, api_stored)
+    api_data = api_stored["videos"][:MAX_API]
 
+    # ③ 국가별 yt-dlp 수집
+    all_data = []
     for name, code, geo, query, flag in COUNTRIES:
         print(f"\n[{flag} {name} / {code}]")
         p    = json_path(code)
         data = load_json(p)
 
-        # ② 이번 실행에서 수집된 ID도 포함한 전역 세트로 중복 차단
         new = fetch_country(name, code, geo, query, global_seen)
-
-        # ③ 새 영상 ID를 전역 세트에 등록 → 이후 국가에서 중복 수집 방지
         global_seen.update(v["id"] for v in new)
 
         if new:
@@ -373,7 +586,8 @@ def main():
         save_json(p, data)
         all_data.append((name, code, flag, data))
 
-    regenerate_html(all_data)
+    # ④ HTML 재생성
+    regenerate_html(api_data, all_data)
     print("\n=== 완료 ===")
 
 

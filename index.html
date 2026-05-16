@@ -37,7 +37,7 @@
       box-shadow:0 1px 4px rgba(0,0,0,.3);transition:opacity .2s;flex-shrink:0}
     .tog:hover{opacity:.8}
 
-    /* tab bar — 맨 위 고정 */
+    /* tab bar */
     .tabbar{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;
       scrollbar-width:none;padding:.5rem .7rem 0;
       border-bottom:2px solid var(--bd);gap:.25rem;
@@ -55,13 +55,16 @@
 
     /* tab content */
     .tm{font-size:.7rem;color:var(--tx3);padding:.4rem 1rem .05rem;
-      max-width:1200px;margin:0 auto}
+      max-width:1400px;margin:0 auto}
     .tc{display:none}.tc.active{display:block}
 
     /* grid */
     .grid{display:grid;
       grid-template-columns:repeat(auto-fill,minmax(165px,1fr));
-      gap:.85rem;padding:.85rem 1rem;max-width:1200px;margin:0 auto}
+      gap:.85rem;padding:.85rem 1rem;max-width:1400px;margin:0 auto}
+    .api-grid{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+
+    /* card */
     .card{display:block;text-decoration:none;background:var(--bg2);
       border-radius:12px;overflow:hidden;border:1px solid var(--bd);
       transition:transform .2s,border-color .2s,box-shadow .2s}
@@ -80,6 +83,24 @@
     .meta{display:flex;justify-content:space-between;
       margin-top:.38rem;font-size:.67rem;color:var(--tx3)}
 
+    /* API 카드 전용 */
+    .dur{position:absolute;bottom:.35rem;right:.35rem;
+      background:rgba(0,0,0,.75);color:#fff;font-size:.65rem;
+      padding:.1rem .38rem;border-radius:4px;font-weight:700;letter-spacing:.02em}
+    .ch{display:flex;align-items:center;gap:.35rem;margin-top:.32rem}
+    .ch-av{flex-shrink:0;display:flex;align-items:center}
+    .ch-img{width:22px;height:22px;border-radius:50%;object-fit:cover}
+    .ch-ph{font-size:.75rem;color:var(--tx3)}
+    .ch-nm{font-size:.69rem;color:var(--tx2);
+      overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+    .stats{display:flex;gap:.45rem;font-size:.64rem;color:var(--tx3);margin-top:.22rem;flex-wrap:wrap}
+    .desc{font-size:.65rem;color:var(--tx3);margin-top:.2rem;line-height:1.4;
+      display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .tags{display:flex;flex-wrap:wrap;gap:.18rem;margin-top:.22rem}
+    .tag{font-size:.6rem;padding:.07rem .32rem;border-radius:6px;
+      background:rgba(230,57,70,.14);color:#e63946;font-weight:600}
+    .pub{font-size:.62rem;color:var(--tx3);margin-top:.28rem}
+
     /* empty */
     .empty{text-align:center;padding:3.5rem 1rem;color:var(--tx3)}
     .empty p{margin-top:.4rem;font-size:.85rem}
@@ -90,6 +111,7 @@
 
     @media(max-width:480px){
       .grid{grid-template-columns:repeat(2,1fr);gap:.5rem;padding:.55rem}
+      .api-grid{grid-template-columns:repeat(2,1fr)}
       .tb{padding:.35rem .65rem;font-size:.74rem}
     }
   </style>
@@ -104,165 +126,174 @@
 </div>
 
 <div class="tabbar">
-<button class="tb active" onclick="showTab('t0',this)">🌍 글로벌<span class="cb">0</span></button>
-<button class="tb" onclick="showTab('t1',this)">🇺🇸 미국<span class="cb">0</span></button>
-<button class="tb" onclick="showTab('t2',this)">🇲🇽 멕시코<span class="cb">0</span></button>
-<button class="tb" onclick="showTab('t3',this)">🇧🇷 브라질<span class="cb">0</span></button>
-<button class="tb" onclick="showTab('t4',this)">🇦🇷 아르헨티나<span class="cb">0</span></button>
-<button class="tb" onclick="showTab('t5',this)">🇩🇪 독일<span class="cb">0</span></button>
-<button class="tb" onclick="showTab('t6',this)">🇪🇸 스페인<span class="cb">0</span></button>
-<button class="tb" onclick="showTab('t7',this)">🇫🇷 프랑스<span class="cb">0</span></button>
-<button class="tb" onclick="showTab('t8',this)">🇮🇹 이탈리아<span class="cb">0</span></button>
-<button class="tb" onclick="showTab('t9',this)">🇮🇩 인도네시아<span class="cb">0</span></button>
-<button class="tb" onclick="showTab('t10',this)">🇵🇭 필리핀<span class="cb">0</span></button>
-<button class="tb" onclick="showTab('t11',this)">🇻🇳 베트남<span class="cb">0</span></button>
-<button class="tb" onclick="showTab('t12',this)">🇯🇵 일본<span class="cb">0</span></button>
-<button class="tb" onclick="showTab('t13',this)">🇰🇷 한국<span class="cb">0</span></button>
-<button class="tb" onclick="showTab('t14',this)">🇺🇿 우즈베키스탄<span class="cb">0</span></button>
-<button class="tb" onclick="showTab('t15',this)">🇩🇿 알제리<span class="cb">0</span></button>
-<button class="tb" onclick="showTab('t16',this)">🇰🇿 카자흐스탄<span class="cb">0</span></button>
+<button class="tb active" onclick="showTab('t0',this)">🔑 YouTube API<span class="cb">0</span></button>
+<button class="tb" onclick="showTab('t1',this)">🌍 글로벌<span class="cb">0</span></button>
+<button class="tb" onclick="showTab('t2',this)">🇺🇸 미국<span class="cb">0</span></button>
+<button class="tb" onclick="showTab('t3',this)">🇲🇽 멕시코<span class="cb">0</span></button>
+<button class="tb" onclick="showTab('t4',this)">🇧🇷 브라질<span class="cb">0</span></button>
+<button class="tb" onclick="showTab('t5',this)">🇦🇷 아르헨티나<span class="cb">0</span></button>
+<button class="tb" onclick="showTab('t6',this)">🇩🇪 독일<span class="cb">0</span></button>
+<button class="tb" onclick="showTab('t7',this)">🇪🇸 스페인<span class="cb">0</span></button>
+<button class="tb" onclick="showTab('t8',this)">🇫🇷 프랑스<span class="cb">0</span></button>
+<button class="tb" onclick="showTab('t9',this)">🇮🇹 이탈리아<span class="cb">0</span></button>
+<button class="tb" onclick="showTab('t10',this)">🇮🇩 인도네시아<span class="cb">0</span></button>
+<button class="tb" onclick="showTab('t11',this)">🇵🇭 필리핀<span class="cb">0</span></button>
+<button class="tb" onclick="showTab('t12',this)">🇻🇳 베트남<span class="cb">0</span></button>
+<button class="tb" onclick="showTab('t13',this)">🇯🇵 일본<span class="cb">0</span></button>
+<button class="tb" onclick="showTab('t14',this)">🇰🇷 한국<span class="cb">0</span></button>
+<button class="tb" onclick="showTab('t15',this)">🇺🇿 우즈베키스탄<span class="cb">0</span></button>
+<button class="tb" onclick="showTab('t16',this)">🇩🇿 알제리<span class="cb">0</span></button>
+<button class="tb" onclick="showTab('t17',this)">🇰🇿 카자흐스탄<span class="cb">0</span></button>
 </div>
 
 <div id="t0" class="tc active">
-  <p class="tm">🌍 글로벌 · </p>
+  <p class="tm">🔑 YouTube Data API · 조회수 순 · 다양한 국가 검색 기반</p>
   <div class="empty">
-      <div style="font-size:2.5rem">🎬</div>
-      <p>업데이트 대기 중</p>
-      <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
-    </div>
+  <div style="font-size:2.5rem">🔑</div>
+  <p>API 키 설정 필요</p>
+  <p class="sub">GitHub Secret에 YOUTUBE_API_KEY를 등록하세요</p>
+</div>
 </div>
 <div id="t1" class="tc">
-  <p class="tm">🇺🇸 미국 · </p>
+  <p class="tm">🌍 글로벌 · </p>
   <div class="empty">
-      <div style="font-size:2.5rem">🎬</div>
-      <p>업데이트 대기 중</p>
-      <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
-    </div>
+  <div style="font-size:2.5rem">🎬</div>
+  <p>업데이트 대기 중</p>
+  <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
+</div>
 </div>
 <div id="t2" class="tc">
-  <p class="tm">🇲🇽 멕시코 · </p>
+  <p class="tm">🇺🇸 미국 · </p>
   <div class="empty">
-      <div style="font-size:2.5rem">🎬</div>
-      <p>업데이트 대기 중</p>
-      <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
-    </div>
+  <div style="font-size:2.5rem">🎬</div>
+  <p>업데이트 대기 중</p>
+  <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
+</div>
 </div>
 <div id="t3" class="tc">
-  <p class="tm">🇧🇷 브라질 · </p>
+  <p class="tm">🇲🇽 멕시코 · </p>
   <div class="empty">
-      <div style="font-size:2.5rem">🎬</div>
-      <p>업데이트 대기 중</p>
-      <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
-    </div>
+  <div style="font-size:2.5rem">🎬</div>
+  <p>업데이트 대기 중</p>
+  <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
+</div>
 </div>
 <div id="t4" class="tc">
-  <p class="tm">🇦🇷 아르헨티나 · </p>
+  <p class="tm">🇧🇷 브라질 · </p>
   <div class="empty">
-      <div style="font-size:2.5rem">🎬</div>
-      <p>업데이트 대기 중</p>
-      <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
-    </div>
+  <div style="font-size:2.5rem">🎬</div>
+  <p>업데이트 대기 중</p>
+  <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
+</div>
 </div>
 <div id="t5" class="tc">
-  <p class="tm">🇩🇪 독일 · </p>
+  <p class="tm">🇦🇷 아르헨티나 · </p>
   <div class="empty">
-      <div style="font-size:2.5rem">🎬</div>
-      <p>업데이트 대기 중</p>
-      <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
-    </div>
+  <div style="font-size:2.5rem">🎬</div>
+  <p>업데이트 대기 중</p>
+  <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
+</div>
 </div>
 <div id="t6" class="tc">
-  <p class="tm">🇪🇸 스페인 · </p>
+  <p class="tm">🇩🇪 독일 · </p>
   <div class="empty">
-      <div style="font-size:2.5rem">🎬</div>
-      <p>업데이트 대기 중</p>
-      <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
-    </div>
+  <div style="font-size:2.5rem">🎬</div>
+  <p>업데이트 대기 중</p>
+  <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
+</div>
 </div>
 <div id="t7" class="tc">
-  <p class="tm">🇫🇷 프랑스 · </p>
+  <p class="tm">🇪🇸 스페인 · </p>
   <div class="empty">
-      <div style="font-size:2.5rem">🎬</div>
-      <p>업데이트 대기 중</p>
-      <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
-    </div>
+  <div style="font-size:2.5rem">🎬</div>
+  <p>업데이트 대기 중</p>
+  <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
+</div>
 </div>
 <div id="t8" class="tc">
-  <p class="tm">🇮🇹 이탈리아 · </p>
+  <p class="tm">🇫🇷 프랑스 · </p>
   <div class="empty">
-      <div style="font-size:2.5rem">🎬</div>
-      <p>업데이트 대기 중</p>
-      <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
-    </div>
+  <div style="font-size:2.5rem">🎬</div>
+  <p>업데이트 대기 중</p>
+  <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
+</div>
 </div>
 <div id="t9" class="tc">
-  <p class="tm">🇮🇩 인도네시아 · </p>
+  <p class="tm">🇮🇹 이탈리아 · </p>
   <div class="empty">
-      <div style="font-size:2.5rem">🎬</div>
-      <p>업데이트 대기 중</p>
-      <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
-    </div>
+  <div style="font-size:2.5rem">🎬</div>
+  <p>업데이트 대기 중</p>
+  <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
+</div>
 </div>
 <div id="t10" class="tc">
-  <p class="tm">🇵🇭 필리핀 · </p>
+  <p class="tm">🇮🇩 인도네시아 · </p>
   <div class="empty">
-      <div style="font-size:2.5rem">🎬</div>
-      <p>업데이트 대기 중</p>
-      <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
-    </div>
+  <div style="font-size:2.5rem">🎬</div>
+  <p>업데이트 대기 중</p>
+  <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
+</div>
 </div>
 <div id="t11" class="tc">
-  <p class="tm">🇻🇳 베트남 · </p>
+  <p class="tm">🇵🇭 필리핀 · </p>
   <div class="empty">
-      <div style="font-size:2.5rem">🎬</div>
-      <p>업데이트 대기 중</p>
-      <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
-    </div>
+  <div style="font-size:2.5rem">🎬</div>
+  <p>업데이트 대기 중</p>
+  <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
+</div>
 </div>
 <div id="t12" class="tc">
-  <p class="tm">🇯🇵 일본 · </p>
+  <p class="tm">🇻🇳 베트남 · </p>
   <div class="empty">
-      <div style="font-size:2.5rem">🎬</div>
-      <p>업데이트 대기 중</p>
-      <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
-    </div>
+  <div style="font-size:2.5rem">🎬</div>
+  <p>업데이트 대기 중</p>
+  <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
+</div>
 </div>
 <div id="t13" class="tc">
-  <p class="tm">🇰🇷 한국 · </p>
+  <p class="tm">🇯🇵 일본 · </p>
   <div class="empty">
-      <div style="font-size:2.5rem">🎬</div>
-      <p>업데이트 대기 중</p>
-      <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
-    </div>
+  <div style="font-size:2.5rem">🎬</div>
+  <p>업데이트 대기 중</p>
+  <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
+</div>
 </div>
 <div id="t14" class="tc">
-  <p class="tm">🇺🇿 우즈베키스탄 · </p>
+  <p class="tm">🇰🇷 한국 · </p>
   <div class="empty">
-      <div style="font-size:2.5rem">🎬</div>
-      <p>업데이트 대기 중</p>
-      <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
-    </div>
+  <div style="font-size:2.5rem">🎬</div>
+  <p>업데이트 대기 중</p>
+  <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
+</div>
 </div>
 <div id="t15" class="tc">
-  <p class="tm">🇩🇿 알제리 · </p>
+  <p class="tm">🇺🇿 우즈베키스탄 · </p>
   <div class="empty">
-      <div style="font-size:2.5rem">🎬</div>
-      <p>업데이트 대기 중</p>
-      <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
-    </div>
+  <div style="font-size:2.5rem">🎬</div>
+  <p>업데이트 대기 중</p>
+  <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
+</div>
 </div>
 <div id="t16" class="tc">
+  <p class="tm">🇩🇿 알제리 · </p>
+  <div class="empty">
+  <div style="font-size:2.5rem">🎬</div>
+  <p>업데이트 대기 중</p>
+  <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
+</div>
+</div>
+<div id="t17" class="tc">
   <p class="tm">🇰🇿 카자흐스탄 · </p>
   <div class="empty">
-      <div style="font-size:2.5rem">🎬</div>
-      <p>업데이트 대기 중</p>
-      <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
-    </div>
+  <div style="font-size:2.5rem">🎬</div>
+  <p>업데이트 대기 중</p>
+  <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
+</div>
 </div>
 
 
 <footer>
-  17개국 YouTube Shorts 트렌딩 자동 수집 · 매일 17:00 KST<br>
+  YouTube API + 17개국 Shorts 트렌딩 자동 수집 · 매일 17:00 KST<br>
   GitHub Actions 완전 자동화 &copy; 2026 yclaude
 </footer>
 
