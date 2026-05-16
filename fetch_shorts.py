@@ -317,12 +317,8 @@ def fetch_api_tab(existing_ids: set) -> list[dict]:
 
 
 def _write_debug(info: dict) -> None:
-    try:
-        info["timestamp"] = datetime.now(KST).strftime("%Y-%m-%d %H:%M KST")
-        with open(BASE / "_debug_api.json", "w", encoding="utf-8") as f:
-            json.dump(info, f, ensure_ascii=False, indent=2)
-    except Exception:
-        pass
+    # API 키 노출 방지 — 더 이상 디버그 파일 쓰지 않음
+    pass
 
 
 def fetch_country_api(name: str, region_code: str | None, query: str,
