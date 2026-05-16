@@ -361,15 +361,27 @@ def regenerate_html(all_data: list[tuple]) -> None:
 # ── 메인 ─────────────────────────────────────────────────
 def main():
     print("=== YouTube Shorts 국가별 수집 시작 ===")
+
+    # ① 모든 국가의 기존 영상 ID를 한 번에 수집 → 전역 중복 방지 세트
+    global_seen: set[str] = set()
+    for _, code, _, _, _ in COUNTRIES:
+        data = load_json(json_path(code))
+        global_seen.update(v["id"] for v in data["videos"])
+    print(f"기존 전체 영상: {len(global_seen)}개 (중복 검사 기준)")
+
     all_data = []
 
     for name, code, geo, query, flag in COUNTRIES:
         print(f"\n[{flag} {name} / {code}]")
         p    = json_path(code)
         data = load_json(p)
-        existing = {v["id"] for v in data["videos"]}
 
-        new = fetch_country(name, code, geo, query, existing)
+        # ② 이번 실행에서 수집된 ID도 포함한 전역 세트로 중복 차단
+        new = fetch_country(name, code, geo, query, global_seen)
+
+        # ③ 새 영상 ID를 전역 세트에 등록 → 이후 국가에서 중복 수집 방지
+        global_seen.update(v["id"] for v in new)
+
         if new:
             data["videos"] = new + data["videos"]
         save_json(p, data)
