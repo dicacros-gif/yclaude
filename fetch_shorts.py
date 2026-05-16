@@ -49,11 +49,13 @@ COUNTRIES = [
 
 TRENDING_URL = "https://www.youtube.com/feed/trending?bp=4gIKGgh5dHNhX3Ntaw%3D%3D"
 
+# 너무 공격적이지 않게 — Shorts 본래 취지(자막없는 BGM 영상)와 명확히 어긋나는 것만
 EXCLUDE_KW = {
-    "tutorial", "recipe", "cooking", "요리", "vlog", "브이로그",
-    "자막", "subtitle", "caption", "lyrics", "가사", "review", "리뷰",
-    "unboxing", "언박싱", "news", "뉴스", "asmr", "mukbang", "먹방",
-    "gaming", "게임", "prank", "compilation", "모음", "how to",
+    "tutorial", "recipe", "cooking lesson", "요리법",
+    "subtitle", "caption", "자막설정",
+    "podcast", "talk show", "interview",
+    "news report", "뉴스보도",
+    "how to make", "방법", "강의",
 }
 
 
@@ -176,7 +178,7 @@ def _api_build():
         return None
 
 def _enrich_videos(youtube, vid_ids: list[str], existing_ids: set,
-                   max_dur: int = 90) -> list[dict]:
+                   max_dur: int = 120) -> list[dict]:
     """비디오 ID → 상세 정보 + 채널 썸네일 (Shorts 필터링 포함)"""
     if not vid_ids: return []
     out: list[dict] = []
