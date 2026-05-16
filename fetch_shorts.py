@@ -178,7 +178,7 @@ def _api_build():
         return None
 
 def _enrich_videos(youtube, vid_ids: list[str], existing_ids: set,
-                   max_dur: int = 120) -> list[dict]:
+                   max_dur: int = 180) -> list[dict]:
     """비디오 ID → 상세 정보 + 채널 썸네일 (Shorts 필터링 포함)"""
     if not vid_ids: return []
     out: list[dict] = []
