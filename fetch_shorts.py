@@ -26,24 +26,25 @@ API_QUERIES = [
     ("viral dance bgm shorts music",         "JP"),
 ]
 
+# (한국어 이름, 파일코드, geo, 검색어, 국기, relevanceLanguage)
 COUNTRIES = [
-    ("글로벌",       "GLOBAL", None, "dance viral shorts bgm music trending 2025",    "🌍"),
-    ("미국",         "US",     "US", "dance challenge shorts bgm viral music",        "🇺🇸"),
-    ("멕시코",       "MX",     "MX", "baile reto shorts viral bgm",                   "🇲🇽"),
-    ("브라질",       "BR",     "BR", "danca desafio shorts bgm viral",                "🇧🇷"),
-    ("아르헨티나",   "AR",     "AR", "baile reto shorts bgm viral",                   "🇦🇷"),
-    ("독일",         "DE",     "DE", "tanz challenge shorts bgm viral",               "🇩🇪"),
-    ("스페인",       "ES",     "ES", "baile reto shorts bgm viral",                   "🇪🇸"),
-    ("프랑스",       "FR",     "FR", "danse defi shorts bgm viral",                   "🇫🇷"),
-    ("이탈리아",     "IT",     "IT", "ballo sfida shorts bgm viral",                  "🇮🇹"),
-    ("인도네시아",   "ID",     "ID", "dance challenge shorts bgm viral",              "🇮🇩"),
-    ("필리핀",       "PH",     "PH", "dance challenge shorts bgm viral",              "🇵🇭"),
-    ("베트남",       "VN",     "VN", "nhay shorts viral bgm thinh hanh",              "🇻🇳"),
-    ("일본",         "JP",     "JP", "dance shorts bgm viral #shorts",                "🇯🇵"),
-    ("한국",         "KR",     "KR", "dance shorts bgm viral #shorts",                "🇰🇷"),
-    ("우즈베키스탄", "UZ",     "UZ", "dance shorts viral bgm challenge",              "🇺🇿"),
-    ("알제리",       "DZ",     "DZ", "dance shorts viral bgm",                        "🇩🇿"),
-    ("카자흐스탄",   "KZ",     "KZ", "dance shorts viral bgm challenge",              "🇰🇿"),
+    ("글로벌",       "GLOBAL", None, "dance viral shorts bgm music trending 2025",    "🌍", "en"),
+    ("미국",         "US",     "US", "dance challenge shorts bgm viral music",        "🇺🇸", "en"),
+    ("멕시코",       "MX",     "MX", "baile reto shorts viral bgm reggaeton",         "🇲🇽", "es"),
+    ("브라질",       "BR",     "BR", "funk brasil danca shorts viral bgm",            "🇧🇷", "pt"),
+    ("아르헨티나",   "AR",     "AR", "baile cuarteto reto shorts bgm viral",          "🇦🇷", "es"),
+    ("독일",         "DE",     "DE", "tanz schlager shorts bgm viral deutsch",        "🇩🇪", "de"),
+    ("스페인",       "ES",     "ES", "baile flamenco reto shorts bgm viral",          "🇪🇸", "es"),
+    ("프랑스",       "FR",     "FR", "danse francaise shorts bgm viral defi",         "🇫🇷", "fr"),
+    ("이탈리아",     "IT",     "IT", "ballo italiano shorts bgm viral sfida",         "🇮🇹", "it"),
+    ("인도네시아",   "ID",     "ID", "tari dangdut shorts viral bgm joget",           "🇮🇩", "id"),
+    ("필리핀",       "PH",     "PH", "pinoy opm sayaw shorts viral filipino dance",   "🇵🇭", "tl"),
+    ("베트남",       "VN",     "VN", "nhay viet nam shorts viral bgm thinh hanh",     "🇻🇳", "vi"),
+    ("일본",         "JP",     "JP", "ダンス jpop shorts バイラル 踊ってみた",           "🇯🇵", "ja"),
+    ("한국",         "KR",     "KR", "쇼츠 댄스 챌린지 케이팝 brand new",                 "🇰🇷", "ko"),
+    ("우즈베키스탄", "UZ",     "UZ", "uzbek raqs shorts viral milliy musiqa",         "🇺🇿", "uz"),
+    ("알제리",       "DZ",     "DZ", "rai algerie shorts viral raqs musique",         "🇩🇿", "ar"),
+    ("카자흐스탄",   "KZ",     "KZ", "qazaq би шортс viral kazakh dance",              "🇰🇿", "kk"),
 ]
 
 TRENDING_URL = "https://www.youtube.com/feed/trending?bp=4gIKGgh5dHNhX3Ntaw%3D%3D"
@@ -276,8 +277,9 @@ def fetch_api_tab(existing_ids: set) -> list[dict]:
 
 
 def fetch_country_api(name: str, region_code: str | None, query: str,
-                       existing_ids: set, max_new: int = 12) -> list[dict]:
-    """국가별 — chart=mostPopular(Music) + 다중 검색 (YouTube 공식 순위)"""
+                       existing_ids: set, lang: str = "en",
+                       max_new: int = 12) -> list[dict]:
+    """국가별 — chart=mostPopular(Music) + 다중 검색 + 로컬 언어 가중"""
     youtube = _api_build()
     if not youtube:
         return []
@@ -298,21 +300,21 @@ def fetch_country_api(name: str, region_code: str | None, query: str,
                     vid = it["id"]
                     if vid not in cands:
                         cands.append(vid); added += 1
-                label = f"{rc}/{cat or 'all'}"
-                print(f"    [trending {label}] +{added}")
+                print(f"    [trending {rc}/{cat or 'all'}] +{added}")
             except Exception as e:
                 print(f"    [trending {rc}/{cat}] {e}")
 
-    # ② 다중 검색 — primary query + 일반 fallback 키워드
+    # ② 다중 검색 — 로컬 언어 가중치 + 일반 fallback
     since = (datetime.now(timezone.utc) - timedelta(days=14)).strftime("%Y-%m-%dT%H:%M:%SZ")
     primary_rc = region_code or "US"
-    queries = [query, "shorts viral", "trending shorts dance"]
-    for q in queries:
+    queries = [(query, lang), ("shorts viral", lang), ("trending shorts dance", "en")]
+    for q, rl in queries:
         try:
             resp = youtube.search().list(
                 q=q, part="id", type="video",
                 videoDuration="short", order="viewCount",
                 publishedAfter=since, regionCode=primary_rc,
+                relevanceLanguage=rl,
                 maxResults=15,
             ).execute()
             added = 0
@@ -320,10 +322,10 @@ def fetch_country_api(name: str, region_code: str | None, query: str,
                 vid = it["id"]["videoId"]
                 if vid not in cands:
                     cands.append(vid); added += 1
-            print(f"    [search {primary_rc} {q!r}] +{added}")
+            print(f"    [search {primary_rc}/{rl} {q!r}] +{added}")
         except Exception as e:
             print(f"    [search {q!r}] {e}")
-            break  # 쿼터 초과 시 중단
+            break
 
     if not cands:
         return []
@@ -1101,7 +1103,7 @@ def main() -> int:
     try:
         api_stored = load_json(VIDEOS_API)
         global_seen.update(v["id"] for v in api_stored["videos"])
-        for _, code, _, _, _ in COUNTRIES:
+        for _, code, _, _, _, _ in COUNTRIES:
             data = load_json(json_path(code))
             global_seen.update(v["id"] for v in data["videos"])
         print(f"기존 전체 영상: {len(global_seen)}개", flush=True)
@@ -1127,12 +1129,12 @@ def main() -> int:
     # 국가별 — YouTube Data API 우선 (공식 트렌딩 차트), 실패 시 yt-dlp 폴백
     MAX_KEEP_PER_COUNTRY = 100
     all_data = []
-    for name, code, geo, query, flag in COUNTRIES:
-        print(f"\n[{flag} {name} / {code}]", flush=True)
+    for name, code, geo, query, flag, lang in COUNTRIES:
+        print(f"\n[{flag} {name} / {code} / lang={lang}]", flush=True)
         p    = json_path(code)
         data = load_json(p)
         try:
-            new = fetch_country_api(name, geo, query, global_seen)
+            new = fetch_country_api(name, geo, query, global_seen, lang=lang)
             if not new:
                 print("  ↳ API 결과 없음 — yt-dlp 폴백 시도", flush=True)
                 new = fetch_country(name, code, geo, query, global_seen)
