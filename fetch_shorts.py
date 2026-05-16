@@ -325,9 +325,9 @@ def _empty(icon: str, msg: str, sub: str) -> str:
 
 def _grid(videos: list[dict], tab_id: str, name: str, flag: str) -> str:
     if not videos:
-        return f"""<div class="th"><div class="th-l"><span class="th-f">{flag}</span><b>{name}</b><span class="th-s">대기 중</span></div></div>""" + _empty("🎬", "수집 대기 중", "GitHub Actions가 매일 17:00 KST에 자동 실행됩니다")
+        return f"""<div class="th"><div class="th-l"><b>{name}</b><span class="th-s">대기 중</span></div></div>""" + _empty("🎬", "수집 대기 중", "GitHub Actions가 매일 17:00 KST에 자동 실행됩니다")
     header = f"""<div class="th">
-  <div class="th-l"><span class="th-f">{flag}</span><b>{name}</b><span class="th-s">트렌딩 {len(videos)}개</span></div>
+  <div class="th-l"><b>{name}</b><span class="th-s">트렌딩 {len(videos)}개</span></div>
   <div class="sp-w">
     <button class="sp active" onclick="sortBy('{tab_id}','views',this)">👁 조회수</button>
     <button class="sp" onclick="sortBy('{tab_id}','date',this)">🕒 최신</button>
@@ -337,7 +337,7 @@ def _grid(videos: list[dict], tab_id: str, name: str, flag: str) -> str:
 
 def _api_section(videos: list[dict], tab_id: str = "t0") -> str:
     if not videos:
-        return f"""<div class="th"><div class="th-l"><span class="th-f">🔑</span><b>YouTube Data API</b><span class="th-s">대기 중</span></div></div>""" + _empty("🔑", "API 수집 대기 중", "GitHub Actions가 곧 채웁니다 · YOUTUBE_API_KEY 등록 완료")
+        return f"""<div class="th"><div class="th-l"><b>YouTube Data API</b><span class="th-s">대기 중</span></div></div>""" + _empty("🔑", "API 수집 대기 중", "GitHub Actions가 곧 채웁니다 · YOUTUBE_API_KEY 등록 완료")
 
     top = videos[0]
     h_title = _esc(top.get("title",""))
@@ -373,7 +373,7 @@ def _api_section(videos: list[dict], tab_id: str = "t0") -> str:
 </div>"""
 
     header = f"""<div class="th">
-  <div class="th-l"><span class="th-f">🔑</span><b>YouTube Data API</b><span class="th-s">전체 {len(videos)}개 · 다국적 검색</span></div>
+  <div class="th-l"><b>YouTube Data API</b><span class="th-s">전체 {len(videos)}개 · 다국적 검색</span></div>
   <div class="sp-w">
     <button class="sp active" onclick="sortBy('{tab_id}','views',this)">👁 조회수</button>
     <button class="sp" onclick="sortBy('{tab_id}','likes',this)">❤️ 좋아요</button>
@@ -392,7 +392,7 @@ def regenerate_html(api_data: list[dict], all_data: list[tuple]) -> None:
     api_cnt = len(api_data)
     tab_btns = (
         f'<button class="tb active" onclick="showTab(\'t0\',this)">'
-        f'<span class="tb-i">🔑</span><span>YouTube API</span><span class="cb">{api_cnt}</span></button>\n'
+        f'<span>YouTube API</span><span class="cb">{api_cnt}</span></button>\n'
     )
     tab_contents = (
         f'<section id="t0" class="tc active">\n  {_api_section(api_data, "t0")}\n</section>\n'
@@ -402,7 +402,7 @@ def regenerate_html(api_data: list[dict], all_data: list[tuple]) -> None:
         cnt = len(data["videos"])
         tab_btns += (
             f'<button class="tb" onclick="showTab(\'t{i}\',this)">'
-            f'<span class="tb-i">{flag}</span><span>{name}</span><span class="cb">{cnt}</span></button>\n'
+            f'<span>{name}</span><span class="cb">{cnt}</span></button>\n'
         )
         tab_contents += (
             f'<section id="t{i}" class="tc">\n  {_grid(data["videos"], f"t{i}", name, flag)}\n</section>\n'
