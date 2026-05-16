@@ -328,26 +328,7 @@ def fetch_country_api(name: str, region_code: str | None, query: str,
             except Exception as e:
                 print(f"    [trending {rc}/{cat}] {e}")
 
-    # ② 단일 검색 — 로컬 언어 가중치 (quota 절감: 100 units per call)
-    since = (datetime.now(timezone.utc) - timedelta(days=14)).strftime("%Y-%m-%dT%H:%M:%SZ")
-    primary_rc = region_code or "US"
-    try:
-        resp = youtube.search().list(
-            q=query, part="id", type="video",
-            videoDuration="short", order="viewCount",
-            publishedAfter=since, regionCode=primary_rc,
-            relevanceLanguage=lang,
-            maxResults=20,
-        ).execute()
-        added = 0
-        for it in resp.get("items", []):
-            vid = it["id"]["videoId"]
-            if vid not in cands:
-                cands.append(vid); added += 1
-        print(f"    [search {primary_rc}/{lang}] +{added}")
-    except Exception as e:
-        print(f"    [search] {e}")
-
+    # search.list는 100 units/호출로 quota 폭증 — chart만 사용 (1 unit/호출)
     if not cands:
         return []
 
@@ -1168,12 +1149,12 @@ def main() -> int:
     print("\n[🔑 YouTube API 탭 — 글로벌 14개 시장 통합]", flush=True)
     api_stored = load_json(VIDEOS_API)
     try:
-        new_api = fetch_api_tab(existing_ids=set())  # dedup 없이 매번 fresh
+        new_api = fetch_api_tab(existing_ids=set())
+        print(f"[API 탭] fetch_api_tab 반환: {len(new_api)}개", flush=True)
         if new_api:
             api_stored = {"last_updated": "", "videos": new_api}
-            save_json(VIDEOS_API, api_stored)
-        else:
-            print("[API 탭] 빈 결과 — 기존 데이터 유지", flush=True)
+        # 매번 last_updated 갱신 (빈 결과여도 시도했음을 기록)
+        save_json(VIDEOS_API, api_stored)
     except Exception as e:
         print(f"[ERROR] API 탭: {e}", flush=True); traceback.print_exc()
     api_data = api_stored["videos"][:MAX_API]
