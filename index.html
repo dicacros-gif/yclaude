@@ -3,215 +3,310 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>인기 YouTube Shorts</title>
+  <title>인기 YouTube Shorts — 국가별</title>
   <style>
-    :root[data-theme="dark"] {
-      --bg: #0f0f0f; --bg2: #1a1a1a; --bg3: #1e1e2e;
-      --border: #2a2a2a; --text: #e8e8e8; --text2: #aaa; --text3: #888;
-      --header-bg: linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);
-      --tab-bg: #1e1e2e; --tab-text: #999;
-      --card-hover-shadow: rgba(230,57,70,.25);
-      --footer-border: #1e1e1e; --toggle-bg: #2a2a3e;
+    :root[data-theme="dark"]{
+      --bg:#0f0f0f;--bg2:#1a1a1a;--bg3:#1e1e2e;
+      --bd:#2a2a2a;--tx:#e8e8e8;--tx2:#aaa;--tx3:#888;
+      --hbg:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);
+      --tabbg:#1e1e2e;--tabtx:#999;
+      --sh:rgba(230,57,70,.25);--fbd:#1e1e1e;--tog:#2a2a3e;
     }
-    :root[data-theme="light"] {
-      --bg: #f5f5f5; --bg2: #ffffff; --bg3: #e8e8f0;
-      --border: #ddd; --text: #111; --text2: #444; --text3: #666;
-      --header-bg: linear-gradient(135deg,#2c3e7a,#3b5fc0,#1a73e8);
-      --tab-bg: #e0e0f0; --tab-text: #444;
-      --card-hover-shadow: rgba(230,57,70,.18);
-      --footer-border: #ddd; --toggle-bg: #d0d8f0;
+    :root[data-theme="light"]{
+      --bg:#f4f4f4;--bg2:#fff;--bg3:#e8e8f0;
+      --bd:#ddd;--tx:#111;--tx2:#444;--tx3:#666;
+      --hbg:linear-gradient(135deg,#2c3e7a,#3b5fc0,#1a73e8);
+      --tabbg:#e0e0f0;--tabtx:#444;
+      --sh:rgba(230,57,70,.18);--fbd:#ddd;--tog:#c8d4f0;
     }
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: var(--bg); color: var(--text);
-      font-family: 'Segoe UI','Apple SD Gothic Neo',sans-serif;
-      min-height: 100vh; transition: background .25s, color .25s;
-    }
-    header {
-      background: var(--header-bg);
-      padding: 1.6rem 1rem 1.2rem;
-      text-align: center; border-bottom: 2px solid #e63946;
-      position: relative;
-    }
-    header h1 { font-size: clamp(1.3rem,4vw,2rem); font-weight: 800; color: #fff; }
-    header h1 span { color: #f4a261; }
-    .subtitle { margin-top: .4rem; font-size: .8rem; color: rgba(255,255,255,.7); }
-    .update-badge {
-      display: inline-block; margin-top: .7rem;
-      padding: .22rem .75rem; background: #e63946;
-      border-radius: 20px; font-size: .73rem; color: #fff; font-weight: 600;
-    }
-    .theme-toggle {
-      position: absolute; top: 1rem; right: 1rem;
-      background: var(--toggle-bg); border: none; border-radius: 24px;
-      padding: .35rem .8rem; font-size: .85rem; cursor: pointer;
-      color: #fff; display: flex; align-items: center; gap: .35rem;
-      transition: background .25s; font-weight: 600;
-      box-shadow: 0 2px 8px rgba(0,0,0,.3);
-    }
-    .theme-toggle:hover { opacity: .85; }
-    .conditions {
-      display: flex; flex-wrap: wrap; justify-content: center;
-      gap: .35rem; padding: .75rem 1rem;
-      max-width: 960px; margin: 0 auto;
-    }
-    .conditions span {
-      background: var(--bg3); border: 1px solid var(--border);
-      border-radius: 20px; padding: .25rem .7rem;
-      font-size: .72rem; color: var(--text2);
-    }
-    .tab-bar {
-      display: flex; gap: .4rem; padding: .9rem 1rem 0;
-      max-width: 1200px; margin: 0 auto;
-      border-bottom: 2px solid var(--border);
-    }
-    .tab-btn {
-      padding: .5rem 1.3rem; border: none; border-radius: 8px 8px 0 0;
-      cursor: pointer; font-size: .86rem; font-weight: 600;
-      background: var(--tab-bg); color: var(--tab-text);
-      transition: all .2s; position: relative; bottom: -2px;
-    }
-    .tab-btn:hover { color: var(--text); }
-    .tab-btn.active { background: #e63946; color: #fff; border-bottom: 2px solid #e63946; }
-    .cnt-badge {
-      display: inline-block; background: rgba(255,255,255,.25);
-      border-radius: 10px; padding: 0 .4rem; font-size: .7rem; margin-left: .3rem;
-    }
-    .tab-meta { font-size: .7rem; color: var(--text3); padding: .4rem 1rem .1rem; max-width: 1200px; margin: 0 auto; }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-    .src-chips { display: flex; flex-wrap: wrap; gap: .3rem; padding: .4rem 1rem .6rem; max-width: 1200px; margin: 0 auto; }
-    .src-chip { border-radius: 12px; padding: .18rem .6rem; font-size: .68rem; color: #fff; font-weight: 600; }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-      gap: .9rem; padding: .9rem 1rem;
-      max-width: 1200px; margin: 0 auto;
-    }
-    .card {
-      display: block; text-decoration: none;
-      background: var(--bg2); border-radius: 12px;
-      overflow: hidden; border: 1px solid var(--border);
-      transition: transform .2s, border-color .2s, box-shadow .2s;
-    }
-    .card:hover {
-      transform: translateY(-4px); border-color: #e63946;
-      box-shadow: 0 8px 24px var(--card-hover-shadow);
-    }
-    .thumb-wrap { position: relative; aspect-ratio: 9/16; overflow: hidden; background: #111; }
-    .thumb-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .play-icon {
-      position: absolute; inset: 0; display: flex;
-      align-items: center; justify-content: center;
-      font-size: 2.2rem; color: rgba(255,255,255,.9);
-      opacity: 0; background: rgba(0,0,0,.3); transition: opacity .2s;
-    }
-    .card:hover .play-icon { opacity: 1; }
-    .badge {
-      position: absolute; bottom: .4rem; left: .4rem;
-      border-radius: 8px; padding: .12rem .45rem;
-      font-size: .6rem; color: #fff; font-weight: 700;
-      backdrop-filter: blur(2px); opacity: .9;
-    }
-    .info { padding: .55rem .65rem .7rem; }
-    .title {
-      font-size: .8rem; font-weight: 600; line-height: 1.35;
-      display: -webkit-box; -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical; overflow: hidden; color: var(--text);
-    }
-    .meta { display: flex; justify-content: space-between; margin-top: .4rem; font-size: .68rem; color: var(--text3); }
-    .empty { text-align: center; padding: 4rem 1rem; color: var(--text3); }
-    .empty p { margin-top: .5rem; font-size: .88rem; }
-    footer {
-      text-align: center; padding: 1.8rem 1rem;
-      font-size: .73rem; color: var(--text3);
-      border-top: 1px solid var(--footer-border); margin-top: 1rem;
-    }
-    @media (max-width: 480px) {
-      .grid { grid-template-columns: repeat(2,1fr); gap: .55rem; padding: .6rem; }
-      .tab-btn { padding: .42rem .8rem; font-size: .78rem; }
-      .theme-toggle { top: .6rem; right: .6rem; padding: .28rem .6rem; font-size: .78rem; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--tx);
+      font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;
+      min-height:100vh;transition:background .25s,color .25s}
+
+    /* header */
+    header{background:var(--hbg);padding:1.5rem 1rem 1.1rem;
+      text-align:center;border-bottom:2px solid #e63946;position:relative}
+    header h1{font-size:clamp(1.2rem,4vw,2rem);font-weight:800;color:#fff}
+    header h1 span{color:#f4a261}
+    .sub{margin-top:.35rem;font-size:.78rem;color:rgba(255,255,255,.65)}
+    .badge{display:inline-block;margin-top:.6rem;padding:.2rem .7rem;
+      background:#e63946;border-radius:20px;font-size:.72rem;color:#fff;font-weight:600}
+
+    /* theme toggle */
+    .tog{position:absolute;top:.9rem;right:.9rem;background:var(--tog);
+      border:none;border-radius:24px;padding:.32rem .75rem;font-size:.82rem;
+      cursor:pointer;color:#fff;display:flex;align-items:center;gap:.3rem;
+      font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,.3);transition:opacity .2s}
+    .tog:hover{opacity:.8}
+
+    /* conditions */
+    .conds{display:flex;flex-wrap:wrap;justify-content:center;
+      gap:.3rem;padding:.65rem 1rem;max-width:960px;margin:0 auto}
+    .conds span{background:var(--bg3);border:1px solid var(--bd);
+      border-radius:20px;padding:.22rem .65rem;font-size:.7rem;color:var(--tx2)}
+
+    /* tab bar */
+    .tabbar{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;
+      scrollbar-width:none;padding:.8rem 1rem 0;
+      border-bottom:2px solid var(--bd);gap:.3rem;
+      position:sticky;top:0;z-index:10;
+      background:var(--bg);backdrop-filter:blur(8px)}
+    .tabbar::-webkit-scrollbar{display:none}
+    .tb{flex-shrink:0;padding:.45rem 1rem;border:none;border-radius:8px 8px 0 0;
+      cursor:pointer;font-size:.82rem;font-weight:600;
+      background:var(--tabbg);color:var(--tabtx);
+      transition:all .2s;position:relative;bottom:-2px;white-space:nowrap}
+    .tb:hover{color:var(--tx)}
+    .tb.active{background:#e63946;color:#fff;border-bottom:2px solid #e63946}
+    .cb{display:inline-block;background:rgba(255,255,255,.22);
+      border-radius:10px;padding:0 .38rem;font-size:.68rem;margin-left:.25rem}
+
+    /* tab content */
+    .tm{font-size:.7rem;color:var(--tx3);padding:.4rem 1rem .05rem;
+      max-width:1200px;margin:0 auto}
+    .tc{display:none}.tc.active{display:block}
+
+    /* grid */
+    .grid{display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(165px,1fr));
+      gap:.85rem;padding:.85rem 1rem;max-width:1200px;margin:0 auto}
+    .card{display:block;text-decoration:none;background:var(--bg2);
+      border-radius:12px;overflow:hidden;border:1px solid var(--bd);
+      transition:transform .2s,border-color .2s,box-shadow .2s}
+    .card:hover{transform:translateY(-4px);border-color:#e63946;
+      box-shadow:0 8px 24px var(--sh)}
+    .tw{position:relative;aspect-ratio:9/16;overflow:hidden;background:#111}
+    .tw img{width:100%;height:100%;object-fit:cover;display:block}
+    .pi{position:absolute;inset:0;display:flex;align-items:center;
+      justify-content:center;font-size:2rem;color:rgba(255,255,255,.9);
+      opacity:0;background:rgba(0,0,0,.28);transition:opacity .2s}
+    .card:hover .pi{opacity:1}
+    .info{padding:.5rem .6rem .65rem}
+    .tt{font-size:.79rem;font-weight:600;line-height:1.35;
+      display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+      overflow:hidden;color:var(--tx)}
+    .meta{display:flex;justify-content:space-between;
+      margin-top:.38rem;font-size:.67rem;color:var(--tx3)}
+
+    /* empty */
+    .empty{text-align:center;padding:3.5rem 1rem;color:var(--tx3)}
+    .empty p{margin-top:.4rem;font-size:.85rem}
+    .empty .sub{font-size:.75rem;color:var(--tx3);margin-top:.25rem}
+
+    footer{text-align:center;padding:1.6rem 1rem;font-size:.72rem;
+      color:var(--tx3);border-top:1px solid var(--fbd);margin-top:1rem}
+
+    @media(max-width:480px){
+      .grid{grid-template-columns:repeat(2,1fr);gap:.5rem;padding:.55rem}
+      .tb{padding:.38rem .75rem;font-size:.76rem}
+      .tog{top:.55rem;right:.55rem;padding:.25rem .6rem;font-size:.76rem}
     }
   </style>
 </head>
 <body>
 
 <header>
-  <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">
-    <span id="themeIcon">☀️</span>
-    <span id="themeLabel">라이트</span>
+  <button class="tog" onclick="toggleTheme()">
+    <span id="ti">☀️</span><span id="tl">라이트</span>
   </button>
-  <h1>&#127916; 인기 <span>YouTube Shorts</span></h1>
-  <div class="subtitle">배경음악 · 자막없음 · 1~2명 · 댄스/상황</div>
-  <div class="update-badge">마지막 업데이트: —</div>
+  <h1>🎬 국가별 인기 <span>YouTube Shorts</span></h1>
+  <div class="sub">배경음악 · 자막없음 · 1~2명 · 댄스/상황</div>
+  <div class="badge">마지막 업데이트: —</div>
 </header>
 
-<div class="conditions">
-  <span>&#127925; 배경음악만</span>
-  <span>&#128683; 자막 없음</span>
-  <span>&#128100; 인물 1~2명</span>
-  <span>&#128131; 댄스 / 상황</span>
-  <span>&#128200; 매일 17:00 KST 자동 업데이트</span>
+<div class="conds">
+  <span>🎵 배경음악만</span>
+  <span>🚫 자막 없음</span>
+  <span>👤 인물 1~2명</span>
+  <span>💃 댄스 / 상황</span>
+  <span>📈 매일 17:00 KST 자동 업데이트</span>
+  <span>🌍 17개국 트렌딩</span>
 </div>
 
-<div class="tab-bar">
-  <button class="tab-btn active" onclick="showTab('tab-api',this)">
-    &#128273; YouTube API <span class="cnt-badge">0</span>
-  </button>
-  <button class="tab-btn" onclick="showTab('tab-crawl',this)">
-    &#127760; 트렌드 크롤링 <span class="cnt-badge">0</span>
-  </button>
+<div class="tabbar">
+<button class="tb active" onclick="showTab('GLOBAL',this)">🌍 글로벌<span class="cb">0</span></button>
+<button class="tb" onclick="showTab('KR',this)">🇰🇷 한국<span class="cb">0</span></button>
+<button class="tb" onclick="showTab('US',this)">🇺🇸 미국<span class="cb">0</span></button>
+<button class="tb" onclick="showTab('JP',this)">🇯🇵 일본<span class="cb">0</span></button>
+<button class="tb" onclick="showTab('MX',this)">🇲🇽 멕시코<span class="cb">0</span></button>
+<button class="tb" onclick="showTab('DE',this)">🇩🇪 독일<span class="cb">0</span></button>
+<button class="tb" onclick="showTab('BR',this)">🇧🇷 브라질<span class="cb">0</span></button>
+<button class="tb" onclick="showTab('ID',this)">🇮🇩 인도네시아<span class="cb">0</span></button>
+<button class="tb" onclick="showTab('AR',this)">🇦🇷 아르헨티나<span class="cb">0</span></button>
+<button class="tb" onclick="showTab('PH',this)">🇵🇭 필리핀<span class="cb">0</span></button>
+<button class="tb" onclick="showTab('ES',this)">🇪🇸 스페인<span class="cb">0</span></button>
+<button class="tb" onclick="showTab('IT',this)">🇮🇹 이탈리아<span class="cb">0</span></button>
+<button class="tb" onclick="showTab('FR',this)">🇫🇷 프랑스<span class="cb">0</span></button>
+<button class="tb" onclick="showTab('UZ',this)">🇺🇿 우즈베키스탄<span class="cb">0</span></button>
+<button class="tb" onclick="showTab('DZ',this)">🇩🇿 알제리<span class="cb">0</span></button>
+<button class="tb" onclick="showTab('KZ',this)">🇰🇿 카자흐스탄<span class="cb">0</span></button>
+<button class="tb" onclick="showTab('VN',this)">🇻🇳 베트남<span class="cb">0</span></button>
 </div>
 
-<div id="tab-api" class="tab-content active">
-  <p class="tab-meta">YouTube Data API v3 · 업데이트: —</p>
+<div id="GLOBAL" class="tc active">
+  <p class="tm">🌍 글로벌 · </p>
   <div class="empty">
-    <div style="font-size:3rem">&#127916;</div>
-    <p>첫 업데이트를 기다리는 중입니다.</p>
-    <p style="margin-top:.3rem;font-size:.8rem;color:#888">
-      GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다.</p>
-  </div>
+      <div style="font-size:2.5rem">🎬</div>
+      <p>업데이트 대기 중</p>
+      <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
+    </div>
+</div>
+<div id="KR" class="tc">
+  <p class="tm">🇰🇷 한국 · </p>
+  <div class="empty">
+      <div style="font-size:2.5rem">🎬</div>
+      <p>업데이트 대기 중</p>
+      <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
+    </div>
+</div>
+<div id="US" class="tc">
+  <p class="tm">🇺🇸 미국 · </p>
+  <div class="empty">
+      <div style="font-size:2.5rem">🎬</div>
+      <p>업데이트 대기 중</p>
+      <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
+    </div>
+</div>
+<div id="JP" class="tc">
+  <p class="tm">🇯🇵 일본 · </p>
+  <div class="empty">
+      <div style="font-size:2.5rem">🎬</div>
+      <p>업데이트 대기 중</p>
+      <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
+    </div>
+</div>
+<div id="MX" class="tc">
+  <p class="tm">🇲🇽 멕시코 · </p>
+  <div class="empty">
+      <div style="font-size:2.5rem">🎬</div>
+      <p>업데이트 대기 중</p>
+      <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
+    </div>
+</div>
+<div id="DE" class="tc">
+  <p class="tm">🇩🇪 독일 · </p>
+  <div class="empty">
+      <div style="font-size:2.5rem">🎬</div>
+      <p>업데이트 대기 중</p>
+      <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
+    </div>
+</div>
+<div id="BR" class="tc">
+  <p class="tm">🇧🇷 브라질 · </p>
+  <div class="empty">
+      <div style="font-size:2.5rem">🎬</div>
+      <p>업데이트 대기 중</p>
+      <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
+    </div>
+</div>
+<div id="ID" class="tc">
+  <p class="tm">🇮🇩 인도네시아 · </p>
+  <div class="empty">
+      <div style="font-size:2.5rem">🎬</div>
+      <p>업데이트 대기 중</p>
+      <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
+    </div>
+</div>
+<div id="AR" class="tc">
+  <p class="tm">🇦🇷 아르헨티나 · </p>
+  <div class="empty">
+      <div style="font-size:2.5rem">🎬</div>
+      <p>업데이트 대기 중</p>
+      <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
+    </div>
+</div>
+<div id="PH" class="tc">
+  <p class="tm">🇵🇭 필리핀 · </p>
+  <div class="empty">
+      <div style="font-size:2.5rem">🎬</div>
+      <p>업데이트 대기 중</p>
+      <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
+    </div>
+</div>
+<div id="ES" class="tc">
+  <p class="tm">🇪🇸 스페인 · </p>
+  <div class="empty">
+      <div style="font-size:2.5rem">🎬</div>
+      <p>업데이트 대기 중</p>
+      <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
+    </div>
+</div>
+<div id="IT" class="tc">
+  <p class="tm">🇮🇹 이탈리아 · </p>
+  <div class="empty">
+      <div style="font-size:2.5rem">🎬</div>
+      <p>업데이트 대기 중</p>
+      <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
+    </div>
+</div>
+<div id="FR" class="tc">
+  <p class="tm">🇫🇷 프랑스 · </p>
+  <div class="empty">
+      <div style="font-size:2.5rem">🎬</div>
+      <p>업데이트 대기 중</p>
+      <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
+    </div>
+</div>
+<div id="UZ" class="tc">
+  <p class="tm">🇺🇿 우즈베키스탄 · </p>
+  <div class="empty">
+      <div style="font-size:2.5rem">🎬</div>
+      <p>업데이트 대기 중</p>
+      <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
+    </div>
+</div>
+<div id="DZ" class="tc">
+  <p class="tm">🇩🇿 알제리 · </p>
+  <div class="empty">
+      <div style="font-size:2.5rem">🎬</div>
+      <p>업데이트 대기 중</p>
+      <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
+    </div>
+</div>
+<div id="KZ" class="tc">
+  <p class="tm">🇰🇿 카자흐스탄 · </p>
+  <div class="empty">
+      <div style="font-size:2.5rem">🎬</div>
+      <p>업데이트 대기 중</p>
+      <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
+    </div>
+</div>
+<div id="VN" class="tc">
+  <p class="tm">🇻🇳 베트남 · </p>
+  <div class="empty">
+      <div style="font-size:2.5rem">🎬</div>
+      <p>업데이트 대기 중</p>
+      <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
+    </div>
 </div>
 
-<div id="tab-crawl" class="tab-content">
-  <p class="tab-meta">수집 소스 15개 · 업데이트: —</p>
-  <div class="src-chips"></div>
-  <div class="empty">
-    <div style="font-size:3rem">&#127760;</div>
-    <p>첫 업데이트를 기다리는 중입니다.</p>
-    <p style="margin-top:.3rem;font-size:.8rem;color:#888">
-      트렌딩 · 해시태그 · 검색 · playboard.co 등 15개 소스에서 수집합니다.</p>
-  </div>
-</div>
 
 <footer>
-  자동 수집 · 매일 17:00 KST · YouTube Shorts 트렌드 기반<br>
+  17개국 YouTube Shorts 트렌딩 자동 수집 · 매일 17:00 KST<br>
   GitHub Actions 완전 자동화 &copy; 2026 yclaude
 </footer>
 
 <script>
-  function showTab(id, btn) {
-    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  function showTab(id,btn){
+    document.querySelectorAll('.tc').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.tb').forEach(b=>b.classList.remove('active'));
     document.getElementById(id).classList.add('active');
     btn.classList.add('active');
+    btn.scrollIntoView({block:'nearest',inline:'center',behavior:'smooth'});
   }
-  (function init() {
-    const saved = localStorage.getItem('theme') || 'dark';
-    applyTheme(saved);
-  })();
-  function toggleTheme() {
-    const curr = document.documentElement.getAttribute('data-theme');
-    applyTheme(curr === 'dark' ? 'light' : 'dark');
+  (function(){applyTheme(localStorage.getItem('theme')||'dark')})();
+  function toggleTheme(){
+    const c=document.documentElement.getAttribute('data-theme');
+    applyTheme(c==='dark'?'light':'dark');
   }
-  function applyTheme(t) {
-    document.documentElement.setAttribute('data-theme', t);
-    localStorage.setItem('theme', t);
-    const isDark = t === 'dark';
-    document.getElementById('themeIcon').textContent  = isDark ? '☀️' : '🌙';
-    document.getElementById('themeLabel').textContent = isDark ? '라이트' : '다크';
+  function applyTheme(t){
+    document.documentElement.setAttribute('data-theme',t);
+    localStorage.setItem('theme',t);
+    const d=t==='dark';
+    document.getElementById('ti').textContent=d?'☀️':'🌙';
+    document.getElementById('tl').textContent=d?'라이트':'다크';
   }
 </script>
-
 </body>
 </html>

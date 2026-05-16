@@ -1,754 +1,382 @@
 """
-YouTube Shorts 트렌드 수집 — 다중 소스 (GitHub Actions 전용)
-탭1: YouTube Data API v3
-탭2: yt-dlp 트렌딩/해시태그/검색 + playboard.co 크롤링
+YouTube Shorts 트렌드 수집 — 국가별 17개 탭 (GitHub Actions 전용)
+각 국가의 YouTube 트렌딩 Shorts + 국가별 언어 검색어로 수집
 """
 
 import json, os, re, time
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
-KST          = timezone(timedelta(hours=9))
-API_KEY      = os.environ.get("YOUTUBE_API_KEY", "")
-BASE         = Path(__file__).parent
-VIDEOS_API   = BASE / "videos_api.json"
-VIDEOS_CRAWL = BASE / "videos_crawl.json"
-INDEX_HTML   = BASE / "index.html"
-MAX_NEW      = 20
+KST        = timezone(timedelta(hours=9))
+BASE       = Path(__file__).parent
+INDEX_HTML = BASE / "index.html"
+MAX_NEW    = 15   # 국가별 최대 신규 영상 수
+DUR_RE     = re.compile(r'PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?')
 
-# ── API 검색어 ──────────────────────────────────────────
-API_QUERIES = [
-    "dance shorts no lyrics background music",
-    "dance challenge couple shorts bgm",
-    "solo dance shorts trending music",
-    "couple moment shorts viral bgm",
-    "1 person dance shorts background music only",
+# ── 국가 정의 ────────────────────────────────────────────
+# (한국어 이름, 파일코드, geo_bypass_country, 검색 키워드, 국기)
+COUNTRIES = [
+    ("글로벌",       "GLOBAL", None, "dance shorts viral bgm 2025 #shorts",          "🌍"),
+    ("한국",         "KR",     "KR", "#shorts 댄스 챌린지 bgm",                       "🇰🇷"),
+    ("미국",         "US",     "US", "dance challenge shorts bgm viral",               "🇺🇸"),
+    ("일본",         "JP",     "JP", "ダンス ショーツ bgm #shorts",                    "🇯🇵"),
+    ("멕시코",       "MX",     "MX", "baile reto shorts viral bgm",                   "🇲🇽"),
+    ("독일",         "DE",     "DE", "tanz challenge shorts bgm viral",               "🇩🇪"),
+    ("브라질",       "BR",     "BR", "dança desafio shorts bgm viral",                "🇧🇷"),
+    ("인도네시아",   "ID",     "ID", "dance challenge shorts bgm viral",              "🇮🇩"),
+    ("아르헨티나",   "AR",     "AR", "baile reto shorts bgm viral",                   "🇦🇷"),
+    ("필리핀",       "PH",     "PH", "dance challenge shorts bgm viral",              "🇵🇭"),
+    ("스페인",       "ES",     "ES", "baile reto shorts bgm viral",                   "🇪🇸"),
+    ("이탈리아",     "IT",     "IT", "ballo sfida shorts bgm viral",                  "🇮🇹"),
+    ("프랑스",       "FR",     "FR", "danse defi shorts bgm viral",                   "🇫🇷"),
+    ("우즈베키스탄", "UZ",     "UZ", "dance shorts viral bgm challenge",              "🇺🇿"),
+    ("알제리",       "DZ",     "DZ", "dance shorts viral bgm",                        "🇩🇿"),
+    ("카자흐스탄",   "KZ",     "KZ", "dance shorts viral bgm challenge",              "🇰🇿"),
+    ("베트남",       "VN",     "VN", "nhay shorts viral bgm thinh hanh",              "🇻🇳"),
 ]
 
-# ── 크롤링 소스 정의 (이름, 타입, URL/쿼리, 추가 ydl_opts) ──
-CRAWL_SOURCES = [
-    # YouTube 트렌딩 Shorts — 지역별
-    ("트렌딩 글로벌", "ytdlp",
-     "https://www.youtube.com/feed/trending?bp=4gIKGgh5dHNhX3Ntaw%3D%3D", {}),
-    ("트렌딩 KR", "ytdlp",
-     "https://www.youtube.com/feed/trending?bp=4gIKGgh5dHNhX3Ntaw%3D%3D",
-     {"geo_bypass_country": "KR"}),
-    ("트렌딩 US", "ytdlp",
-     "https://www.youtube.com/feed/trending?bp=4gIKGgh5dHNhX3Ntaw%3D%3D",
-     {"geo_bypass_country": "US"}),
-    ("트렌딩 JP", "ytdlp",
-     "https://www.youtube.com/feed/trending?bp=4gIKGgh5dHNhX3Ntaw%3D%3D",
-     {"geo_bypass_country": "JP"}),
-    # YouTube 해시태그 페이지
-    ("#shorts",          "ytdlp", "https://www.youtube.com/hashtag/shorts",         {}),
-    ("#dancechallenge",  "ytdlp", "https://www.youtube.com/hashtag/dancechallenge",  {}),
-    ("#댄스",            "ytdlp", "https://www.youtube.com/hashtag/댄스",            {}),
-    ("#bgm댄스",         "ytdlp", "https://www.youtube.com/hashtag/bgm댄스",         {}),
-    # YouTube 검색 (yt-dlp)
-    ("댄스 검색",   "search", "ytsearchdate50:dance shorts viral bgm #shorts 2025",  {}),
-    ("K-POP 검색",  "search", "ytsearchdate30:kpop dance bgm shorts #shorts",        {}),
-    ("커플 댄스",   "search", "ytsearchdate30:couple dance #shorts music bgm",        {}),
-    ("솔로 댄스",   "search", "ytsearchdate30:solo dance #shorts background music",   {}),
-    ("한국 검색",   "search", "ytsearchdate30:#shorts 댄스 챌린지",                   {}),
-    ("일본 검색",   "search", "ytsearchdate30:ショートダンス #shorts",                {}),
-    # 외부 사이트 크롤링
-    ("playboard.co",  "playboard", "https://playboard.co/chart/youtube-shorts-trending-chart", {}),
-    ("kworb 차트",    "kworb",     "https://kworb.net/youtube/videos.html", {}),
-]
+TRENDING_URL = "https://www.youtube.com/feed/trending?bp=4gIKGgh5dHNhX3Ntaw%3D%3D"
 
 EXCLUDE_KW = {
     "tutorial", "recipe", "cooking", "요리", "vlog", "브이로그",
     "자막", "subtitle", "caption", "lyrics", "가사", "review", "리뷰",
     "unboxing", "언박싱", "news", "뉴스", "asmr", "mukbang", "먹방",
-    "gaming", "게임", "prank", "compilation", "모음", "how to", "howto",
+    "gaming", "게임", "prank", "compilation", "모음", "how to",
 }
-
-YT_ID_RE = re.compile(r'["\'/](?:shorts/|watch\?v=)([A-Za-z0-9_-]{11})')
-DUR_RE   = re.compile(r'PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?')
 
 
 # ── 유틸 ────────────────────────────────────────────────
-def iso_to_sec(iso: str) -> int:
-    m = DUR_RE.match(iso or "")
-    if not m:
-        return 9999
-    h, mi, s = (int(x or 0) for x in m.groups())
-    return h * 3600 + mi * 60 + s
+def json_path(code: str) -> Path:
+    return BASE / f"videos_{code}.json"
 
-def fmt_views(n: int) -> str:
-    if n >= 100_000_000:
-        return f"{n/100_000_000:.1f}억"
-    if n >= 10_000:
-        return f"{n/10_000:.1f}만"
-    return f"{n:,}" if n else "—"
+def load_json(p: Path) -> dict:
+    if p.exists():
+        with open(p, encoding="utf-8") as f:
+            return json.load(f)
+    return {"last_updated": "", "videos": []}
 
-def now_kst_str() -> str:
+def save_json(p: Path, data: dict) -> None:
+    data["last_updated"] = datetime.now(KST).strftime("%Y-%m-%d %H:%M KST")
+    with open(p, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+def now_kst() -> str:
     return datetime.now(KST).strftime("%Y-%m-%d")
 
 def is_excluded(title: str) -> bool:
     t = title.lower()
     return any(k in t for k in EXCLUDE_KW)
 
-def load_json(path: Path) -> dict:
-    if path.exists():
-        with open(path, encoding="utf-8") as f:
-            return json.load(f)
-    return {"last_updated": "", "videos": []}
-
-def save_json(path: Path, data: dict) -> None:
-    data["last_updated"] = datetime.now(KST).strftime("%Y-%m-%d %H:%M KST")
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
-
-def make_entry(vid_id: str, title: str, view_count: int,
-               duration_sec: int, source: str) -> dict:
-    return {
-        "id":           vid_id,
-        "title":        title,
-        "thumbnail":    f"https://img.youtube.com/vi/{vid_id}/hqdefault.jpg",
-        "url":          f"https://www.youtube.com/shorts/{vid_id}",
-        "added_date":   now_kst_str(),
-        "view_count":   view_count,
-        "duration_sec": duration_sec,
-        "source":       source,
-    }
+def fmt_views(n: int) -> str:
+    if n >= 100_000_000: return f"{n/100_000_000:.1f}억"
+    if n >= 10_000:      return f"{n/10_000:.1f}만"
+    return f"{n:,}" if n else "—"
 
 
-# ── Tab 1: YouTube Data API ──────────────────────────────
-def fetch_api(existing_ids: set) -> list[dict]:
-    if not API_KEY:
-        print("[API] YOUTUBE_API_KEY 없음 — 스킵")
-        return []
-    try:
-        from googleapiclient.discovery import build
-    except ImportError:
-        print("[API] google-api-python-client 미설치")
-        return []
-
-    youtube = build("youtube", "v3", developerKey=API_KEY)
-    since   = (datetime.now(timezone.utc) - timedelta(days=14)).strftime("%Y-%m-%dT%H:%M:%SZ")
-    new, seen = [], set(existing_ids)
-
-    for q in API_QUERIES:
-        print(f"  [API] 검색: {q!r}")
-        try:
-            resp = youtube.search().list(
-                q=q, part="id", type="video", videoDuration="short",
-                order="viewCount", publishedAfter=since,
-                regionCode="KR", maxResults=25,
-            ).execute()
-            fresh = [i["id"]["videoId"] for i in resp.get("items", [])
-                     if i["id"]["videoId"] not in seen]
-            if not fresh:
-                continue
-            det = youtube.videos().list(
-                part="snippet,contentDetails,statistics",
-                id=",".join(fresh),
-            ).execute()
-            for item in det.get("items", []):
-                secs = iso_to_sec(item["contentDetails"]["duration"])
-                if secs > 90:
-                    continue
-                vid  = item["id"]
-                title = item["snippet"].get("title", "")
-                if is_excluded(title):
-                    continue
-                vc = int(item.get("statistics", {}).get("viewCount", 0))
-                seen.add(vid)
-                new.append(make_entry(vid, title, vc, secs, "YouTube API"))
-        except Exception as e:
-            print(f"  [API] 오류: {e}")
-        if len(new) >= MAX_NEW:
-            break
-
-    new.sort(key=lambda v: v["view_count"], reverse=True)
-    print(f"[API] 신규 {len(new[:MAX_NEW])}개")
-    return new[:MAX_NEW]
-
-
-# ── Tab 2: yt-dlp 추출 ──────────────────────────────────
-def _ydlp_extract(url: str, extra_opts: dict, source_name: str,
-                  seen: set) -> list[dict]:
+# ── yt-dlp 수집 ──────────────────────────────────────────
+def _ydlp(url: str, opts: dict) -> list[dict]:
     try:
         import yt_dlp
     except ImportError:
         return []
-
-    opts = {
-        "quiet":        True,
-        "no_warnings":  True,
-        "extract_flat": True,
-        "playlistend":  40,
-        "ignoreerrors": True,
-        **extra_opts,
+    full_opts = {
+        "quiet": True, "no_warnings": True,
+        "extract_flat": True, "playlistend": 35,
+        "ignoreerrors": True, **opts,
     }
-    results = []
     try:
-        with yt_dlp.YoutubeDL(opts) as ydl:
+        with yt_dlp.YoutubeDL(full_opts) as ydl:
             info = ydl.extract_info(url, download=False) or {}
-            for e in info.get("entries", []):
-                if not e:
-                    continue
-                vid_id = e.get("id", "")
-                if not vid_id or vid_id in seen:
-                    continue
-                dur = e.get("duration") or 0
-                if dur and dur > 90:
-                    continue
-                title = e.get("title", "")
-                if is_excluded(title):
-                    continue
-                seen.add(vid_id)
-                results.append(make_entry(
-                    vid_id, title,
-                    e.get("view_count", 0) or 0,
-                    int(dur), source_name,
-                ))
-    except Exception as ex:
-        print(f"  [yt-dlp] {source_name} 오류: {ex}")
-    return results
-
-
-# ── Tab 2: 웹 사이트 크롤링 ──────────────────────────────
-def _scrape_site(url: str, source_name: str, seen: set) -> list[dict]:
-    """requests + regex 로 YouTube 영상 ID 추출"""
-    try:
-        import requests as req
-    except ImportError:
-        print(f"  [{source_name}] requests 미설치")
+            return info.get("entries", [])
+    except Exception as e:
+        print(f"    yt-dlp 오류: {e}")
         return []
 
-    headers = {
-        "User-Agent": (
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-            "AppleWebKit/537.36 (KHTML, like Gecko) "
-            "Chrome/124.0.0.0 Safari/537.36"
-        ),
-        "Accept-Language": "ko-KR,ko;q=0.9,en;q=0.8",
-    }
-    try:
-        r = req.get(url, headers=headers, timeout=15)
-        r.raise_for_status()
-        ids_found = dict.fromkeys(YT_ID_RE.findall(r.text))  # 순서 보존 dedup
-    except Exception as ex:
-        print(f"  [{source_name}] 접속 오류: {ex}")
-        return []
 
-    results = []
-    for vid_id in ids_found:
-        if vid_id in seen or len(vid_id) != 11:
-            continue
-        # noembed 로 제목 조회 (간단, API 키 불필요)
-        title, vc = _noembed(vid_id)
-        if title and is_excluded(title):
-            continue
-        seen.add(vid_id)
-        results.append(make_entry(vid_id, title, vc, 0, source_name))
-        if len(results) >= 15:
-            break
+def fetch_country(name: str, code: str, geo: str | None,
+                  query: str, existing_ids: set) -> list[dict]:
+    geo_opts = {"geo_bypass_country": geo} if geo else {}
+    seen = set(existing_ids)
+    new: list[dict] = []
 
-    return results
+    sources = [
+        (TRENDING_URL,                geo_opts),
+        (f"ytsearchdate30:{query}",   geo_opts),
+    ]
 
+    for url, extra in sources:
+        print(f"    ↳ {url[:70]}")
+        entries = _ydlp(url, extra)
+        for e in entries:
+            if not e:
+                continue
+            vid_id = e.get("id", "")
+            if not vid_id or vid_id in seen:
+                continue
+            dur = e.get("duration") or 0
+            if dur and dur > 90:
+                continue
+            title = e.get("title", "")
+            if is_excluded(title):
+                continue
+            seen.add(vid_id)
+            new.append({
+                "id":           vid_id,
+                "title":        title,
+                "thumbnail":    f"https://img.youtube.com/vi/{vid_id}/hqdefault.jpg",
+                "url":          f"https://www.youtube.com/shorts/{vid_id}",
+                "added_date":   now_kst(),
+                "view_count":   e.get("view_count", 0) or 0,
+                "duration_sec": int(dur),
+            })
+        time.sleep(1.5)   # YouTube 레이트 리밋 방지
 
-def _noembed(vid_id: str) -> tuple[str, int]:
-    """noembed.com 으로 제목 조회 (API 키 불필요)"""
-    try:
-        import requests as req
-        r = req.get(
-            f"https://noembed.com/embed?url=https://www.youtube.com/watch?v={vid_id}",
-            timeout=6,
-        )
-        if r.ok:
-            d = r.json()
-            return d.get("title", ""), 0
-    except Exception:
-        pass
-    return "", 0
-
-
-# ── Tab 2: 전체 크롤링 ───────────────────────────────────
-def fetch_crawl(existing_ids: set) -> list[dict]:
-    seen   = set(existing_ids)
-    all_new: list[dict] = []
-
-    for name, src_type, url_or_q, extra in CRAWL_SOURCES:
-        print(f"  [크롤] {name} ({src_type})")
-        before = len(all_new)
-
-        if src_type in ("ytdlp", "search"):
-            chunk = _ydlp_extract(url_or_q, extra, name, seen)
-        elif src_type in ("playboard", "kworb"):
-            chunk = _scrape_site(url_or_q, name, seen)
-        else:
-            chunk = []
-
-        all_new.extend(chunk)
-        print(f"         → {len(all_new) - before}개 수집")
-
-    # 조회수 정렬 → 상위 MAX_NEW
-    all_new.sort(key=lambda v: v["view_count"], reverse=True)
-    print(f"[크롤] 총 신규 {len(all_new[:MAX_NEW])}개")
-    return all_new[:MAX_NEW]
+    new.sort(key=lambda v: v["view_count"], reverse=True)
+    result = new[:MAX_NEW]
+    print(f"    → 신규 {len(result)}개")
+    return result
 
 
 # ── HTML 생성 ────────────────────────────────────────────
-SOURCE_COLORS = {
-    "YouTube API":      "#e63946",
-    "트렌딩 글로벌":    "#457b9d",
-    "트렌딩 KR":        "#e07a5f",
-    "트렌딩 US":        "#3d405b",
-    "트렌딩 JP":        "#81b29a",
-    "#shorts":          "#f2cc8f",
-    "#dancechallenge":  "#f4a261",
-    "#댄스":            "#e76f51",
-    "#bgm댄스":         "#2a9d8f",
-    "댄스 검색":        "#264653",
-    "K-POP 검색":       "#8338ec",
-    "커플 댄스":        "#fb5607",
-    "솔로 댄스":        "#ff006e",
-    "한국 검색":        "#ffbe0b",
-    "일본 검색":        "#3a86ff",
-    "playboard.co":     "#06d6a0",
-    "kworb 차트":       "#118ab2",
-}
-
-def _badge(source: str) -> str:
-    color = SOURCE_COLORS.get(source, "#555")
-    return (f'<span class="badge" style="background:{color}">'
-            f'{source}</span>')
-
-def _card(v: dict, show_source: bool = False) -> str:
+def _card(v: dict) -> str:
     views = fmt_views(v.get("view_count", 0))
     date  = v.get("added_date", "")
-    title = (v.get("title", "") or v["id"]).replace("<", "&lt;").replace(">", "&gt;")
-    badge = _badge(v.get("source", "")) if show_source else ""
+    title = (v.get("title", "") or v["id"]).replace("<","&lt;").replace(">","&gt;")
     return f"""<a class="card" href="{v['url']}" target="_blank" rel="noopener">
-      <div class="thumb-wrap">
+      <div class="tw">
         <img loading="lazy" src="{v['thumbnail']}" alt="{title}">
-        <span class="play-icon">&#9654;</span>
-        {badge}
+        <span class="pi">&#9654;</span>
       </div>
       <div class="info">
-        <p class="title">{title or '(제목 없음)'}</p>
-        <p class="meta"><span>&#128065; {views}</span><span>&#128197; {date}</span></p>
+        <p class="tt">{title or '(제목 없음)'}</p>
+        <p class="meta"><span>👁 {views}</span><span>📅 {date}</span></p>
       </div>
     </a>"""
 
-def _grid(videos: list[dict], show_source: bool = False) -> str:
+def _grid(videos: list[dict]) -> str:
     if not videos:
         return """<div class="empty">
-      <div style="font-size:3rem">&#127916;</div>
-      <p>첫 업데이트를 기다리는 중입니다.</p>
-      <p style="margin-top:.3rem;font-size:.8rem;color:#888">
-        GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다.</p>
+      <div style="font-size:2.5rem">🎬</div>
+      <p>업데이트 대기 중</p>
+      <p class="sub">GitHub Actions가 매일 17:00 KST에 자동으로 채웁니다</p>
     </div>"""
-    return ("<div class='grid'>"
-            + "".join(_card(v, show_source) for v in videos)
-            + "</div>")
+    return "<div class='grid'>" + "".join(_card(v) for v in videos) + "</div>"
 
-def regenerate_html(api_data: dict, crawl_data: dict) -> None:
-    year       = datetime.now(KST).year
-    api_last   = api_data.get("last_updated", "—")
-    crawl_last = crawl_data.get("last_updated", "—")
-    last       = api_last if api_last != "—" else crawl_last
+def regenerate_html(all_data: list[tuple]) -> None:
+    """all_data: [(name, code, flag, data_dict), ...]"""
+    last_times = [d.get("last_updated","") for _,_,_,d in all_data if d.get("last_updated")]
+    last = max(last_times) if last_times else "—"
+    year = datetime.now(KST).year
 
-    api_cnt   = len(api_data["videos"])
-    crawl_cnt = len(crawl_data["videos"])
+    # 탭 버튼
+    tab_btns = ""
+    for i, (name, code, flag, data) in enumerate(all_data):
+        cnt   = len(data["videos"])
+        active = " active" if i == 0 else ""
+        tab_btns += (
+            f'<button class="tb{active}" '
+            f'onclick="showTab(\'{code}\',this)">'
+            f'{flag} {name}'
+            f'<span class="cb">{cnt}</span></button>\n'
+        )
 
-    # 크롤링 소스 목록 (현재 데이터에 있는 것만)
-    sources_used = sorted({v.get("source", "") for v in crawl_data["videos"]} - {""})
-    src_list_html = "".join(
-        f'<span class="src-chip" style="background:{SOURCE_COLORS.get(s,"#555")}">{s}</span>'
-        for s in sources_used
-    )
+    # 탭 콘텐츠
+    tab_contents = ""
+    for i, (name, code, flag, data) in enumerate(all_data):
+        active  = " active" if i == 0 else ""
+        updated = data.get("last_updated", "—")
+        tab_contents += (
+            f'<div id="{code}" class="tc{active}">\n'
+            f'  <p class="tm">{flag} {name} · {updated}</p>\n'
+            f'  {_grid(data["videos"])}\n'
+            f'</div>\n'
+        )
 
     html = f"""<!DOCTYPE html>
 <html lang="ko" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>인기 YouTube Shorts</title>
+  <title>인기 YouTube Shorts — 국가별</title>
   <style>
-    /* ── CSS 변수 (다크/라이트) ─────────────── */
-    :root[data-theme="dark"] {{
-      --bg:        #0f0f0f;
-      --bg2:       #1a1a1a;
-      --bg3:       #1e1e2e;
-      --border:    #2a2a2a;
-      --text:      #e8e8e8;
-      --text2:     #aaa;
-      --text3:     #888;
-      --header-bg: linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);
-      --tab-bg:    #1e1e2e;
-      --tab-text:  #999;
-      --card-hover-shadow: rgba(230,57,70,.25);
-      --footer-border: #1e1e1e;
-      --toggle-bg: #2a2a3e;
-      --toggle-icon: "☀️";
+    :root[data-theme="dark"]{{
+      --bg:#0f0f0f;--bg2:#1a1a1a;--bg3:#1e1e2e;
+      --bd:#2a2a2a;--tx:#e8e8e8;--tx2:#aaa;--tx3:#888;
+      --hbg:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);
+      --tabbg:#1e1e2e;--tabtx:#999;
+      --sh:rgba(230,57,70,.25);--fbd:#1e1e1e;--tog:#2a2a3e;
     }}
-    :root[data-theme="light"] {{
-      --bg:        #f5f5f5;
-      --bg2:       #ffffff;
-      --bg3:       #e8e8f0;
-      --border:    #ddd;
-      --text:      #111;
-      --text2:     #444;
-      --text3:     #666;
-      --header-bg: linear-gradient(135deg,#2c3e7a,#3b5fc0,#1a73e8);
-      --tab-bg:    #e0e0f0;
-      --tab-text:  #444;
-      --card-hover-shadow: rgba(230,57,70,.18);
-      --footer-border: #ddd;
-      --toggle-bg: #d0d8f0;
-      --toggle-icon: "🌙";
+    :root[data-theme="light"]{{
+      --bg:#f4f4f4;--bg2:#fff;--bg3:#e8e8f0;
+      --bd:#ddd;--tx:#111;--tx2:#444;--tx3:#666;
+      --hbg:linear-gradient(135deg,#2c3e7a,#3b5fc0,#1a73e8);
+      --tabbg:#e0e0f0;--tabtx:#444;
+      --sh:rgba(230,57,70,.18);--fbd:#ddd;--tog:#c8d4f0;
     }}
+    *,*::before,*::after{{box-sizing:border-box;margin:0;padding:0}}
+    body{{background:var(--bg);color:var(--tx);
+      font-family:'Segoe UI','Apple SD Gothic Neo',sans-serif;
+      min-height:100vh;transition:background .25s,color .25s}}
 
-    *, *::before, *::after {{ box-sizing: border-box; margin: 0; padding: 0; }}
-    body {{
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'Segoe UI','Apple SD Gothic Neo',sans-serif;
-      min-height: 100vh;
-      transition: background .25s, color .25s;
-    }}
+    /* header */
+    header{{background:var(--hbg);padding:1.5rem 1rem 1.1rem;
+      text-align:center;border-bottom:2px solid #e63946;position:relative}}
+    header h1{{font-size:clamp(1.2rem,4vw,2rem);font-weight:800;color:#fff}}
+    header h1 span{{color:#f4a261}}
+    .sub{{margin-top:.35rem;font-size:.78rem;color:rgba(255,255,255,.65)}}
+    .badge{{display:inline-block;margin-top:.6rem;padding:.2rem .7rem;
+      background:#e63946;border-radius:20px;font-size:.72rem;color:#fff;font-weight:600}}
 
-    /* ── 헤더 ── */
-    header {{
-      background: var(--header-bg);
-      padding: 1.6rem 1rem 1.2rem;
-      text-align: center;
-      border-bottom: 2px solid #e63946;
-      position: relative;
-    }}
-    header h1 {{
-      font-size: clamp(1.3rem,4vw,2rem);
-      font-weight: 800;
-      color: #fff;
-    }}
-    header h1 span {{ color: #f4a261; }}
-    .subtitle {{ margin-top: .4rem; font-size: .8rem; color: rgba(255,255,255,.7); }}
-    .update-badge {{
-      display: inline-block;
-      margin-top: .7rem;
-      padding: .22rem .75rem;
-      background: #e63946;
-      border-radius: 20px;
-      font-size: .73rem;
-      color: #fff;
-      font-weight: 600;
-    }}
+    /* theme toggle */
+    .tog{{position:absolute;top:.9rem;right:.9rem;background:var(--tog);
+      border:none;border-radius:24px;padding:.32rem .75rem;font-size:.82rem;
+      cursor:pointer;color:#fff;display:flex;align-items:center;gap:.3rem;
+      font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,.3);transition:opacity .2s}}
+    .tog:hover{{opacity:.8}}
 
-    /* ── 다크/라이트 토글 ── */
-    .theme-toggle {{
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      background: var(--toggle-bg);
-      border: none;
-      border-radius: 24px;
-      padding: .35rem .8rem;
-      font-size: .85rem;
-      cursor: pointer;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      gap: .35rem;
-      transition: background .25s;
-      font-weight: 600;
-      box-shadow: 0 2px 8px rgba(0,0,0,.3);
-    }}
-    .theme-toggle:hover {{ opacity: .85; }}
+    /* conditions */
+    .conds{{display:flex;flex-wrap:wrap;justify-content:center;
+      gap:.3rem;padding:.65rem 1rem;max-width:960px;margin:0 auto}}
+    .conds span{{background:var(--bg3);border:1px solid var(--bd);
+      border-radius:20px;padding:.22rem .65rem;font-size:.7rem;color:var(--tx2)}}
 
-    /* ── 조건 칩 ── */
-    .conditions {{
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: .35rem;
-      padding: .75rem 1rem;
-      max-width: 960px;
-      margin: 0 auto;
-    }}
-    .conditions span {{
-      background: var(--bg3);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: .25rem .7rem;
-      font-size: .72rem;
-      color: var(--text2);
-    }}
+    /* tab bar */
+    .tabbar{{display:flex;overflow-x:auto;-webkit-overflow-scrolling:touch;
+      scrollbar-width:none;padding:.8rem 1rem 0;
+      border-bottom:2px solid var(--bd);gap:.3rem;
+      position:sticky;top:0;z-index:10;
+      background:var(--bg);backdrop-filter:blur(8px)}}
+    .tabbar::-webkit-scrollbar{{display:none}}
+    .tb{{flex-shrink:0;padding:.45rem 1rem;border:none;border-radius:8px 8px 0 0;
+      cursor:pointer;font-size:.82rem;font-weight:600;
+      background:var(--tabbg);color:var(--tabtx);
+      transition:all .2s;position:relative;bottom:-2px;white-space:nowrap}}
+    .tb:hover{{color:var(--tx)}}
+    .tb.active{{background:#e63946;color:#fff;border-bottom:2px solid #e63946}}
+    .cb{{display:inline-block;background:rgba(255,255,255,.22);
+      border-radius:10px;padding:0 .38rem;font-size:.68rem;margin-left:.25rem}}
 
-    /* ── 탭 바 ── */
-    .tab-bar {{
-      display: flex;
-      gap: .4rem;
-      padding: .9rem 1rem 0;
-      max-width: 1200px;
-      margin: 0 auto;
-      border-bottom: 2px solid var(--border);
-    }}
-    .tab-btn {{
-      padding: .5rem 1.3rem;
-      border: none;
-      border-radius: 8px 8px 0 0;
-      cursor: pointer;
-      font-size: .86rem;
-      font-weight: 600;
-      background: var(--tab-bg);
-      color: var(--tab-text);
-      transition: all .2s;
-      position: relative;
-      bottom: -2px;
-    }}
-    .tab-btn:hover {{ color: var(--text); }}
-    .tab-btn.active {{
-      background: #e63946;
-      color: #fff;
-      border-bottom: 2px solid #e63946;
-    }}
-    .cnt-badge {{
-      display: inline-block;
-      background: rgba(255,255,255,.25);
-      border-radius: 10px;
-      padding: 0 .4rem;
-      font-size: .7rem;
-      margin-left: .3rem;
-    }}
-    .tab-meta {{
-      font-size: .7rem;
-      color: var(--text3);
-      padding: .4rem 1rem .1rem;
-      max-width: 1200px;
-      margin: 0 auto;
-    }}
-    .tab-content {{ display: none; }}
-    .tab-content.active {{ display: block; }}
+    /* tab content */
+    .tm{{font-size:.7rem;color:var(--tx3);padding:.4rem 1rem .05rem;
+      max-width:1200px;margin:0 auto}}
+    .tc{{display:none}}.tc.active{{display:block}}
 
-    /* ── 소스 칩 목록 ── */
-    .src-chips {{
-      display: flex;
-      flex-wrap: wrap;
-      gap: .3rem;
-      padding: .4rem 1rem .6rem;
-      max-width: 1200px;
-      margin: 0 auto;
-    }}
-    .src-chip {{
-      border-radius: 12px;
-      padding: .18rem .6rem;
-      font-size: .68rem;
-      color: #fff;
-      font-weight: 600;
-    }}
+    /* grid */
+    .grid{{display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(165px,1fr));
+      gap:.85rem;padding:.85rem 1rem;max-width:1200px;margin:0 auto}}
+    .card{{display:block;text-decoration:none;background:var(--bg2);
+      border-radius:12px;overflow:hidden;border:1px solid var(--bd);
+      transition:transform .2s,border-color .2s,box-shadow .2s}}
+    .card:hover{{transform:translateY(-4px);border-color:#e63946;
+      box-shadow:0 8px 24px var(--sh)}}
+    .tw{{position:relative;aspect-ratio:9/16;overflow:hidden;background:#111}}
+    .tw img{{width:100%;height:100%;object-fit:cover;display:block}}
+    .pi{{position:absolute;inset:0;display:flex;align-items:center;
+      justify-content:center;font-size:2rem;color:rgba(255,255,255,.9);
+      opacity:0;background:rgba(0,0,0,.28);transition:opacity .2s}}
+    .card:hover .pi{{opacity:1}}
+    .info{{padding:.5rem .6rem .65rem}}
+    .tt{{font-size:.79rem;font-weight:600;line-height:1.35;
+      display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+      overflow:hidden;color:var(--tx)}}
+    .meta{{display:flex;justify-content:space-between;
+      margin-top:.38rem;font-size:.67rem;color:var(--tx3)}}
 
-    /* ── 카드 그리드 ── */
-    .grid {{
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
-      gap: .9rem;
-      padding: .9rem 1rem;
-      max-width: 1200px;
-      margin: 0 auto;
-    }}
-    .card {{
-      display: block;
-      text-decoration: none;
-      background: var(--bg2);
-      border-radius: 12px;
-      overflow: hidden;
-      border: 1px solid var(--border);
-      transition: transform .2s, border-color .2s, box-shadow .2s;
-    }}
-    .card:hover {{
-      transform: translateY(-4px);
-      border-color: #e63946;
-      box-shadow: 0 8px 24px var(--card-hover-shadow);
-    }}
-    .thumb-wrap {{
-      position: relative;
-      aspect-ratio: 9/16;
-      overflow: hidden;
-      background: #111;
-    }}
-    .thumb-wrap img {{
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }}
-    .play-icon {{
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2.2rem;
-      color: rgba(255,255,255,.9);
-      opacity: 0;
-      background: rgba(0,0,0,.3);
-      transition: opacity .2s;
-    }}
-    .card:hover .play-icon {{ opacity: 1; }}
-    .badge {{
-      position: absolute;
-      bottom: .4rem;
-      left: .4rem;
-      border-radius: 8px;
-      padding: .12rem .45rem;
-      font-size: .6rem;
-      color: #fff;
-      font-weight: 700;
-      backdrop-filter: blur(2px);
-      opacity: .9;
-    }}
-    .info {{ padding: .55rem .65rem .7rem; }}
-    .title {{
-      font-size: .8rem;
-      font-weight: 600;
-      line-height: 1.35;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-      color: var(--text);
-    }}
-    .meta {{
-      display: flex;
-      justify-content: space-between;
-      margin-top: .4rem;
-      font-size: .68rem;
-      color: var(--text3);
-    }}
-    .empty {{
-      text-align: center;
-      padding: 4rem 1rem;
-      color: var(--text3);
-    }}
-    .empty p {{ margin-top: .5rem; font-size: .88rem; }}
+    /* empty */
+    .empty{{text-align:center;padding:3.5rem 1rem;color:var(--tx3)}}
+    .empty p{{margin-top:.4rem;font-size:.85rem}}
+    .empty .sub{{font-size:.75rem;color:var(--tx3);margin-top:.25rem}}
 
-    footer {{
-      text-align: center;
-      padding: 1.8rem 1rem;
-      font-size: .73rem;
-      color: var(--text3);
-      border-top: 1px solid var(--footer-border);
-      margin-top: 1rem;
-    }}
+    footer{{text-align:center;padding:1.6rem 1rem;font-size:.72rem;
+      color:var(--tx3);border-top:1px solid var(--fbd);margin-top:1rem}}
 
-    @media (max-width: 480px) {{
-      .grid {{ grid-template-columns: repeat(2,1fr); gap: .55rem; padding: .6rem; }}
-      .tab-btn {{ padding: .42rem .8rem; font-size: .78rem; }}
-      .theme-toggle {{ top: .6rem; right: .6rem; padding: .28rem .6rem; font-size: .78rem; }}
+    @media(max-width:480px){{
+      .grid{{grid-template-columns:repeat(2,1fr);gap:.5rem;padding:.55rem}}
+      .tb{{padding:.38rem .75rem;font-size:.76rem}}
+      .tog{{top:.55rem;right:.55rem;padding:.25rem .6rem;font-size:.76rem}}
     }}
   </style>
 </head>
 <body>
 
 <header>
-  <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">
-    <span id="themeIcon">☀️</span> <span id="themeLabel">라이트</span>
+  <button class="tog" onclick="toggleTheme()">
+    <span id="ti">☀️</span><span id="tl">라이트</span>
   </button>
-  <h1>&#127916; 인기 <span>YouTube Shorts</span></h1>
-  <div class="subtitle">배경음악 · 자막없음 · 1~2명 · 댄스/상황</div>
-  <div class="update-badge">마지막 업데이트: {last}</div>
+  <h1>🎬 국가별 인기 <span>YouTube Shorts</span></h1>
+  <div class="sub">배경음악 · 자막없음 · 1~2명 · 댄스/상황</div>
+  <div class="badge">마지막 업데이트: {last}</div>
 </header>
 
-<div class="conditions">
-  <span>&#127925; 배경음악만</span>
-  <span>&#128683; 자막 없음</span>
-  <span>&#128100; 인물 1~2명</span>
-  <span>&#128131; 댄스 / 상황</span>
-  <span>&#128200; 매일 17:00 KST 자동 업데이트</span>
+<div class="conds">
+  <span>🎵 배경음악만</span>
+  <span>🚫 자막 없음</span>
+  <span>👤 인물 1~2명</span>
+  <span>💃 댄스 / 상황</span>
+  <span>📈 매일 17:00 KST 자동 업데이트</span>
+  <span>🌍 17개국 트렌딩</span>
 </div>
 
-<div class="tab-bar">
-  <button class="tab-btn active" onclick="showTab('tab-api',this)">
-    &#128273; YouTube API
-    <span class="cnt-badge">{api_cnt}</span>
-  </button>
-  <button class="tab-btn" onclick="showTab('tab-crawl',this)">
-    &#127760; 트렌드 크롤링
-    <span class="cnt-badge">{crawl_cnt}</span>
-  </button>
-</div>
+<div class="tabbar">
+{tab_btns}</div>
 
-<div id="tab-api" class="tab-content active">
-  <p class="tab-meta">YouTube Data API v3 &nbsp;·&nbsp; 업데이트: {api_last}</p>
-  {_grid(api_data["videos"], show_source=False)}
-</div>
-
-<div id="tab-crawl" class="tab-content">
-  <p class="tab-meta">
-    수집 소스 {len(sources_used)}개 &nbsp;·&nbsp; 업데이트: {crawl_last}
-  </p>
-  <div class="src-chips">{src_list_html}</div>
-  {_grid(crawl_data["videos"], show_source=True)}
-</div>
+{tab_contents}
 
 <footer>
-  자동 수집 · 매일 17:00 KST · YouTube Shorts 트렌드 기반<br>
+  17개국 YouTube Shorts 트렌딩 자동 수집 · 매일 17:00 KST<br>
   GitHub Actions 완전 자동화 &copy; {year} yclaude
 </footer>
 
 <script>
-  /* ── 탭 전환 ── */
-  function showTab(id, btn) {{
-    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  function showTab(id,btn){{
+    document.querySelectorAll('.tc').forEach(t=>t.classList.remove('active'));
+    document.querySelectorAll('.tb').forEach(b=>b.classList.remove('active'));
     document.getElementById(id).classList.add('active');
     btn.classList.add('active');
+    btn.scrollIntoView({{block:'nearest',inline:'center',behavior:'smooth'}});
   }}
-
-  /* ── 다크/라이트 토글 ── */
-  (function init() {{
-    const saved = localStorage.getItem('theme') || 'dark';
-    applyTheme(saved);
-  }})();
-
-  function toggleTheme() {{
-    const curr = document.documentElement.getAttribute('data-theme');
-    applyTheme(curr === 'dark' ? 'light' : 'dark');
+  (function(){{applyTheme(localStorage.getItem('theme')||'dark')}})();
+  function toggleTheme(){{
+    const c=document.documentElement.getAttribute('data-theme');
+    applyTheme(c==='dark'?'light':'dark');
   }}
-
-  function applyTheme(t) {{
-    document.documentElement.setAttribute('data-theme', t);
-    localStorage.setItem('theme', t);
-    const isDark = t === 'dark';
-    document.getElementById('themeIcon').textContent  = isDark ? '☀️' : '🌙';
-    document.getElementById('themeLabel').textContent = isDark ? '라이트' : '다크';
+  function applyTheme(t){{
+    document.documentElement.setAttribute('data-theme',t);
+    localStorage.setItem('theme',t);
+    const d=t==='dark';
+    document.getElementById('ti').textContent=d?'☀️':'🌙';
+    document.getElementById('tl').textContent=d?'라이트':'다크';
   }}
 </script>
-
 </body>
 </html>
 """
     with open(INDEX_HTML, "w", encoding="utf-8") as f:
         f.write(html)
-    print(f"index.html 완료 (API {api_cnt}개 + 크롤 {crawl_cnt}개)")
+    total = sum(len(d["videos"]) for _,_,_,d in all_data)
+    print(f"index.html 완료 — 총 {total}개 영상 / {len(all_data)}개국")
 
 
 # ── 메인 ─────────────────────────────────────────────────
 def main():
-    print("=== YouTube Shorts 수집 시작 ===")
+    print("=== YouTube Shorts 국가별 수집 시작 ===")
+    all_data = []
 
-    api_data   = load_json(VIDEOS_API)
-    crawl_data = load_json(VIDEOS_CRAWL)
+    for name, code, geo, query, flag in COUNTRIES:
+        print(f"\n[{flag} {name} / {code}]")
+        p    = json_path(code)
+        data = load_json(p)
+        existing = {v["id"] for v in data["videos"]}
 
-    # Tab 1: YouTube API
-    new_api = fetch_api({v["id"] for v in api_data["videos"]})
-    if new_api:
-        api_data["videos"] = new_api + api_data["videos"]
-    save_json(VIDEOS_API, api_data)
+        new = fetch_country(name, code, geo, query, existing)
+        if new:
+            data["videos"] = new + data["videos"]
+        save_json(p, data)
+        all_data.append((name, code, flag, data))
 
-    # Tab 2: 다중 소스 크롤링
-    new_crawl = fetch_crawl({v["id"] for v in crawl_data["videos"]})
-    if new_crawl:
-        crawl_data["videos"] = new_crawl + crawl_data["videos"]
-    save_json(VIDEOS_CRAWL, crawl_data)
-
-    # HTML 재생성
-    regenerate_html(api_data, crawl_data)
-    print("=== 완료 ===")
+    regenerate_html(all_data)
+    print("\n=== 완료 ===")
 
 
 if __name__ == "__main__":
