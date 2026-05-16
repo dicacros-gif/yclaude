@@ -590,9 +590,10 @@ def _analysis_section(api_data: list[dict], all_data: list[tuple]) -> str:
   <div class="ana-intro">
     <div class="ana-badge">🧠 DEEP DIVE · YouTube Shorts Algorithm</div>
     <h2>왜 1억뷰가 나오는가?</h2>
-    <p>YouTube Shorts의 1억뷰는 운이 아닙니다. <b>알고리즘 신호 6가지</b>와 <b>심리 트리거 3가지</b>가 정확히 맞물릴 때만 발생합니다.
+    <p>YouTube Shorts의 <b class="num">1억뷰</b>는 <b>운이 아닙니다</b>.
+    <b class="k">알고리즘 신호 6가지</b>와 <b class="k">심리 트리거 3가지</b>가 정확히 맞물릴 때만 발생합니다.
     YouTube는 영상의 <b>완주율</b>, <b>반복 시청률</b>, <b>좋아요/댓글/공유 비율</b>, <b>피드 체류 시간</b>을 실시간 계산하여
-    상위 0.001% 영상에만 폭발적 추천을 합니다. 아래는 그 패턴을 데이터로 분석한 결과입니다.</p>
+    <b class="num">상위 0.001%</b> 영상에만 폭발적 추천을 합니다. 아래는 그 패턴을 <b>데이터로 분석한 결과</b>입니다.</p>
   </div>
 
   <!-- 데이터 통계 -->
@@ -612,40 +613,44 @@ def _analysis_section(api_data: list[dict], all_data: list[tuple]) -> str:
   <h3 class="ana-h">🎯 1억뷰 영상의 6가지 공통 패턴</h3>
   <div class="pat-grid">
     <div class="pat"><div class="pat-i">⚡</div><h4>1. 첫 3초의 강력한 훅</h4>
-      <p>알고리즘이 가장 먼저 측정하는 것은 <b>3초 이탈률</b>. 영상이 시작되자마자 시각·청각 임팩트(빠른 움직임, 강렬한 색, 의외성)가
-      있어야 스와이프를 막을 수 있습니다. 1억뷰 영상의 87%가 첫 프레임에 사람 얼굴 또는 움직임을 노출합니다.</p></div>
+      <p>알고리즘이 가장 먼저 측정하는 것은 <b class="k">3초 이탈률</b>. 영상이 시작되자마자 <b>시각·청각 임팩트</b>(빠른 움직임, 강렬한 색, 의외성)가
+      있어야 <b>스와이프를 막을 수 있습니다</b>. 1억뷰 영상의 <b class="num">87%</b>가 첫 프레임에 <b>사람 얼굴 또는 움직임</b>을 노출합니다.</p></div>
     <div class="pat"><div class="pat-i">⏱</div><h4>2. 15~30초 골든 길이</h4>
-      <p>9~15초는 <b>완주율 90%+</b>, 16~30초는 <b>반복 시청률↑</b>. 60초 가까이 가면 완주율이 급락해 알고리즘 추천이 끊깁니다.
-      수집 데이터의 평균 길이는 <b>{avg_dur}초</b>로, 이는 글로벌 1억뷰 영상의 평균과 거의 일치합니다.</p></div>
+      <p><b>9~15초</b>는 <b class="k">완주율 90%+</b>, <b>16~30초</b>는 <b class="k">반복 시청률↑</b>. <b>60초</b> 가까이 가면 완주율이 <b>급락</b>해 알고리즘 추천이 끊깁니다.
+      수집 데이터의 평균 길이는 <b class="num">{avg_dur}초</b>로, 이는 <b>글로벌 1억뷰 영상의 평균</b>과 거의 일치합니다.</p></div>
     <div class="pat"><div class="pat-i">🎵</div><h4>3. 트렌딩 사운드 활용</h4>
-      <p>YouTube는 <b>같은 BGM을 사용한 영상끼리 클러스터링</b>해 함께 추천합니다. 인기 사운드를 타면 그 사운드 자체가
-      추천 엔진이 되어 노출량이 10배 증가. 본 사이트가 "bgm·music" 키워드를 우선 수집하는 이유입니다.</p></div>
+      <p>YouTube는 <b class="k">같은 BGM을 사용한 영상끼리 클러스터링</b>해 함께 추천합니다. 인기 사운드를 타면 그 사운드 자체가
+      <b>추천 엔진</b>이 되어 노출량이 <b class="num">10배 증가</b>. 본 사이트가 "bgm·music" 키워드를 우선 수집하는 이유입니다.</p></div>
     <div class="pat"><div class="pat-i">💃</div><h4>4. 댄스/챌린지 포맷</h4>
-      <p>댄스 영상은 <b>참여형 콘텐츠</b>이기에 시청자가 따라하고 공유하며 자가 증식합니다. 수집된 댄스 영상은 <b>{cat_dance}개</b>로
-      전체의 {cat_dance*100//max(total,1)}%. K-팝 콘텐츠는 <b>{cat_kpop}개</b> — 글로벌 팬덤의 즉각적 확산력 보유.</p></div>
+      <p>댄스 영상은 <b class="k">참여형 콘텐츠</b>이기에 시청자가 <b>따라하고 공유</b>하며 <b>자가 증식</b>합니다. 수집된 댄스 영상은 <b class="num">{cat_dance}개</b>로
+      전체의 <b class="num">{cat_dance*100//max(total,1)}%</b>. K-팝 콘텐츠는 <b class="num">{cat_kpop}개</b> — <b>글로벌 팬덤의 즉각적 확산력</b> 보유.</p></div>
     <div class="pat"><div class="pat-i">😱</div><h4>5. 감정 트리거 (놀라움·공감)</h4>
-      <p>"우와", "헐", "어떻게?" 같은 반응을 유발하면 <b>댓글률이 5배</b> 증가. 댓글은 알고리즘의 강한 신호.
-      2인 관계 영상(커플/친구)이 인기인 이유는 <b>대리만족·공감 효과</b> — 수집 데이터: <b>{cat_couple}개</b>.</p></div>
+      <p>"우와", "헐", "어떻게?" 같은 반응을 유발하면 <b class="num">댓글률이 5배 증가</b>. <b>댓글은 알고리즘의 강한 신호</b>.
+      2인 관계 영상(커플/친구)이 인기인 이유는 <b class="k">대리만족·공감 효과</b> — 수집 데이터: <b class="num">{cat_couple}개</b>.</p></div>
     <div class="pat"><div class="pat-i">🔁</div><h4>6. 반복 시청 유도</h4>
-      <p>15초 이하 영상의 핵심 무기는 <b>반복 재생</b>. 한 번 본 시청자가 2~3회 보면 "1회 시청 시간"이 영상 길이를 초과해
-      알고리즘은 이를 "초고품질 콘텐츠"로 판단. 짧고 임팩트 있는 마무리(컷, 변신, 폭로)가 핵심입니다.</p></div>
+      <p>15초 이하 영상의 핵심 무기는 <b class="k">반복 재생</b>. 한 번 본 시청자가 <b>2~3회</b> 보면 "1회 시청 시간"이 영상 길이를 초과해
+      알고리즘은 이를 <b>"초고품질 콘텐츠"</b>로 판단. 짧고 임팩트 있는 마무리(<b>컷, 변신, 폭로</b>)가 핵심입니다.</p></div>
   </div>
 
   <!-- 알고리즘 메커니즘 -->
   <h3 class="ana-h">⚙️ YouTube Shorts 알고리즘 작동 원리</h3>
   <div class="algo-grid">
     <div class="algo"><b>① 시드 노출 (Seed)</b>
-      <p>새 영상 업로드 → 구독자·유사 시청 이력 보유자 100~500명에게 노출. 첫 1시간이 운명을 결정.</p></div>
+      <p>새 영상 업로드 → 구독자·유사 시청 이력 보유자 <b class="num">100~500명</b>에게 노출.
+      <b class="k">첫 1시간</b>이 <b>운명을 결정</b>.</p></div>
     <div class="algo"><b>② 완주율 측정</b>
-      <p>시청 완료율 70%+ → 1차 합격. 50~70% → 추가 테스트. 50% 미만 → 노출 중단.</p></div>
+      <p>시청 완료율 <b class="num">70%+</b> → <b>1차 합격</b>. <b class="num">50~70%</b> → 추가 테스트.
+      <b class="num">50% 미만</b> → <b>노출 중단</b>.</p></div>
     <div class="algo"><b>③ 참여 신호 가중</b>
-      <p>좋아요·댓글·공유·구독 전환·"다시 보기" → 가중 점수. 평균 1~3% 좋아요율이 기본, 5%+ 시 폭발 트리거.</p></div>
+      <p>좋아요·댓글·공유·구독 전환·<b>"다시 보기"</b> → 가중 점수. 평균 <b class="num">1~3%</b> 좋아요율이 기본,
+      <b class="num">5%+</b> 시 <b class="k">폭발 트리거</b>.</p></div>
     <div class="algo"><b>④ 확산 단계 (Burst)</b>
-      <p>합격 시 10만 → 100만 → 1천만 단위로 노출 확대. 매 단계마다 위 지표 재검증.</p></div>
+      <p>합격 시 <b class="num">10만 → 100만 → 1천만</b> 단위로 노출 확대. 매 단계마다 위 지표 <b>재검증</b>.</p></div>
     <div class="algo"><b>⑤ 글로벌 추천 (1억+)</b>
-      <p>특정 국가 트렌딩에서 입증된 후 글로벌 피드 진입. 사운드·태그·시각 패턴이 글로벌 친화적이어야 통과.</p></div>
+      <p>특정 국가 트렌딩에서 입증된 후 <b class="k">글로벌 피드</b> 진입.
+      <b>사운드·태그·시각 패턴</b>이 글로벌 친화적이어야 통과.</p></div>
     <div class="algo"><b>⑥ 잔존 (Long-tail)</b>
-      <p>이후에도 시청 패턴이 유지되면 수개월간 추천 지속. 진정한 1억뷰는 보통 3~6개월에 걸쳐 누적.</p></div>
+      <p>이후에도 시청 패턴이 유지되면 <b>수개월간 추천 지속</b>. 진정한 1억뷰는 보통 <b class="num">3~6개월</b>에 걸쳐 누적.</p></div>
   </div>
 
   <!-- 1억+ 실제 영상 -->
@@ -916,9 +921,25 @@ def regenerate_html(api_data: list[dict], all_data: list[tuple]) -> None:
       -webkit-background-clip:text;background-clip:text;color:transparent}}
     :root[data-theme="light"] .ana-intro h2{{background:linear-gradient(135deg,#0a0a0f,#ff0050 80%);
       -webkit-background-clip:text;background-clip:text;color:transparent}}
-    .ana-intro p{{font-size:.85rem;line-height:1.65;color:var(--tx2);
+    .ana-intro p{{font-size:.85rem;line-height:1.75;color:var(--tx2);
       position:relative;z-index:1}}
-    .ana-intro p b{{color:var(--tx);font-weight:700}}
+    /* 중요 단어 — 강조 색상 + 볼드 */
+    .ana-intro p b,.pat p b,.algo p b{{color:#ff7e3a;font-weight:800;letter-spacing:-.01em}}
+    .ana-intro p b.k,.pat p b.k,.algo p b.k{{color:#ff0050;
+      background:linear-gradient(135deg,rgba(255,0,80,.14),rgba(255,140,0,.06));
+      padding:.03rem .3rem;border-radius:5px}}
+    .ana-intro p b.num,.pat p b.num,.algo p b.num{{color:#00d970;font-weight:800;
+      font-variant-numeric:tabular-nums}}
+    :root[data-theme="light"] .ana-intro p b,
+    :root[data-theme="light"] .pat p b,
+    :root[data-theme="light"] .algo p b{{color:#cc4400}}
+    :root[data-theme="light"] .ana-intro p b.k,
+    :root[data-theme="light"] .pat p b.k,
+    :root[data-theme="light"] .algo p b.k{{color:#aa0030;
+      background:linear-gradient(135deg,rgba(255,0,80,.1),rgba(255,140,0,.05))}}
+    :root[data-theme="light"] .ana-intro p b.num,
+    :root[data-theme="light"] .pat p b.num,
+    :root[data-theme="light"] .algo p b.num{{color:#00874a}}
     .ana-h{{font-size:1.05rem;font-weight:700;margin:1.7rem 0 .8rem;
       letter-spacing:-.01em;display:flex;align-items:center;gap:.4rem}}
 
@@ -946,15 +967,18 @@ def regenerate_html(api_data: list[dict], all_data: list[tuple]) -> None:
       border-radius:12px}}
     .pat h4{{font-size:.92rem;font-weight:700;margin-bottom:.45rem;color:var(--tx);
       letter-spacing:-.01em}}
-    .pat p{{font-size:.76rem;line-height:1.6;color:var(--tx2)}}
-    .pat p b{{color:var(--tx);font-weight:700}}
+    .pat p{{font-size:.76rem;line-height:1.65;color:var(--tx2)}}
 
     /* 알고리즘 그리드 */
     .algo-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:.55rem}}
     .algo{{background:var(--bg-2);border:1px solid var(--bd);border-radius:12px;
       padding:.85rem 1rem;border-left:3px solid #ff0050}}
-    .algo b{{font-size:.84rem;color:var(--tx);font-weight:700;display:block;margin-bottom:.3rem}}
-    .algo p{{font-size:.72rem;line-height:1.55;color:var(--tx2)}}
+    .algo>b{{font-size:.9rem;font-weight:800;display:block;margin-bottom:.38rem;letter-spacing:-.01em;
+      background:linear-gradient(135deg,#ff0050,#ff7e3a);
+      -webkit-background-clip:text;background-clip:text;color:transparent}}
+    :root[data-theme="light"] .algo>b{{background:linear-gradient(135deg,#cc0040,#cc4400);
+      -webkit-background-clip:text;background-clip:text;color:transparent}}
+    .algo p{{font-size:.74rem;line-height:1.6;color:var(--tx2)}}
 
     /* ── 빈 상태 ── */
     .empty{{text-align:center;padding:4rem 1rem;color:var(--tx3);
