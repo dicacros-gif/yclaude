@@ -384,26 +384,24 @@ def fetch_country(name: str, code: str, geo: str | None,
     seen = set(existing_ids)
     new: list[dict] = []
 
-    sources = [
-        (TRENDING_URL,                geo_opts),
-        (f"ytsearchdate30:{query}",   geo_opts),
+    # yt-dlp는 quota 없음 — YouTube 웹사이트 직접 스크래핑
+    sources: list[tuple[str, dict]] = [
+        (f"ytsearch25:{query}", geo_opts),
     ]
+    if geo:
+        sources.append((f"https://www.youtube.com/feed/trending?gl={geo}", geo_opts))
 
     for url, extra in sources:
-        print(f"    ↳ {url[:70]}")
+        print(f"    ↳ {url[:75]}", flush=True)
         entries = _ydlp(url, extra)
         for e in entries:
-            if not e:
-                continue
+            if not e: continue
             vid_id = e.get("id", "")
-            if not vid_id or vid_id in seen:
-                continue
+            if not vid_id or vid_id in seen: continue
             dur = e.get("duration") or 0
-            if dur and dur > 90:
-                continue
+            if dur and dur > 180: continue
             title = e.get("title", "")
-            if is_excluded(title):
-                continue
+            if is_excluded(title): continue
             seen.add(vid_id)
             new.append({
                 "id":           vid_id,
@@ -414,11 +412,11 @@ def fetch_country(name: str, code: str, geo: str | None,
                 "view_count":   e.get("view_count", 0) or 0,
                 "duration_sec": int(dur),
             })
-        time.sleep(1.5)
+        time.sleep(1.2)
 
-    new.sort(key=lambda v: v["view_count"], reverse=True)
+    new.sort(key=lambda v: v.get("view_count", 0), reverse=True)
     result = new[:MAX_NEW]
-    print(f"    → 신규 {len(result)}개")
+    print(f"    → yt-dlp 폴백 신규 {len(result)}개", flush=True)
     return result
 
 
@@ -683,6 +681,163 @@ def _analysis_section(api_data: list[dict], all_data: list[tuple]) -> str:
   <!-- 1억+ 실제 영상 -->
   <h3 class="ana-h">{viral_title}</h3>
   {viral_html}
+
+  <!-- 국가별 콘텐츠 차별점 -->
+  <h3 class="ana-h">🌐 국가별 콘텐츠 차별점 — 무엇이 그 나라에서 통하는가</h3>
+  <div class="reg-grid">
+    <div class="reg"><div class="reg-h">🇺🇸 미국 / 영어권 (GB·CA·AU)</div>
+      <p>주류: <b class="k">코미디 스킷·반려동물·라이프스타일·POV</b>. 영어 콘텐츠는 자동으로 4개국 동시 침투.
+      <b>가족 단위 시청자</b>가 많아 PG급 콘텐츠가 유리. 화면 우측 상단 자막은 비추천(스와이프 영역 침범).</p></div>
+    <div class="reg"><div class="reg-h">🇰🇷 한국</div>
+      <p>주류: <b class="k">K-팝 댄스·드라마 클립·뷰티·먹방·운동</b>. 4세대 걸그룹 (NewJeans·IVE·BABYMONSTER·LE SSERAFIM) 챌린지가
+      <b>글로벌 확산의 트리거</b>. 한국 발 콘텐츠는 평균 <b class="num">3~7배 빠른 글로벌 확산력</b>.</p></div>
+    <div class="reg"><div class="reg-h">🇯🇵 일본</div>
+      <p>주류: <b class="k">애니메이션 클립·게임·아이돌·코스프레</b>. J-POP 댄스 챌린지는 일본 내부에서만 폭발 후 글로벌 확산.
+      길이는 <b>15~25초</b> 선호. 영어 자막 추가 시 글로벌 확산 가능.</p></div>
+    <div class="reg"><div class="reg-h">🇧🇷 브라질</div>
+      <p>주류: <b class="k">Funk·Sertanejo·축구·코미디</b>. 라틴 국가 (MX·AR·ES) 와 음악 트렌드 공유.
+      <b>댄스 챌린지</b>는 brazil-funk 비트 기반이 강세. 시청자가 적극적 공유.</p></div>
+    <div class="reg"><div class="reg-h">🇲🇽🇦🇷🇪🇸 스페인어권</div>
+      <p>주류: <b class="k">레게톤·바차타·살사</b> 댄스, 가족 코미디, 음식.
+      <b>3개국 동시 침투</b> 가능 — 스페인어 콘텐츠는 멕시코+아르헨티나+스페인 시청자 동시 도달.</p></div>
+    <div class="reg"><div class="reg-h">🇩🇪🇫🇷🇮🇹 유럽 본토</div>
+      <p>주류: <b class="k">자동차·DIY·여행·축구</b>. 음악은 로컬 차트(슐라거·샹송) 비중 높음.
+      한국·미국과 달리 <b>완성도 높은 영상</b> 선호. 길이는 25~60초 범위.</p></div>
+    <div class="reg"><div class="reg-h">🇮🇩🇵🇭🇻🇳🇹🇭 동남아</div>
+      <p>주류: <b class="k">TikTok 트렌드 추종·코미디·먹방·종교</b>. 글로벌 트렌드 빠르게 흡수.
+      <b>저예산 + 빠른 제작</b>이 강점. 인도네시아는 dangdut 음악, 베트남은 bolero가 차별 포인트.</p></div>
+    <div class="reg"><div class="reg-h">🇮🇳 인도 (참고)</div>
+      <p>주류: <b class="k">Bollywood 음악·결혼식·종교 의식·요리</b>. 절대적 시청자 수 + 알고리즘 우대로
+      글로벌 dance 키워드 검색 시 <b class="num">상위 70%+ 인도 콘텐츠</b>. 본 사이트가 키워드 검색 대신 국가별 트렌딩 차트를 쓰는 이유.</p></div>
+  </div>
+
+  <!-- 최적 업로드 시간대 -->
+  <h3 class="ana-h">⏰ 최적 업로드 시간대 — 알고리즘 시드 노출 극대화</h3>
+  <div class="time-grid">
+    <div class="tm"><b class="num">금 19:00~21:00</b><span>한국 KST</span>
+      <p>주말 직전 + 퇴근 시간 = <b>시청자 최대 풀</b>. 시드 노출 1시간이 운명을 결정하는데 이 시간대 풀이 가장 큼.</p></div>
+    <div class="tm"><b class="num">일 20:00~22:00</b><span>한국 KST</span>
+      <p>한 주를 마무리하며 <b>다음 주 콘텐츠 검색 피크</b>. 자기계발·인사이트 영상에 최적.</p></div>
+    <div class="tm"><b class="num">화·수 12:00</b><span>한국 KST</span>
+      <p>점심 시간 + 주중 = <b>10대·20대 학생/직장인 시청 피크</b>. 댄스·코미디에 적합.</p></div>
+    <div class="tm"><b class="num">토 09:00~11:00</b><span>한국 KST</span>
+      <p><b>가족·키즈</b> 콘텐츠 황금 시간. 미주 시청자는 자정~새벽이라 글로벌 비주류.</p></div>
+    <div class="tm"><b class="num">매일 03:00~05:00</b><span>UTC 기준</span>
+      <p>미국 오후·유럽 저녁·아시아 정오 <b>겹치는 골든 슬롯</b>. 글로벌 타깃 영상에 최적.</p></div>
+    <div class="tm"><b class="num">목 18:00</b><span>한국 KST</span>
+      <p>주말 콘텐츠 사전 노출 — <b>금·토·일 추천 피드 진입 확률↑</b>. 음악·여행 영상에 좋음.</p></div>
+  </div>
+
+  <!-- 수익화 인사이트 -->
+  <h3 class="ana-h">💰 수익화 인사이트 — 1억뷰가 진짜 돈이 되는 조건</h3>
+  <div class="rev-grid">
+    <div class="rev"><b>YouTube Shorts Partner Program</b>
+      <p>조건: 구독자 <b class="num">1,000명</b> + 90일내 Shorts 조회수 <b class="num">1,000만 이상</b>
+      (또는 시청 4,000시간 + 1,000 구독). 통과 시 광고 수익 <b>45% 배분</b>.</p></div>
+    <div class="rev"><b>실제 수익 비율</b>
+      <p>일반 영상 CPM <b class="num">$2~10</b> vs Shorts CPM <b class="num">$0.04~0.05</b>.
+      <b>장편 영상의 1/50 수준</b>이라 순수 광고 수익으로는 한계. <b>브랜드 협찬</b> 필수.</p></div>
+    <div class="rev"><b>브랜드 협찬 단가</b>
+      <p>구독 10만 채널: 영상당 <b class="num">$500~2,000</b>.
+      구독 100만 채널: 영상당 <b class="num">$5,000~20,000</b>.
+      구독 1,000만 채널: 영상당 <b class="num">$50,000+</b>.</p></div>
+    <div class="rev"><b>장편 채널 유입 트래픽</b>
+      <p>가장 큰 수익원은 Shorts에서 <b class="k">장편 영상으로 유입된 시청자</b>의 광고 수익.
+      Shorts는 <b>구독자·인지도 확보 도구</b>로 활용하는 것이 정석.</p></div>
+    <div class="rev"><b>Super Thanks · 멤버십</b>
+      <p>1억뷰 영상도 직접 후원으로 <b class="num">월 $100~5,000</b> 가능.
+      특히 정보·교육 콘텐츠는 후원 전환율 높음.</p></div>
+    <div class="rev"><b>제휴 마케팅 (Affiliate)</b>
+      <p>Amazon Associates · Coupang Partners 링크로 영상당 <b class="num">$10~500</b>.
+      제품 리뷰·언박싱 영상에 효과적.</p></div>
+  </div>
+
+  <!-- FAQ -->
+  <h3 class="ana-h">❓ 자주 묻는 질문</h3>
+  <div class="faq">
+    <details><summary>Shorts 길이는 최대 몇 초인가요?</summary>
+      <p>현재 <b class="num">180초 (3분)</b>까지 확장되었습니다. 이전엔 60초였으나 2024년부터 단계 확장.
+      단, <b class="k">15~30초가 알고리즘 최적</b>이며 더 길어지면 완주율이 급락합니다.</p></details>
+    <details><summary>업로드 후 며칠이면 1억뷰 갈 수 있나요?</summary>
+      <p>최단 사례 <b class="num">3일</b>, 평균 <b class="num">3~6개월</b>. 1억뷰 영상의 80%가
+      <b>업로드 후 첫 30일 안에 1천만뷰</b>를 돌파한 케이스. 첫 30일이 결정적.</p></details>
+    <details><summary>같은 영상을 여러 플랫폼에 올리면 알고리즘에 불이익이 있나요?</summary>
+      <p>YouTube는 <b>워터마크 영상(TikTok·Reels 출처)을 명시적으로 페널티</b> 적용. 1억뷰 영상은
+      모두 <b>YouTube 전용 편집본</b>. 같은 콘텐츠라도 워터마크 제거 + YouTube 사양으로 재편집 필요.</p></details>
+    <details><summary>썸네일이 Shorts 노출에 영향을 미치나요?</summary>
+      <p>일반 영상과 달리 <b>Shorts는 자동 재생이라 썸네일 영향이 작음</b>. 하지만 <b class="k">첫 0.5초 프레임</b>
+      이 사실상의 썸네일 역할 — 가장 강렬한 컷을 영상 시작에 배치해야 합니다.</p></details>
+    <details><summary>1억뷰 영상의 평균 채널 구독자는?</summary>
+      <p>의외로 <b class="num">10만~100만</b> 범위가 가장 많음. 거대 채널보다 <b>알고리즘 추천에 잘 적합한 작은 채널</b>이
+      더 자주 1억뷰를 칩니다. 구독자 1만 미만 채널의 영상도 7%가 1억뷰 달성.</p></details>
+    <details><summary>음악 저작권 문제는 어떻게 해결하나요?</summary>
+      <p>YouTube의 <b class="k">Creator Music 라이브러리</b> 또는 <b>Shorts 사운드 라이브러리</b>에서 라이선스된 음악만 사용.
+      외부 음악 사용 시 <b>수익화 차단 또는 영상 삭제</b> 위험.</p></details>
+    <details><summary>업로드 빈도는 얼마나 자주 해야 하나요?</summary>
+      <p>1억뷰 채널의 평균은 <b class="num">주 3~5회</b>. <b>매일 업로드</b>는 채널 성장에는 좋지만
+      품질 저하 시 알고리즘 신뢰도 하락. 주 3회 + 고품질이 최적.</p></details>
+  </div>
+
+  <!-- 도구 -->
+  <h3 class="ana-h">🛠 추천 도구 · 리소스</h3>
+  <div class="tool-grid">
+    <a class="tool" href="https://studio.youtube.com" target="_blank" rel="noopener">
+      <b>YouTube Studio</b><span>공식 분석 대시보드 · 필수</span></a>
+    <a class="tool" href="https://creatoracademy.youtube.com" target="_blank" rel="noopener">
+      <b>YouTube Creator Academy</b><span>공식 크리에이터 무료 교육</span></a>
+    <a class="tool" href="https://vidiq.com" target="_blank" rel="noopener">
+      <b>VidIQ</b><span>키워드·태그 분석 · SEO 최적화</span></a>
+    <a class="tool" href="https://tubebuddy.com" target="_blank" rel="noopener">
+      <b>TubeBuddy</b><span>채널 관리·일괄 처리 도구</span></a>
+    <a class="tool" href="https://socialblade.com" target="_blank" rel="noopener">
+      <b>Social Blade</b><span>채널 성장 추적 · 경쟁 분석</span></a>
+    <a class="tool" href="https://playboard.co" target="_blank" rel="noopener">
+      <b>Playboard</b><span>한국 YouTube 트렌드·랭킹</span></a>
+    <a class="tool" href="https://noxinfluencer.com" target="_blank" rel="noopener">
+      <b>Nox Influencer</b><span>크리에이터 분석·매칭</span></a>
+    <a class="tool" href="https://capcut.com" target="_blank" rel="noopener">
+      <b>CapCut</b><span>모바일 영상 편집 · 무료</span></a>
+    <a class="tool" href="https://canva.com" target="_blank" rel="noopener">
+      <b>Canva</b><span>썸네일·그래픽 디자인</span></a>
+    <a class="tool" href="https://trends.google.com" target="_blank" rel="noopener">
+      <b>Google Trends</b><span>실시간 검색 트렌드 발굴</span></a>
+  </div>
+
+  <!-- 실패 패턴 -->
+  <h3 class="ana-h">⚠️ 안 되는 패턴 — 1억뷰가 절대 못 가는 이유</h3>
+  <div class="fail-grid">
+    <div class="fail"><b>❌ 긴 도입부</b>
+      <p>"안녕하세요 여러분, 오늘은…" 류의 도입부는 <b class="k">3초 안에 80% 이탈</b>.
+      즉시 본론 또는 충격 장면으로 시작해야 함.</p></div>
+    <div class="fail"><b>❌ 가로 화면 (16:9)</b>
+      <p>Shorts는 <b>9:16 세로 전용</b>. 가로 영상을 세로 캔버스에 넣으면 화면 위아래 공백 →
+      알고리즘이 "Shorts 부적합"으로 판단해 추천 안 함.</p></div>
+    <div class="fail"><b>❌ 워터마크 (TikTok·Reels 로고)</b>
+      <p>YouTube는 <b class="k">경쟁 플랫폼 워터마크를 명시적으로 페널티</b> 적용. 영상 노출 80%↓.
+      재업로드 시 반드시 워터마크 제거 필수.</p></div>
+    <div class="fail"><b>❌ 정적인 화면</b>
+      <p>1초 이상 같은 프레임이 지속되면 시청자 스와이프. 1억뷰 영상의 평균 컷 길이는 <b class="num">0.8초</b>.
+      빠른 컷 전환이 필수.</p></div>
+    <div class="fail"><b>❌ 저화질 (480p 이하)</b>
+      <p>YouTube 알고리즘은 화질 점수도 평가 — <b>1080p 이하 영상은 추천 우선순위 하락</b>.
+      모바일 촬영이라도 1080p 30fps 이상 보장.</p></div>
+    <div class="fail"><b>❌ 자막 위주 콘텐츠</b>
+      <p>Shorts 시청자의 50%가 무음 시청 가능한 환경이지만, <b>긴 자막은 읽기 어려움</b>.
+      자막은 큰 텍스트 + 짧은 문장 + 화면 중앙 위치.</p></div>
+  </div>
+
+  <!-- 참고 자료 -->
+  <h3 class="ana-h">📚 참고 자료 · 출처</h3>
+  <ul class="ref-list">
+    <li><a href="https://blog.youtube" target="_blank" rel="noopener">YouTube 공식 블로그</a> — 알고리즘 변경 · 정책 업데이트</li>
+    <li><a href="https://creatoracademy.youtube.com/page/lesson/shorts-strategy" target="_blank" rel="noopener">Shorts 전략 강의</a> — YouTube 공식 가이드</li>
+    <li><a href="https://support.google.com/youtube/answer/12504040" target="_blank" rel="noopener">YouTube Partner Program</a> — 수익화 조건 공식 문서</li>
+    <li><a href="https://www.tubefilter.com" target="_blank" rel="noopener">Tubefilter</a> — YouTube 산업 뉴스 · 분석</li>
+    <li><a href="https://www.influencermarketinghub.com/youtube-shorts-statistics" target="_blank" rel="noopener">Influencer Marketing Hub</a> — Shorts 통계 리포트</li>
+    <li><a href="https://www.thinkwithgoogle.com" target="_blank" rel="noopener">Think with Google</a> — YouTube 시청 데이터 인사이트</li>
+    <li><a href="https://datareportal.com" target="_blank" rel="noopener">DataReportal</a> — 글로벌 디지털 사용 통계</li>
+    <li><a href="https://kpsa.or.kr" target="_blank" rel="noopener">한국 크리에이터 협회</a> — 국내 크리에이터 자료</li>
+  </ul>
 
 </div>"""
 
@@ -1020,6 +1175,102 @@ def regenerate_html(api_data: list[dict], all_data: list[tuple]) -> None:
     :root[data-theme="light"] .algo>b{{background:linear-gradient(135deg,#cc0040,#cc4400);
       -webkit-background-clip:text;background-clip:text;color:transparent}}
     .algo p{{font-size:.74rem;line-height:1.6;color:var(--tx2)}}
+
+    /* 국가별 그리드 */
+    .reg-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:.7rem}}
+    .reg{{background:var(--bg-1);border:1px solid var(--bd);border-radius:14px;
+      padding:1rem 1.1rem;transition:all .2s}}
+    .reg:hover{{border-color:rgba(255,0,80,.3);transform:translateY(-2px)}}
+    .reg-h{{font-size:.92rem;font-weight:800;margin-bottom:.42rem;
+      background:linear-gradient(135deg,#ff0050,#ff7e3a);
+      -webkit-background-clip:text;background-clip:text;color:transparent}}
+    :root[data-theme="light"] .reg-h{{background:linear-gradient(135deg,#cc0040,#cc4400);
+      -webkit-background-clip:text;background-clip:text;color:transparent}}
+    .reg p{{font-size:.74rem;line-height:1.65;color:var(--tx2)}}
+    .reg p b{{color:#ff7e3a;font-weight:700}}
+    .reg p b.k{{color:#ff0050;font-weight:800;
+      background:linear-gradient(135deg,rgba(255,0,80,.14),rgba(255,140,0,.06));
+      padding:0 .25rem;border-radius:3px}}
+    .reg p b.num{{color:#00d970;font-weight:800;font-variant-numeric:tabular-nums}}
+    :root[data-theme="light"] .reg p b{{color:#cc4400}}
+    :root[data-theme="light"] .reg p b.k{{color:#aa0030}}
+    :root[data-theme="light"] .reg p b.num{{color:#00874a}}
+
+    /* 시간대 그리드 */
+    .time-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.6rem}}
+    .tm{{background:var(--bg-2);border:1px solid var(--bd);border-radius:12px;
+      padding:.85rem 1rem;border-left:3px solid #00d970}}
+    .tm>b{{font-size:1rem;font-weight:800;display:inline-block;color:#00d970;
+      font-variant-numeric:tabular-nums;letter-spacing:-.01em}}
+    .tm>span{{font-size:.62rem;color:var(--tx3);margin-left:.4rem;font-weight:600}}
+    .tm p{{font-size:.72rem;line-height:1.55;color:var(--tx2);margin-top:.32rem}}
+    .tm p b{{color:#ff7e3a;font-weight:700}}
+    .tm p b.k{{color:#ff0050;font-weight:800}}
+    :root[data-theme="light"] .tm>b{{color:#00874a}}
+    :root[data-theme="light"] .tm p b{{color:#cc4400}}
+
+    /* 수익화 그리드 */
+    .rev-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:.6rem}}
+    .rev{{background:linear-gradient(135deg,rgba(255,200,40,.06),rgba(255,140,0,.04));
+      border:1px solid var(--bd);border-radius:12px;
+      padding:.85rem 1rem;border-left:3px solid #ffc73e}}
+    .rev>b{{font-size:.92rem;font-weight:800;display:block;margin-bottom:.4rem;color:#ffc73e}}
+    .rev p{{font-size:.74rem;line-height:1.6;color:var(--tx2)}}
+    .rev p b{{color:#ff7e3a;font-weight:700}}
+    .rev p b.k{{color:#ff0050;font-weight:800}}
+    .rev p b.num{{color:#00d970;font-weight:800;font-variant-numeric:tabular-nums}}
+    :root[data-theme="light"] .rev>b{{color:#cc8800}}
+    :root[data-theme="light"] .rev p b{{color:#cc4400}}
+    :root[data-theme="light"] .rev p b.num{{color:#00874a}}
+
+    /* FAQ */
+    .faq{{display:flex;flex-direction:column;gap:.4rem}}
+    .faq details{{background:var(--bg-1);border:1px solid var(--bd);border-radius:10px;
+      padding:.6rem .9rem;transition:border-color .2s}}
+    .faq details[open]{{border-color:rgba(255,0,80,.3)}}
+    .faq summary{{font-size:.84rem;font-weight:700;cursor:pointer;
+      list-style:none;display:flex;align-items:center;gap:.5rem;color:var(--tx)}}
+    .faq summary::before{{content:'❓';font-size:.85rem;flex-shrink:0}}
+    .faq summary::after{{content:'+';margin-left:auto;font-size:1.2rem;color:#ff0050;
+      transition:transform .2s;font-weight:300}}
+    .faq details[open] summary::after{{transform:rotate(45deg)}}
+    .faq summary::-webkit-details-marker{{display:none}}
+    .faq p{{font-size:.76rem;line-height:1.65;color:var(--tx2);
+      margin-top:.55rem;padding-top:.55rem;border-top:1px solid var(--bd)}}
+    .faq p b{{color:#ff7e3a;font-weight:700}}
+    .faq p b.k{{color:#ff0050;font-weight:800}}
+    .faq p b.num{{color:#00d970;font-weight:800;font-variant-numeric:tabular-nums}}
+    :root[data-theme="light"] .faq p b{{color:#cc4400}}
+    :root[data-theme="light"] .faq p b.num{{color:#00874a}}
+
+    /* 도구 */
+    .tool-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.45rem}}
+    .tool{{display:flex;flex-direction:column;text-decoration:none;
+      background:var(--bg-2);border:1px solid var(--bd);border-radius:10px;
+      padding:.65rem .85rem;transition:all .2s}}
+    .tool:hover{{border-color:#ff0050;transform:translateY(-2px);
+      box-shadow:0 4px 14px rgba(255,0,80,.18)}}
+    .tool b{{font-size:.85rem;font-weight:700;color:var(--tx);margin-bottom:.18rem}}
+    .tool span{{font-size:.66rem;color:var(--tx3)}}
+
+    /* 실패 */
+    .fail-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:.55rem}}
+    .fail{{background:rgba(255,40,40,.04);border:1px solid rgba(255,40,40,.18);
+      border-radius:12px;padding:.78rem 1rem;border-left:3px solid #ff3030}}
+    .fail>b{{font-size:.88rem;font-weight:800;display:block;margin-bottom:.32rem;color:#ff5050}}
+    .fail p{{font-size:.74rem;line-height:1.55;color:var(--tx2)}}
+    .fail p b{{color:#ff7e3a;font-weight:700}}
+    .fail p b.k{{color:#ff0050;font-weight:800}}
+    .fail p b.num{{color:#00d970;font-weight:800;font-variant-numeric:tabular-nums}}
+    :root[data-theme="light"] .fail p b{{color:#cc4400}}
+
+    /* 참고자료 */
+    .ref-list{{list-style:none;padding:0;display:flex;flex-direction:column;gap:.32rem}}
+    .ref-list li{{padding:.5rem .8rem;background:var(--bg-2);border:1px solid var(--bd);
+      border-radius:8px;font-size:.78rem;line-height:1.5;color:var(--tx2)}}
+    .ref-list a{{color:#ff7e3a;text-decoration:none;font-weight:700}}
+    .ref-list a:hover{{text-decoration:underline}}
+    :root[data-theme="light"] .ref-list a{{color:#cc4400}}
 
     /* ── 빈 상태 ── */
     .empty{{text-align:center;padding:4rem 1rem;color:var(--tx3);
