@@ -175,25 +175,25 @@ def regenerate_html(all_data: list[tuple]) -> None:
     last = max(last_times) if last_times else "—"
     year = datetime.now(KST).year
 
-    # 탭 버튼
+    # 탭 버튼 — 숫자 ID 사용, 약어 노출 없음
     tab_btns = ""
     for i, (name, code, flag, data) in enumerate(all_data):
-        cnt   = len(data["videos"])
+        cnt    = len(data["videos"])
         active = " active" if i == 0 else ""
         tab_btns += (
             f'<button class="tb{active}" '
-            f'onclick="showTab(\'{code}\',this)">'
+            f'onclick="showTab(\'t{i}\',this)">'
             f'{flag} {name}'
             f'<span class="cb">{cnt}</span></button>\n'
         )
 
-    # 탭 콘텐츠
+    # 탭 콘텐츠 — id는 t0·t1·t2… (국가 코드 없음)
     tab_contents = ""
     for i, (name, code, flag, data) in enumerate(all_data):
         active  = " active" if i == 0 else ""
         updated = data.get("last_updated", "—")
         tab_contents += (
-            f'<div id="{code}" class="tc{active}">\n'
+            f'<div id="t{i}" class="tc{active}">\n'
             f'  <p class="tm">{flag} {name} · {updated}</p>\n'
             f'  {_grid(data["videos"])}\n'
             f'</div>\n'
