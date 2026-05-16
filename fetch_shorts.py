@@ -750,7 +750,7 @@ def regenerate_html(api_data: list[dict], all_data: list[tuple]) -> None:
       backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);
       background:var(--bar);border-bottom:1px solid var(--bd)}}
     .tabbar{{display:flex;flex-wrap:wrap;justify-content:center;
-      gap:.28rem;padding:.5rem .8rem;max-width:1500px;margin:0 auto}}
+      gap:.28rem;padding:.5rem .8rem;max-width:100%;margin:0 auto}}
     .tb{{display:inline-flex;align-items:center;gap:.3rem;
       padding:.32rem .65rem;border:1px solid var(--bd);border-radius:100px;
       background:var(--bg-2);color:var(--tx2);cursor:pointer;
@@ -770,7 +770,7 @@ def regenerate_html(api_data: list[dict], all_data: list[tuple]) -> None:
     @keyframes fadeUp{{from{{opacity:0;transform:translateY(8px)}}to{{opacity:1;transform:translateY(0)}}}}
 
     /* ── 섹션 헤더 + sort pills ── */
-    .th{{max-width:1500px;margin:0 auto;padding:1.1rem 1.2rem .35rem;
+    .th{{max-width:100%;margin:0 auto;padding:1.1rem 1.6rem .35rem;
       display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.7rem}}
     .th-l{{display:flex;align-items:center;gap:.5rem;font-size:.94rem;font-weight:700}}
     .th-l b{{font-weight:700}}
@@ -786,8 +786,8 @@ def regenerate_html(api_data: list[dict], all_data: list[tuple]) -> None:
       box-shadow:0 2px 10px rgba(255,0,80,.35)}}
 
     /* ── HERO (API 탭 최상단) ── */
-    .hero{{position:relative;max-width:1500px;margin:.7rem auto 0;padding:0 1.2rem}}
-    .hero-bg{{position:absolute;inset:0 1.2rem;border-radius:22px;overflow:hidden;
+    .hero{{position:relative;max-width:100%;margin:.7rem auto 0;padding:0 1.6rem}}
+    .hero-bg{{position:absolute;inset:0 1.6rem;border-radius:22px;overflow:hidden;
       filter:blur(40px) saturate(140%);opacity:.45;z-index:0;pointer-events:none}}
     .hero-bg img{{width:100%;height:100%;object-fit:cover;transform:scale(1.2)}}
     .hero-card{{position:relative;z-index:1;
@@ -826,10 +826,10 @@ def regenerate_html(api_data: list[dict], all_data: list[tuple]) -> None:
     .stat-chip .sc-v b{{font-size:.86rem;font-weight:700;color:var(--tx)}}
     .stat-chip .sc-v span{{font-size:.6rem;color:var(--tx3);font-weight:500}}
 
-    /* ── grid + 카드 ── */
-    .grid{{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
-      gap:.85rem;padding:.45rem 1.2rem 2rem;max-width:1500px;margin:0 auto}}
-    .api-grid{{grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}}
+    /* ── grid + 카드 (브라우저 폭 전체 활용) ── */
+    .grid{{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));
+      gap:.85rem;padding:.45rem 1.6rem 2rem;max-width:100%;margin:0 auto}}
+    .api-grid{{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}}
 
     .card{{position:relative;background:var(--bg-1);border:1px solid var(--bd);
       border-radius:16px;overflow:hidden;
@@ -899,7 +899,7 @@ def regenerate_html(api_data: list[dict], all_data: list[tuple]) -> None:
     :root[data-theme="light"] .why{{color:#cc5500;background:rgba(255,140,0,.1)}}
 
     /* ── 분석 탭 ── */
-    .ana{{max-width:1500px;margin:0 auto;padding:.5rem 1.2rem 2rem}}
+    .ana{{max-width:100%;margin:0 auto;padding:.5rem 1.6rem 2rem}}
     .ana-intro{{position:relative;padding:1.5rem 1.6rem;border-radius:20px;
       background:linear-gradient(135deg,rgba(255,0,80,.08),rgba(0,200,255,.04));
       border:1px solid var(--bd);margin-bottom:1.5rem;overflow:hidden}}
