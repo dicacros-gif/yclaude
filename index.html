@@ -166,6 +166,11 @@
       font-size:.72rem;font-weight:800;letter-spacing:.02em}
     .rank.top{background:linear-gradient(135deg,#ff0050,#ff7e3a);
       box-shadow:0 5px 14px rgba(255,0,80,.5)}
+    .new{position:absolute;top:.5rem;right:.5rem;z-index:5;
+      padding:.18rem .42rem;background:linear-gradient(135deg,#00d970,#00b4d8);
+      color:#fff;border-radius:6px;font-size:.6rem;font-weight:800;letter-spacing:.05em;
+      box-shadow:0 3px 10px rgba(0,217,112,.45);animation:newPop .35s cubic-bezier(.4,0,.2,1)}
+    @keyframes newPop{0%{transform:scale(.6);opacity:0}100%{transform:scale(1);opacity:1}}
 
     .tw{position:relative;display:block;aspect-ratio:9/16;
       overflow:hidden;background:#000;text-decoration:none}
@@ -314,7 +319,7 @@
   <div class="brand">
     <span class="logo">🎬</span>
     <span class="name">SHORTS</span>
-    <span class="upd">2026-05-16 23:14 KST</span>
+    <span class="upd">2026-05-16 23:20 KST</span>
   </div>
   <div class="top-r">
     <div class="search">
@@ -329,23 +334,23 @@
 <div class="tabbar-w"><div class="tabbar">
 <button class="tb active" onclick="showTab('ta',this)"><span>📊 1억뷰 분석</span></button>
 <button class="tb" onclick="showTab('t0',this)"><span>YouTube API</span><span class="cb">40</span></button>
-<button class="tb" onclick="showTab('t1',this)"><span>글로벌</span><span class="cb">0</span></button>
-<button class="tb" onclick="showTab('t2',this)"><span>미국</span><span class="cb">0</span></button>
-<button class="tb" onclick="showTab('t3',this)"><span>멕시코</span><span class="cb">0</span></button>
+<button class="tb" onclick="showTab('t1',this)"><span>글로벌</span><span class="cb">12</span></button>
+<button class="tb" onclick="showTab('t2',this)"><span>미국</span><span class="cb">11</span></button>
+<button class="tb" onclick="showTab('t3',this)"><span>멕시코</span><span class="cb">1</span></button>
 <button class="tb" onclick="showTab('t4',this)"><span>브라질</span><span class="cb">0</span></button>
 <button class="tb" onclick="showTab('t5',this)"><span>아르헨티나</span><span class="cb">0</span></button>
 <button class="tb" onclick="showTab('t6',this)"><span>독일</span><span class="cb">0</span></button>
-<button class="tb" onclick="showTab('t7',this)"><span>스페인</span><span class="cb">0</span></button>
-<button class="tb" onclick="showTab('t8',this)"><span>프랑스</span><span class="cb">0</span></button>
-<button class="tb" onclick="showTab('t9',this)"><span>이탈리아</span><span class="cb">0</span></button>
-<button class="tb" onclick="showTab('t10',this)"><span>인도네시아</span><span class="cb">0</span></button>
+<button class="tb" onclick="showTab('t7',this)"><span>스페인</span><span class="cb">3</span></button>
+<button class="tb" onclick="showTab('t8',this)"><span>프랑스</span><span class="cb">6</span></button>
+<button class="tb" onclick="showTab('t9',this)"><span>이탈리아</span><span class="cb">4</span></button>
+<button class="tb" onclick="showTab('t10',this)"><span>인도네시아</span><span class="cb">4</span></button>
 <button class="tb" onclick="showTab('t11',this)"><span>필리핀</span><span class="cb">0</span></button>
-<button class="tb" onclick="showTab('t12',this)"><span>베트남</span><span class="cb">0</span></button>
-<button class="tb" onclick="showTab('t13',this)"><span>일본</span><span class="cb">0</span></button>
+<button class="tb" onclick="showTab('t12',this)"><span>베트남</span><span class="cb">1</span></button>
+<button class="tb" onclick="showTab('t13',this)"><span>일본</span><span class="cb">7</span></button>
 <button class="tb" onclick="showTab('t14',this)"><span>한국</span><span class="cb">0</span></button>
-<button class="tb" onclick="showTab('t15',this)"><span>우즈베키스탄</span><span class="cb">0</span></button>
-<button class="tb" onclick="showTab('t16',this)"><span>알제리</span><span class="cb">0</span></button>
-<button class="tb" onclick="showTab('t17',this)"><span>카자흐스탄</span><span class="cb">0</span></button>
+<button class="tb" onclick="showTab('t15',this)"><span>우즈베키스탄</span><span class="cb">1</span></button>
+<button class="tb" onclick="showTab('t16',this)"><span>알제리</span><span class="cb">1</span></button>
+<button class="tb" onclick="showTab('t17',this)"><span>카자흐스탄</span><span class="cb">1</span></button>
 </div></div>
 
 <main>
@@ -368,14 +373,14 @@
   <!-- 데이터 통계 -->
   <h3 class="ana-h">📈 현재 수집 데이터 통계</h3>
   <div class="stat-grid">
-    <div class="stat-box"><div class="sb-n">40</div><div class="sb-l">전체 수집 영상</div></div>
+    <div class="stat-box"><div class="sb-n">92</div><div class="sb-l">전체 수집 영상</div></div>
     <div class="stat-box hi"><div class="sb-n">0</div><div class="sb-l">1억뷰 이상</div></div>
-    <div class="stat-box"><div class="sb-n">0</div><div class="sb-l">천만뷰 이상</div></div>
-    <div class="stat-box"><div class="sb-n">4</div><div class="sb-l">백만뷰 이상</div></div>
-    <div class="stat-box"><div class="sb-n">21<span>초</span></div><div class="sb-l">평균 길이</div></div>
-    <div class="stat-box"><div class="sb-n">218.4만</div><div class="sb-l">최고 조회수</div></div>
-    <div class="stat-box"><div class="sb-n">19.5만</div><div class="sb-l">평균 조회수</div></div>
-    <div class="stat-box"><div class="sb-n">24</div><div class="sb-l">댄스 관련</div></div>
+    <div class="stat-box"><div class="sb-n">1</div><div class="sb-l">천만뷰 이상</div></div>
+    <div class="stat-box"><div class="sb-n">6</div><div class="sb-l">백만뷰 이상</div></div>
+    <div class="stat-box"><div class="sb-n">34<span>초</span></div><div class="sb-l">평균 길이</div></div>
+    <div class="stat-box"><div class="sb-n">1283.3만</div><div class="sb-l">최고 조회수</div></div>
+    <div class="stat-box"><div class="sb-n">35.8만</div><div class="sb-l">평균 조회수</div></div>
+    <div class="stat-box"><div class="sb-n">40</div><div class="sb-l">댄스 관련</div></div>
   </div>
 
   <!-- 핵심 성공 패턴 6가지 -->
@@ -386,13 +391,13 @@
       있어야 스와이프를 막을 수 있습니다. 1억뷰 영상의 87%가 첫 프레임에 사람 얼굴 또는 움직임을 노출합니다.</p></div>
     <div class="pat"><div class="pat-i">⏱</div><h4>2. 15~30초 골든 길이</h4>
       <p>9~15초는 <b>완주율 90%+</b>, 16~30초는 <b>반복 시청률↑</b>. 60초 가까이 가면 완주율이 급락해 알고리즘 추천이 끊깁니다.
-      수집 데이터의 평균 길이는 <b>21초</b>로, 이는 글로벌 1억뷰 영상의 평균과 거의 일치합니다.</p></div>
+      수집 데이터의 평균 길이는 <b>34초</b>로, 이는 글로벌 1억뷰 영상의 평균과 거의 일치합니다.</p></div>
     <div class="pat"><div class="pat-i">🎵</div><h4>3. 트렌딩 사운드 활용</h4>
       <p>YouTube는 <b>같은 BGM을 사용한 영상끼리 클러스터링</b>해 함께 추천합니다. 인기 사운드를 타면 그 사운드 자체가
       추천 엔진이 되어 노출량이 10배 증가. 본 사이트가 "bgm·music" 키워드를 우선 수집하는 이유입니다.</p></div>
     <div class="pat"><div class="pat-i">💃</div><h4>4. 댄스/챌린지 포맷</h4>
-      <p>댄스 영상은 <b>참여형 콘텐츠</b>이기에 시청자가 따라하고 공유하며 자가 증식합니다. 수집된 댄스 영상은 <b>24개</b>로
-      전체의 60%. K-팝 콘텐츠는 <b>1개</b> — 글로벌 팬덤의 즉각적 확산력 보유.</p></div>
+      <p>댄스 영상은 <b>참여형 콘텐츠</b>이기에 시청자가 따라하고 공유하며 자가 증식합니다. 수집된 댄스 영상은 <b>40개</b>로
+      전체의 43%. K-팝 콘텐츠는 <b>3개</b> — 글로벌 팬덤의 즉각적 확산력 보유.</p></div>
     <div class="pat"><div class="pat-i">😱</div><h4>5. 감정 트리거 (놀라움·공감)</h4>
       <p>"우와", "헐", "어떻게?" 같은 반응을 유발하면 <b>댓글률이 5배</b> 증가. 댓글은 알고리즘의 강한 신호.
       2인 관계 영상(커플/친구)이 인기인 이유는 <b>대리만족·공감 효과</b> — 수집 데이터: <b>1개</b>.</p></div>
@@ -419,12 +424,24 @@
   </div>
 
   <!-- 1억+ 실제 영상 -->
-  <h3 class="ana-h">🔥 1억뷰 돌파 영상</h3>
-  <div class="empty">
-  <div class="ic">📊</div>
-  <p>현재 수집된 데이터에 1억뷰 이상 영상 없음</p>
-  <p class="sub">매일 17:00 KST 자동 갱신으로 곧 채워집니다</p>
-</div>
+  <h3 class="ana-h">🌟 천만뷰 이상 영상 (1개)</h3>
+  <div class='grid api-grid'><div class="card api-card" data-views="12832631" data-likes="95898" data-date="2026-05-15" data-title="welcome to the jungle - official teaser | in cinemas | 26th june 2026">
+  <span class="rank top">1</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/dy_urGMFwH4" target="_blank" rel="noopener" aria-label="Welcome To The Jungle - Official Teaser | In Cinemas | 26th June 2026">
+    <img loading="lazy" src="https://img.youtube.com/vi/dy_urGMFwH4/hqdefault.jpg" alt="">
+    <span class="dur">1:30</span>
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">Welcome To The Jungle - Official Teaser | In Cinemas | 26th June 2026</p>
+    <div class="ch"><img class="ch-img" src="https://yt3.ggpht.com/pj6ZI11GXb2tnXK60ubGCjVfhKHXT8uC1CHfgo4rdgiQIJy4SbPYDFmVyiZfrraQiKSO1GWXzA=s88-c-k-c0x00ffffff-no-rj" alt=""><span class="ch-nm">Star Studios</span></div>
+    <div class="stats"><span>👁 1283.3만</span><span>❤️ 9.6만</span><span>💬 1.3만</span></div>
+    <p class="why">💡 🔥 천만뷰 검증 콘텐츠 · 🚀 일 1283.3만뷰 폭발</p>
+    <div class="tags"><span class="tag">#welcome to the jungle</span><span class="tag">#welcome to the jungle teaser</span></div>
+    <p class="pub">📅 2026-05-15</p>
+  </div>
+</div></div>
 
 </div>
 </section>
@@ -460,6 +477,7 @@
   </div>
 </div><div class='grid api-grid'><div class="card api-card" data-views="11944" data-likes="117" data-date="2026-05-11" data-title="jabili rave...🥰❤️ bgm...">
   <span class="rank top">1</span>
+  <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/uF6cIa5USGA" target="_blank" rel="noopener" aria-label="Jabili rave...🥰❤️ BGM...">
     <img loading="lazy" src="https://img.youtube.com/vi/uF6cIa5USGA/hqdefault.jpg" alt="">
     <span class="dur">0:12</span>
@@ -475,6 +493,7 @@
   </div>
 </div><div class="card api-card" data-views="11520" data-likes="91" data-date="2026-05-14" data-title="panna🌹 ki tamanna 💓#shorts #dance #shortsvideo #viralshorts">
   <span class="rank top">2</span>
+  <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/U75U-Fcb_zs" target="_blank" rel="noopener" aria-label="Panna🌹 ki Tamanna 💓#shorts #dance #shortsvideo #viralshorts">
     <img loading="lazy" src="https://img.youtube.com/vi/U75U-Fcb_zs/hqdefault.jpg" alt="">
     <span class="dur">0:13</span>
@@ -490,6 +509,7 @@
   </div>
 </div><div class="card api-card" data-views="7872" data-likes="41" data-date="2026-05-07" data-title="রসিক ❤ কালা 🤗#shortsvideo #dance #shorts #viralshorts">
   <span class="rank top">3</span>
+  <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/EzTdaEljS18" target="_blank" rel="noopener" aria-label="রসিক ❤ কালা 🤗#shortsvideo #dance #shorts #viralshorts">
     <img loading="lazy" src="https://img.youtube.com/vi/EzTdaEljS18/hqdefault.jpg" alt="">
     <span class="dur">0:16</span>
@@ -505,6 +525,7 @@
   </div>
 </div><div class="card api-card" data-views="7074" data-likes="856" data-date="2026-05-09" data-title="❤✨electrifying sreeleela performance🔥 #love #trending #sreeleela #viral #shorts #music">
   <span class="rank">4</span>
+  <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/kc1OxWFQ9oU" target="_blank" rel="noopener" aria-label="❤✨Electrifying Sreeleela Performance🔥 #love #trending #sreeleela #viral #shorts #music">
     <img loading="lazy" src="https://img.youtube.com/vi/kc1OxWFQ9oU/hqdefault.jpg" alt="">
     <span class="dur">0:34</span>
@@ -520,6 +541,7 @@
   </div>
 </div><div class="card api-card" data-views="6740" data-likes="648" data-date="2026-05-15" data-title="vadi machiniyea 🔥 tamil dance cover | trending reels dance #shorts #bgm #miratal #new #dance ...">
   <span class="rank">5</span>
+  <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/0QwLx82iAMY" target="_blank" rel="noopener" aria-label="Vadi Machiniyea 🔥 Tamil Dance Cover | Trending Reels Dance #shorts #bgm #miratal #new #dance ...">
     <img loading="lazy" src="https://img.youtube.com/vi/0QwLx82iAMY/hqdefault.jpg" alt="">
     <span class="dur">0:23</span>
@@ -535,6 +557,7 @@
   </div>
 </div><div class="card api-card" data-views="6295" data-likes="206" data-date="2026-05-04" data-title="patha oru look la 😹🫵🏻@kuttyyyyyyyyy #trending #shortsviral #new #dancer #viral #bgm">
   <span class="rank">6</span>
+  <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/M5YqgRaua-0" target="_blank" rel="noopener" aria-label="Patha oru look la 😹🫵🏻@kuttyyyyyyyyy #trending #shortsviral #new #dancer #viral #bgm">
     <img loading="lazy" src="https://img.youtube.com/vi/M5YqgRaua-0/hqdefault.jpg" alt="">
     <span class="dur">0:29</span>
@@ -550,6 +573,7 @@
   </div>
 </div><div class="card api-card" data-views="5052" data-likes="74" data-date="2026-05-02" data-title="🕺🏻kannum kannumthan bgm🕺🏻😍#thalapathy#vijay#shorts#trending#viral#dance#trend#shortsfeed#shortsviral">
   <span class="rank">7</span>
+  <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/7w34yFehMOE" target="_blank" rel="noopener" aria-label="🕺🏻Kannum kannumthan bgm🕺🏻😍#thalapathy#vijay#shorts#trending#viral#dance#trend#shortsfeed#shortsviral">
     <img loading="lazy" src="https://img.youtube.com/vi/7w34yFehMOE/hqdefault.jpg" alt="">
     <span class="dur">0:23</span>
@@ -565,6 +589,7 @@
   </div>
 </div><div class="card api-card" data-views="3266" data-likes="34" data-date="2026-05-14" data-title="রসিক ❤️ কালা 🤗#shortsvideo #dance #shorts #viralshorts">
   <span class="rank">8</span>
+  <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/ZHkA9WVWd2w" target="_blank" rel="noopener" aria-label="রসিক ❤️ কালা 🤗#shortsvideo #dance #shorts #viralshorts">
     <img loading="lazy" src="https://img.youtube.com/vi/ZHkA9WVWd2w/hqdefault.jpg" alt="">
     <span class="dur">0:16</span>
@@ -580,6 +605,7 @@
   </div>
 </div><div class="card api-card" data-views="3007" data-likes="51" data-date="2026-05-03" data-title="soundtrack#reelsfypシ #fypシ゚viral #trending #viral#shorts #masukberanda #fifa ##worldcup#fifaworldcup">
   <span class="rank">9</span>
+  <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/x6fxaKUl6G4" target="_blank" rel="noopener" aria-label="soundtrack#reelsfypシ #fypシ゚viral #trending #viral#shorts #masukberanda #FIFA ##WorldCup#FIFAWorldCup">
     <img loading="lazy" src="https://img.youtube.com/vi/x6fxaKUl6G4/hqdefault.jpg" alt="">
     <span class="dur">0:18</span>
@@ -595,6 +621,7 @@
   </div>
 </div><div class="card api-card" data-views="2679" data-likes="0" data-date="2026-05-04" data-title="tere naal🌹 pyaar jata 🫰#viral #love #trending #dance #shorts #punjabisong #transition #shortfeed">
   <span class="rank">10</span>
+  <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/9YeGDkSVdpY" target="_blank" rel="noopener" aria-label="tere naal🌹 pyaar jata 🫰#viral #love #trending #dance #shorts #punjabisong #transition #shortfeed">
     <img loading="lazy" src="https://img.youtube.com/vi/9YeGDkSVdpY/hqdefault.jpg" alt="">
     <span class="dur">0:29</span>
@@ -610,6 +637,7 @@
   </div>
 </div><div class="card api-card" data-views="2428" data-likes="18" data-date="2026-05-03" data-title="🔥🫰🤭 #bgm #dance #song #sister #telugu #shorts #viral #video #bgm #folksong #folkmusic #fun #yshorts">
   <span class="rank">11</span>
+  <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/s_2_dyTR8lI" target="_blank" rel="noopener" aria-label="🔥🫰🤭 #bgm #dance #song #sister #telugu #shorts #viral #video #bgm #folksong #folkmusic #fun #yshorts">
     <img loading="lazy" src="https://img.youtube.com/vi/s_2_dyTR8lI/hqdefault.jpg" alt="">
     <span class="dur">0:16</span>
@@ -625,6 +653,7 @@
   </div>
 </div><div class="card api-card" data-views="2361" data-likes="14" data-date="2026-05-03" data-title="ved lavla🔥😘#trending #shorts #telugu #song #dance #bgm #yshorts #music #reel #viral #video #love #1k">
   <span class="rank">12</span>
+  <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/ar4__hZR9ss" target="_blank" rel="noopener" aria-label="Ved lavla🔥😘#trending #shorts #telugu #song #dance #bgm #yshorts #music #reel #viral #video #love #1k">
     <img loading="lazy" src="https://img.youtube.com/vi/ar4__hZR9ss/hqdefault.jpg" alt="">
     <span class="dur">0:19</span>
@@ -640,6 +669,7 @@
   </div>
 </div><div class="card api-card" data-views="2280" data-likes="26" data-date="2026-05-07" data-title="bgm 💃🏿💥|movie song|#viral #trending #youtubeshorts #ytshorts #dance">
   <span class="rank">13</span>
+  <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/r9lOxt7ekx8" target="_blank" rel="noopener" aria-label="Bgm 💃🏿💥|movie song|#viral #trending #youtubeshorts #ytshorts #dance">
     <img loading="lazy" src="https://img.youtube.com/vi/r9lOxt7ekx8/hqdefault.jpg" alt="">
     <span class="dur">0:13</span>
@@ -655,6 +685,7 @@
   </div>
 </div><div class="card api-card" data-views="2202" data-likes="35" data-date="2026-05-11" data-title="pokiri bgm🔥🔥#trending #dance #viralvideo #shortvideo #shorts #youtubeshorts #ytshorts #yt #video">
   <span class="rank">14</span>
+  <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/mky1lQ8ogT4" target="_blank" rel="noopener" aria-label="Pokiri Bgm🔥🔥#trending #dance #viralvideo #shortvideo #shorts #youtubeshorts #ytshorts #yt #video">
     <img loading="lazy" src="https://img.youtube.com/vi/mky1lQ8ogT4/hqdefault.jpg" alt="">
     <span class="dur">0:25</span>
@@ -670,6 +701,7 @@
   </div>
 </div><div class="card api-card" data-views="1836" data-likes="22" data-date="2026-05-04" data-title="bgm song/viral video/viral short">
   <span class="rank">15</span>
+  <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/-5KIC0O_msE" target="_blank" rel="noopener" aria-label="BGM song/viral video/viral short">
     <img loading="lazy" src="https://img.youtube.com/vi/-5KIC0O_msE/hqdefault.jpg" alt="">
     <span class="dur">0:15</span>
@@ -685,6 +717,7 @@
   </div>
 </div><div class="card api-card" data-views="1799" data-likes="19" data-date="2026-05-08" data-title="girl dance | best dancer shorts | new viral shorts | trending dance #shorts #remix">
   <span class="rank">16</span>
+  <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/R8-mmnto52Q" target="_blank" rel="noopener" aria-label="Girl dance | Best dancer shorts | New viral shorts | Trending dance #shorts #remix">
     <img loading="lazy" src="https://img.youtube.com/vi/R8-mmnto52Q/hqdefault.jpg" alt="">
     <span class="dur">0:14</span>
@@ -700,6 +733,7 @@
   </div>
 </div><div class="card api-card" data-views="1636" data-likes="0" data-date="2026-05-04" data-title="💃trending shorts#song #love #viralreels #instrumental#music #tiktok#reels#youtube#shortsfeed">
   <span class="rank">17</span>
+  <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/MeCJn3xgEro" target="_blank" rel="noopener" aria-label="💃Trending shorts#song #love #viralreels #instrumental#music #tiktok#reels#youtube#shortsfeed">
     <img loading="lazy" src="https://img.youtube.com/vi/MeCJn3xgEro/hqdefault.jpg" alt="">
     <span class="dur">0:13</span>
@@ -715,6 +749,7 @@
   </div>
 </div><div class="card api-card" data-views="1423" data-likes="0" data-date="2026-05-05" data-title="🕺💃when classical grace meets western swag 😍 #shorts #ytshorts #viralvideo #trending #dance #music">
   <span class="rank">18</span>
+  <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/ph_JE0IqsUU" target="_blank" rel="noopener" aria-label="🕺💃When Classical Grace Meets Western Swag 😍 #shorts #ytshorts #viralvideo #trending #dance #music">
     <img loading="lazy" src="https://img.youtube.com/vi/ph_JE0IqsUU/hqdefault.jpg" alt="">
     <span class="dur">0:43</span>
@@ -730,6 +765,7 @@
   </div>
 </div><div class="card api-card" data-views="1383" data-likes="25" data-date="2026-05-13" data-title="aasa kooda | preity mukhundhan viral dance| sai abhyankkar trending status| minutes studios #tamil">
   <span class="rank">19</span>
+  <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/9EuJYFS8ylU" target="_blank" rel="noopener" aria-label="Aasa Kooda | Preity Mukhundhan Viral Dance| Sai Abhyankkar trending status| Minutes Studios #tamil">
     <img loading="lazy" src="https://img.youtube.com/vi/9EuJYFS8ylU/hqdefault.jpg" alt="">
     <span class="dur">0:30</span>
@@ -745,6 +781,7 @@
   </div>
 </div><div class="card api-card" data-views="1340" data-likes="15" data-date="2026-05-09" data-title="আমি 🙋🏻 কলকাতার রসগোল্লা 😍#shortsvideo #dance #shorts #viralshorts">
   <span class="rank">20</span>
+  <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/zTCKWKmV8xs" target="_blank" rel="noopener" aria-label="আমি 🙋🏻 কলকাতার রসগোল্লা 😍#shortsvideo #dance #shorts #viralshorts">
     <img loading="lazy" src="https://img.youtube.com/vi/zTCKWKmV8xs/hqdefault.jpg" alt="">
     <span class="dur">0:16</span>
@@ -760,6 +797,7 @@
   </div>
 </div><div class="card api-card" data-views="1092" data-likes="5" data-date="2026-05-04" data-title="entertainment 😎 #shortsviral #trending #viral #shortvideo">
   <span class="rank">21</span>
+  <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/nuvzitcIb4A" target="_blank" rel="noopener" aria-label="entertainment 😎 #shortsviral #trending #viral #shortvideo">
     <img loading="lazy" src="https://img.youtube.com/vi/nuvzitcIb4A/hqdefault.jpg" alt="">
     <span class="dur">1:01</span>
@@ -775,6 +813,7 @@
   </div>
 </div><div class="card api-card" data-views="998" data-likes="7" data-date="2026-05-05" data-title="chori chori dil tera churayenge #shortsfeed #viralshort #viral #trending">
   <span class="rank">22</span>
+  <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/yDPR6JZFd1M" target="_blank" rel="noopener" aria-label="chori chori dil tera churayenge #shortsfeed #viralshort #viral #trending">
     <img loading="lazy" src="https://img.youtube.com/vi/yDPR6JZFd1M/hqdefault.jpg" alt="">
     <span class="dur">0:16</span>
@@ -790,6 +829,7 @@
   </div>
 </div><div class="card api-card" data-views="859" data-likes="14" data-date="2026-05-08" data-title="#shorts #viral #viralvideo #viralshorts #shortvideo #shortsfeed #youtube #youtubeshorts #ytshorts">
   <span class="rank">23</span>
+  <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/CyS9FiSvvFM" target="_blank" rel="noopener" aria-label="#shorts #viral #viralvideo #viralshorts #shortvideo #shortsfeed #youtube #youtubeshorts #ytshorts">
     <img loading="lazy" src="https://img.youtube.com/vi/CyS9FiSvvFM/hqdefault.jpg" alt="">
     <span class="dur">0:22</span>
@@ -805,6 +845,7 @@
   </div>
 </div><div class="card api-card" data-views="776" data-likes="13" data-date="2026-05-06" data-title="bgm🎶🤍🕺🏻#shorts #monish galatta #trending #dance">
   <span class="rank">24</span>
+  <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/DH2Xv_sRT9s" target="_blank" rel="noopener" aria-label="Bgm🎶🤍🕺🏻#shorts #monish galatta #trending #dance">
     <img loading="lazy" src="https://img.youtube.com/vi/DH2Xv_sRT9s/hqdefault.jpg" alt="">
     <span class="dur">0:17</span>
@@ -820,6 +861,7 @@
   </div>
 </div><div class="card api-card" data-views="487" data-likes="3" data-date="2026-05-05" data-title="#shorts #foryou #dance #youtubeshorts">
   <span class="rank">25</span>
+  <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/r1tPinerjP8" target="_blank" rel="noopener" aria-label="#shorts #foryou #dance #youtubeshorts">
     <img loading="lazy" src="https://img.youtube.com/vi/r1tPinerjP8/hqdefault.jpg" alt="">
     <span class="dur">0:14</span>
@@ -835,6 +877,7 @@
   </div>
 </div><div class="card api-card" data-views="277" data-likes="2" data-date="2026-05-04" data-title="rone laga bhai #madan lal-9544 #viralshort #shortsfeed #shorts">
   <span class="rank">26</span>
+  <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/xQE4h7N0RxQ" target="_blank" rel="noopener" aria-label="rone laga bhai #madan lal-9544 #viralshort #shortsfeed #shorts">
     <img loading="lazy" src="https://img.youtube.com/vi/xQE4h7N0RxQ/hqdefault.jpg" alt="">
     <span class="dur">0:16</span>
@@ -850,6 +893,7 @@
   </div>
 </div><div class="card api-card" data-views="276" data-likes="0" data-date="2026-05-12" data-title="thoda hamen bhi support karo 😇😍 #shortvideo #viral #shorts #youtubeshorts">
   <span class="rank">27</span>
+  <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/f_QDWshEDY0" target="_blank" rel="noopener" aria-label="thoda hamen bhi support karo 😇😍 #shortvideo #viral #shorts #youtubeshorts">
     <img loading="lazy" src="https://img.youtube.com/vi/f_QDWshEDY0/hqdefault.jpg" alt="">
     <span class="dur">0:12</span>
@@ -865,6 +909,7 @@
   </div>
 </div><div class="card api-card" data-views="266" data-likes="6" data-date="2026-05-16" data-title="অন্য 😍কারো না সাথী 😍#shorts #dance #shortsvideo #viralshorts">
   <span class="rank">28</span>
+  <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/VXTXJ7LEwIs" target="_blank" rel="noopener" aria-label="অন্য 😍কারো না সাথী 😍#shorts #dance #shortsvideo #viralshorts">
     <img loading="lazy" src="https://img.youtube.com/vi/VXTXJ7LEwIs/hqdefault.jpg" alt="">
     <span class="dur">0:16</span>
@@ -880,6 +925,7 @@
   </div>
 </div><div class="card api-card" data-views="248" data-likes="3" data-date="2026-05-05" data-title="pahali pahli baar 🥰🥰🥰 #explore #song #bolleywoodsong #trending #hindisong">
   <span class="rank">29</span>
+  <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/mUsEVjZWF38" target="_blank" rel="noopener" aria-label="pahali pahli baar 🥰🥰🥰 #explore #song #bolleywoodsong #trending #hindisong">
     <img loading="lazy" src="https://img.youtube.com/vi/mUsEVjZWF38/hqdefault.jpg" alt="">
     <span class="dur">0:16</span>
@@ -895,6 +941,7 @@
   </div>
 </div><div class="card api-card" data-views="223" data-likes="3" data-date="2026-05-07" data-title="kaho na pyar hai❤️👍#viralshort #shortsfeed #shortsvideo #shortsviral">
   <span class="rank">30</span>
+  <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/jjpVY8Wkyck" target="_blank" rel="noopener" aria-label="kaho na pyar hai❤️👍#viralshort #shortsfeed #shortsvideo #shortsviral">
     <img loading="lazy" src="https://img.youtube.com/vi/jjpVY8Wkyck/hqdefault.jpg" alt="">
     <span class="dur">0:16</span>
@@ -910,6 +957,7 @@
   </div>
 </div><div class="card api-card" data-views="206" data-likes="26" data-date="2026-05-13" data-title="dil ❤️ dooba 😍#shorts #dance #shortsvideo #viralshorts">
   <span class="rank">31</span>
+  <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/de1_-fk_TpI" target="_blank" rel="noopener" aria-label="DIL ❤️ DOOBA 😍#shorts #dance #shortsvideo #viralshorts">
     <img loading="lazy" src="https://img.youtube.com/vi/de1_-fk_TpI/hqdefault.jpg" alt="">
     <span class="dur">0:22</span>
@@ -925,6 +973,7 @@
   </div>
 </div><div class="card api-card" data-views="136" data-likes="0" data-date="2026-05-15" data-title="viral dance vibes ✨ wait for the end! 😱 #shorts #dance">
   <span class="rank">32</span>
+  <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/MW0blov9URE" target="_blank" rel="noopener" aria-label="Viral Dance Vibes ✨ Wait for the end! 😱 #Shorts #Dance">
     <img loading="lazy" src="https://img.youtube.com/vi/MW0blov9URE/hqdefault.jpg" alt="">
     <span class="dur">0:12</span>
@@ -942,6 +991,7 @@
   </div>
 </div><div class="card api-card" data-views="3" data-likes="2" data-date="2026-05-04" data-title="shree radha radha..#reels #shorts #shortvideo #shortsfeed #shortsviralvideo #viral #shortsviral #bgm">
   <span class="rank">33</span>
+  <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/Zt9MuhY-FlI" target="_blank" rel="noopener" aria-label="Shree Radha Radha..#reels #shorts #shortvideo #shortsfeed #shortsviralvideo #viral #shortsviral #bgm">
     <img loading="lazy" src="https://img.youtube.com/vi/Zt9MuhY-FlI/hqdefault.jpg" alt="">
     <span class="dur">0:28</span>
@@ -957,6 +1007,7 @@
   </div>
 </div><div class="card api-card" data-views="1" data-likes="1" data-date="2026-05-06" data-title="#trending #bgm #music #folksong #shorts #telugushorts #trendingshorts #viralshorts #song #viral">
   <span class="rank">34</span>
+  <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/I5942RvgX2s" target="_blank" rel="noopener" aria-label="#trending #bgm #music #folksong #shorts #telugushorts #trendingshorts #viralshorts #song #viral">
     <img loading="lazy" src="https://img.youtube.com/vi/I5942RvgX2s/hqdefault.jpg" alt="">
     <span class="dur">0:54</span>
@@ -972,6 +1023,7 @@
   </div>
 </div><div class="card api-card" data-views="2184128" data-likes="71227" data-date="2026-05-08" data-title="night vibe 😍 #shorts #trendingonshorts #dance">
   <span class="rank">35</span>
+  <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/Mc5pOHU6MJc" target="_blank" rel="noopener" aria-label="Night vibe 😍 #shorts #trendingonshorts #dance">
     <img loading="lazy" src="https://img.youtube.com/vi/Mc5pOHU6MJc/hqdefault.jpg" alt="">
     <span class="dur">0:21</span>
@@ -987,6 +1039,7 @@
   </div>
 </div><div class="card api-card" data-views="1715397" data-likes="14620" data-date="2026-05-02" data-title="tiktok viral trend | copines dance trend #tiktok #dancetrend #dancechallenge">
   <span class="rank">36</span>
+  <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/hgfpBntPJhY" target="_blank" rel="noopener" aria-label="Tiktok Viral Trend | Copines Dance Trend #tiktok #dancetrend #dancechallenge">
     <img loading="lazy" src="https://img.youtube.com/vi/hgfpBntPJhY/hqdefault.jpg" alt="">
     <span class="dur">0:15</span>
@@ -1002,6 +1055,7 @@
   </div>
 </div><div class="card api-card" data-views="1327510" data-likes="12981" data-date="2026-05-03" data-title="loveah sollitalea 😉💌🎶 - gv prakash × ken karunaas × meenakshi 🥰💖💎✨">
   <span class="rank">37</span>
+  <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/kheDMdrJzNs" target="_blank" rel="noopener" aria-label="Loveah Sollitalea 😉💌🎶 - GV Prakash × Ken Karunaas × Meenakshi 🥰💖💎✨">
     <img loading="lazy" src="https://img.youtube.com/vi/kheDMdrJzNs/hqdefault.jpg" alt="">
     <span class="dur">0:09</span>
@@ -1017,6 +1071,7 @@
   </div>
 </div><div class="card api-card" data-views="1065283" data-likes="14624" data-date="2026-05-04" data-title="black love🖤✨#dance #trending #song #shorts #love #dance #comedy #telugu #viral">
   <span class="rank">38</span>
+  <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/eIubKZFeeic" target="_blank" rel="noopener" aria-label="Black love🖤✨#dance #trending #song #shorts #love #dance #comedy #telugu #viral">
     <img loading="lazy" src="https://img.youtube.com/vi/eIubKZFeeic/hqdefault.jpg" alt="">
     <span class="dur">0:16</span>
@@ -1032,6 +1087,7 @@
   </div>
 </div><div class="card api-card" data-views="838452" data-likes="48067" data-date="2026-05-04" data-title="let's choom! @babymonster #babymonster #choom #shorts">
   <span class="rank">39</span>
+  <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/YPGPND_YBU4" target="_blank" rel="noopener" aria-label="Let's Choom! @BABYMONSTER #BABYMONSTER #CHOOM #shorts">
     <img loading="lazy" src="https://img.youtube.com/vi/YPGPND_YBU4/hqdefault.jpg" alt="">
     <span class="dur">0:23</span>
@@ -1047,6 +1103,7 @@
   </div>
 </div><div class="card api-card" data-views="581634" data-likes="5264" data-date="2026-05-03" data-title="amazing couple dance talent | rasputin by boney m |  #music #dance #shorts">
   <span class="rank">40</span>
+  <span class="new">NEW</span>
   <a class="tw" href="https://www.youtube.com/shorts/CZtfkKSLIjg" target="_blank" rel="noopener" aria-label="Amazing Couple Dance Talent | Rasputin by Boney M |  #music #dance #shorts">
     <img loading="lazy" src="https://img.youtube.com/vi/CZtfkKSLIjg/hqdefault.jpg" alt="">
     <span class="dur">0:19</span>
@@ -1063,25 +1120,319 @@
 </div></div>
 </section>
 <section id="t1" class="tc">
-  <div class="th"><div class="th-l"><b>글로벌</b><span class="th-s">대기 중</span></div></div><div class="empty">
-  <div class="ic">🎬</div>
-  <p><span class="pulse"></span>수집 대기 중</p>
-  <p class="sub">GitHub Actions가 매일 17:00 KST에 자동 실행됩니다</p>
-</div>
+  <div class="th">
+  <div class="th-l"><b>글로벌</b><span class="th-s">트렌딩 12개</span></div>
+  <div class="sp-w">
+    <button class="sp active" onclick="sortBy('t1','views',this)">👁 조회수</button>
+    <button class="sp" onclick="sortBy('t1','date',this)">🕒 최신</button>
+  </div>
+</div><div class='grid'><div class="card" data-views="12832631" data-date="2026-05-16" data-title="welcome to the jungle - official teaser | in cinemas | 26th june 2026">
+  <span class="rank top">1</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/dy_urGMFwH4" target="_blank" rel="noopener" aria-label="Welcome To The Jungle - Official Teaser | In Cinemas | 26th June 2026">
+    <img loading="lazy" src="https://img.youtube.com/vi/dy_urGMFwH4/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">Welcome To The Jungle - Official Teaser | In Cinemas | 26th June 2026</p>
+    <div class="meta"><span>👁 1283.3만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 🔥 천만뷰 검증 콘텐츠</p>
+  </div>
+</div><div class="card" data-views="641826" data-date="2026-05-16" data-title="youth movie scene///pt sir/kanaga❤&amp;praveen combo// #love#youtubeshorts #youtube #viral #wife">
+  <span class="rank top">2</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/AQDgHtcK1kM" target="_blank" rel="noopener" aria-label="youth movie scene///PT sir/kanaga❤&amp;praveen combo// #love#youtubeshorts #youtube #viral #wife">
+    <img loading="lazy" src="https://img.youtube.com/vi/AQDgHtcK1kM/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">youth movie scene///PT sir/kanaga❤&amp;praveen combo// #love#youtubeshorts #youtube #viral #wife</p>
+    <div class="meta"><span>👁 64.2만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 ✨ 10만뷰 상승세 · ⏱ 12초 — 반복 시청 유도 · 🌐 바이럴 챌린지 트렌드</p>
+  </div>
+</div><div class="card" data-views="387620" data-date="2026-05-16" data-title="호러무비 [짱구는 못말려: 아미고] 예고편">
+  <span class="rank top">3</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/mPQK8TG80II" target="_blank" rel="noopener" aria-label="호러무비 [짱구는 못말려: 아미고] 예고편">
+    <img loading="lazy" src="https://img.youtube.com/vi/mPQK8TG80II/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">호러무비 [짱구는 못말려: 아미고] 예고편</p>
+    <div class="meta"><span>👁 38.8만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 ✨ 10만뷰 상승세</p>
+  </div>
+</div><div class="card" data-views="336037" data-date="2026-05-16" data-title="say hi to rambujji 💥 | peddi trailer from may 18th | ram charan | divyenndu | buchi babu sana">
+  <span class="rank">4</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/VC4C2QNiBC4" target="_blank" rel="noopener" aria-label="Say Hi to Rambujji 💥 | Peddi Trailer from May 18th | Ram Charan | Divyenndu | Buchi Babu Sana">
+    <img loading="lazy" src="https://img.youtube.com/vi/VC4C2QNiBC4/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">Say Hi to Rambujji 💥 | Peddi Trailer from May 18th | Ram Charan | Divyenndu | Buchi Babu Sana</p>
+    <div class="meta"><span>👁 33.6만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 ✨ 10만뷰 상승세 · ⏱ 21초 — 완주율 최적</p>
+  </div>
+</div><div class="card" data-views="331101" data-date="2026-05-16" data-title="hati danta sikari || trailer || naba || natia comedy">
+  <span class="rank">5</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/Kjs_u_1hcog" target="_blank" rel="noopener" aria-label="Hati danta Sikari || Trailer || Naba || Natia Comedy">
+    <img loading="lazy" src="https://img.youtube.com/vi/Kjs_u_1hcog/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">Hati danta Sikari || Trailer || Naba || Natia Comedy</p>
+    <div class="meta"><span>👁 33.1만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 ✨ 10만뷰 상승세</p>
+  </div>
+</div><div class="card" data-views="215261" data-date="2026-05-16" data-title="youth movie btskenkarunas, anishma, meenaxi funny moments #love #shorts#viralvideo">
+  <span class="rank">6</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/rhJAc8zBnrg" target="_blank" rel="noopener" aria-label="Youth movie btskenkarunas, anishma, Meenaxi funny moments #love #shorts#viralvideo">
+    <img loading="lazy" src="https://img.youtube.com/vi/rhJAc8zBnrg/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">Youth movie btskenkarunas, anishma, Meenaxi funny moments #love #shorts#viralvideo</p>
+    <div class="meta"><span>👁 21.5만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 ✨ 10만뷰 상승세 · ⏱ 17초 — 완주율 최적 · 🎤 K-팝 글로벌 팬덤</p>
+  </div>
+</div><div class="card" data-views="195836" data-date="2026-05-16" data-title="『機動警察パトレイバー ezy』　file 2 本予告　60秒">
+  <span class="rank">7</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/GpIJrhmmes4" target="_blank" rel="noopener" aria-label="『機動警察パトレイバー EZY』　File 2 本予告　60秒">
+    <img loading="lazy" src="https://img.youtube.com/vi/GpIJrhmmes4/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">『機動警察パトレイバー EZY』　File 2 本予告　60秒</p>
+    <div class="meta"><span>👁 19.6만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 ✨ 10만뷰 상승세</p>
+  </div>
+</div><div class="card" data-views="182825" data-date="2026-05-16" data-title="and now">
+  <span class="rank">8</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/HTTQVgGc1sY" target="_blank" rel="noopener" aria-label="And Now">
+    <img loading="lazy" src="https://img.youtube.com/vi/HTTQVgGc1sY/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">And Now</p>
+    <div class="meta"><span>👁 18.3만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 ✨ 10만뷰 상승세</p>
+  </div>
+</div><div class="card" data-views="139667" data-date="2026-05-16" data-title="hotstar specials: thukra ke mera pyaar season 2 | official teaser | june 19 | sanchita bashu">
+  <span class="rank">9</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/RTxWlfBydKw" target="_blank" rel="noopener" aria-label="Hotstar Specials: Thukra Ke Mera Pyaar Season 2 | Official Teaser | June 19 | Sanchita Bashu">
+    <img loading="lazy" src="https://img.youtube.com/vi/RTxWlfBydKw/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">Hotstar Specials: Thukra Ke Mera Pyaar Season 2 | Official Teaser | June 19 | Sanchita Bashu</p>
+    <div class="meta"><span>👁 14.0만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 ✨ 10만뷰 상승세</p>
+  </div>
+</div><div class="card" data-views="105394" data-date="2026-05-16" data-title="shiva rajkumar garu as gournaidu | peddi | ram charan |buchi babu sana |ar rahman | trailer 18th may">
+  <span class="rank">10</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/fia0byKhXro" target="_blank" rel="noopener" aria-label="Shiva Rajkumar garu as Gournaidu | Peddi | Ram Charan |Buchi Babu Sana |AR Rahman | Trailer 18th May">
+    <img loading="lazy" src="https://img.youtube.com/vi/fia0byKhXro/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">Shiva Rajkumar garu as Gournaidu | Peddi | Ram Charan |Buchi Babu Sana |AR Rahman | Trailer 18th May</p>
+    <div class="meta"><span>👁 10.5만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 ✨ 10만뷰 상승세 · ⏱ 20초 — 완주율 최적</p>
+  </div>
+</div><div class="card" data-views="90292" data-date="2026-05-16" data-title="キュートなキューたい (tv size)">
+  <span class="rank">11</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/LRXqfr59mbE" target="_blank" rel="noopener" aria-label="キュートなキューたい (TV size)">
+    <img loading="lazy" src="https://img.youtube.com/vi/LRXqfr59mbE/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">キュートなキューたい (TV size)</p>
+    <div class="meta"><span>👁 9.0만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 🎯 알고리즘 추천</p>
+  </div>
+</div><div class="card" data-views="40448" data-date="2026-05-16" data-title="나도 알아, 내가 변한 거 | [골드랜드] 7-8회 예고편 | 디즈니+">
+  <span class="rank">12</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/xy4M41JVyTI" target="_blank" rel="noopener" aria-label="나도 알아, 내가 변한 거 | [골드랜드] 7-8회 예고편 | 디즈니+">
+    <img loading="lazy" src="https://img.youtube.com/vi/xy4M41JVyTI/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">나도 알아, 내가 변한 거 | [골드랜드] 7-8회 예고편 | 디즈니+</p>
+    <div class="meta"><span>👁 4.0만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 🎯 알고리즘 추천</p>
+  </div>
+</div></div>
 </section>
 <section id="t2" class="tc">
-  <div class="th"><div class="th-l"><b>미국</b><span class="th-s">대기 중</span></div></div><div class="empty">
-  <div class="ic">🎬</div>
-  <p><span class="pulse"></span>수집 대기 중</p>
-  <p class="sub">GitHub Actions가 매일 17:00 KST에 자동 실행됩니다</p>
-</div>
+  <div class="th">
+  <div class="th-l"><b>미국</b><span class="th-s">트렌딩 11개</span></div>
+  <div class="sp-w">
+    <button class="sp active" onclick="sortBy('t2','views',this)">👁 조회수</button>
+    <button class="sp" onclick="sortBy('t2','date',this)">🕒 최신</button>
+  </div>
+</div><div class='grid'><div class="card" data-views="2070" data-date="2026-05-16" data-title="day 12/30 | mehbooba mehbooba - dance cover | #fypp #dance #tiktok #buildinsilence">
+  <span class="rank top">1</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/egQ6lnChTqE" target="_blank" rel="noopener" aria-label="DAY 12/30 | Mehbooba mehbooba - DANCE COVER | #fypp #dance #tiktok #buildinsilence">
+    <img loading="lazy" src="https://img.youtube.com/vi/egQ6lnChTqE/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">DAY 12/30 | Mehbooba mehbooba - DANCE COVER | #fypp #dance #tiktok #buildinsilence</p>
+    <div class="meta"><span>👁 2,070</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 💃 댄스/챌린지 포맷</p>
+  </div>
+</div><div class="card" data-views="1947" data-date="2026-05-16" data-title="new short video viral😱#trending #viral #dancechallenge #newtrend #dancevideo #viralshort #viraltrick">
+  <span class="rank top">2</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/D_IhoUk7xhE" target="_blank" rel="noopener" aria-label="New short video viral😱#Trending #Viral #DanceChallenge #NewTrend #DanceVideo #Viralshort #viraltrick">
+    <img loading="lazy" src="https://img.youtube.com/vi/D_IhoUk7xhE/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">New short video viral😱#Trending #Viral #DanceChallenge #NewTrend #DanceVideo #Viralshort #viraltrick</p>
+    <div class="meta"><span>👁 1,947</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 ⏱ 14초 — 반복 시청 유도 · 💃 댄스/챌린지 포맷</p>
+  </div>
+</div><div class="card" data-views="1825" data-date="2026-05-16" data-title="background in bhojpuriya song #viral #viral #shorts  #dance #funny">
+  <span class="rank top">3</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/iaqEjNdugKU" target="_blank" rel="noopener" aria-label="background in Bhojpuriya song #viral #viral #shorts  #dance #funny">
+    <img loading="lazy" src="https://img.youtube.com/vi/iaqEjNdugKU/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">background in Bhojpuriya song #viral #viral #shorts  #dance #funny</p>
+    <div class="meta"><span>👁 1,825</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 ⏱ 9초 — 반복 시청 유도 · 💃 댄스/챌린지 포맷 · 🎵 트렌딩 사운드</p>
+  </div>
+</div><div class="card" data-views="1248" data-date="2026-05-16" data-title="kurchi madathapetti trend 💃 sreeleela dance | mahesh babu | minutes studios">
+  <span class="rank">4</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/Iu-sHGfat1I" target="_blank" rel="noopener" aria-label="Kurchi Madathapetti Trend 💃 Sreeleela Dance | Mahesh Babu | Minutes Studios">
+    <img loading="lazy" src="https://img.youtube.com/vi/Iu-sHGfat1I/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">Kurchi Madathapetti Trend 💃 Sreeleela Dance | Mahesh Babu | Minutes Studios</p>
+    <div class="meta"><span>👁 1,248</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 ⏱ 19초 — 완주율 최적 · 💃 댄스/챌린지 포맷</p>
+  </div>
+</div><div class="card" data-views="1202" data-date="2026-05-16" data-title="tu hai pagal 🫵#song #dance #viral #youtubeshorts #trending #shorts">
+  <span class="rank">5</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/T5PS-NoDdTo" target="_blank" rel="noopener" aria-label="Tu Hai Pagal 🫵#song #dance #viral #youtubeshorts #trending #shorts">
+    <img loading="lazy" src="https://img.youtube.com/vi/T5PS-NoDdTo/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">Tu Hai Pagal 🫵#song #dance #viral #youtubeshorts #trending #shorts</p>
+    <div class="meta"><span>👁 1,202</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 ⏱ 12초 — 반복 시청 유도 · 💃 댄스/챌린지 포맷 · 🎵 트렌딩 사운드</p>
+  </div>
+</div><div class="card" data-views="1048" data-date="2026-05-16" data-title="#dance #trending #song">
+  <span class="rank">6</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/lBLLZNrZvts" target="_blank" rel="noopener" aria-label="#dance #trending #song">
+    <img loading="lazy" src="https://img.youtube.com/vi/lBLLZNrZvts/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">#dance #trending #song</p>
+    <div class="meta"><span>👁 1,048</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 ⏱ 9초 — 반복 시청 유도 · 💃 댄스/챌린지 포맷 · 🎵 트렌딩 사운드</p>
+  </div>
+</div><div class="card" data-views="781" data-date="2026-05-16" data-title="mirror dance challenge 18s! 🪞 twin me viral #mirrordance #viralvideo #youtubeshorts #explorepage#bgm">
+  <span class="rank">7</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/IZeIyhgdh48" target="_blank" rel="noopener" aria-label="Mirror Dance Challenge 18s! 🪞 Twin Me Viral #MirrorDance #viralvideo #youtubeshorts #explorepage#bgm">
+    <img loading="lazy" src="https://img.youtube.com/vi/IZeIyhgdh48/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">Mirror Dance Challenge 18s! 🪞 Twin Me Viral #MirrorDance #viralvideo #youtubeshorts #explorepage#bgm</p>
+    <div class="meta"><span>👁 781</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 ⏱ 10초 — 반복 시청 유도 · 💃 댄스/챌린지 포맷 · 🎵 트렌딩 사운드</p>
+  </div>
+</div><div class="card" data-views="408" data-date="2026-05-16" data-title="paris🗼@gururandhawa‼️#shortsyoutube #shortvideo #viral #dance #trending #fyp #explore #foryou">
+  <span class="rank">8</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/r-jfO5ajXC4" target="_blank" rel="noopener" aria-label="Paris🗼@Gururandhawa‼️#shortsyoutube #shortvideo #viral #dance #trending #fyp #explore #foryou">
+    <img loading="lazy" src="https://img.youtube.com/vi/r-jfO5ajXC4/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">Paris🗼@Gururandhawa‼️#shortsyoutube #shortvideo #viral #dance #trending #fyp #explore #foryou</p>
+    <div class="meta"><span>👁 408</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 ⏱ 19초 — 완주율 최적 · 💃 댄스/챌린지 포맷</p>
+  </div>
+</div><div class="card" data-views="341" data-date="2026-05-16" data-title="#song #dance #trending">
+  <span class="rank">9</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/64OTcTijKjo" target="_blank" rel="noopener" aria-label="#song #dance #trending">
+    <img loading="lazy" src="https://img.youtube.com/vi/64OTcTijKjo/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">#song #dance #trending</p>
+    <div class="meta"><span>👁 341</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 ⏱ 22초 — 완주율 최적 · 💃 댄스/챌린지 포맷 · 🎵 트렌딩 사운드</p>
+  </div>
+</div><div class="card" data-views="140" data-date="2026-05-16" data-title="panna ki tamanna hai‼️💃💖 #viral #youtubeshorts #love #song #dance #shorts">
+  <span class="rank">10</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/SIs0StOxUbM" target="_blank" rel="noopener" aria-label="Panna Ki Tamanna Hai‼️💃💖 #viral #youtubeshorts #love #song #dance #shorts">
+    <img loading="lazy" src="https://img.youtube.com/vi/SIs0StOxUbM/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">Panna Ki Tamanna Hai‼️💃💖 #viral #youtubeshorts #love #song #dance #shorts</p>
+    <div class="meta"><span>👁 140</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 💃 댄스/챌린지 포맷 · 🎵 트렌딩 사운드</p>
+  </div>
+</div><div class="card" data-views="87" data-date="2026-05-16" data-title="kagaz kalam dawaat💖‼️jhankar beats 💖#dance #viral #youtubeshorts #love #trending #song #viralsong 💃">
+  <span class="rank">11</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/FE7Zxu0t4aU" target="_blank" rel="noopener" aria-label="Kagaz Kalam Dawaat💖‼️Jhankar Beats 💖#dance #viral #youtubeshorts #love #trending #song #viralsong 💃">
+    <img loading="lazy" src="https://img.youtube.com/vi/FE7Zxu0t4aU/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">Kagaz Kalam Dawaat💖‼️Jhankar Beats 💖#dance #viral #youtubeshorts #love #trending #song #viralsong 💃</p>
+    <div class="meta"><span>👁 87</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 💃 댄스/챌린지 포맷 · 🎵 트렌딩 사운드</p>
+  </div>
+</div></div>
 </section>
 <section id="t3" class="tc">
-  <div class="th"><div class="th-l"><b>멕시코</b><span class="th-s">대기 중</span></div></div><div class="empty">
-  <div class="ic">🎬</div>
-  <p><span class="pulse"></span>수집 대기 중</p>
-  <p class="sub">GitHub Actions가 매일 17:00 KST에 자동 실행됩니다</p>
-</div>
+  <div class="th">
+  <div class="th-l"><b>멕시코</b><span class="th-s">트렌딩 1개</span></div>
+  <div class="sp-w">
+    <button class="sp active" onclick="sortBy('t3','views',this)">👁 조회수</button>
+    <button class="sp" onclick="sortBy('t3','date',this)">🕒 최신</button>
+  </div>
+</div><div class='grid'><div class="card" data-views="148784" data-date="2026-05-16" data-title="the amazing digital circus: el último acto | tráiler">
+  <span class="rank top">1</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/sBdbUD89V1g" target="_blank" rel="noopener" aria-label="THE AMAZING DIGITAL CIRCUS: EL ÚLTIMO ACTO | TRÁILER">
+    <img loading="lazy" src="https://img.youtube.com/vi/sBdbUD89V1g/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">THE AMAZING DIGITAL CIRCUS: EL ÚLTIMO ACTO | TRÁILER</p>
+    <div class="meta"><span>👁 14.9만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 ✨ 10만뷰 상승세</p>
+  </div>
+</div></div>
 </section>
 <section id="t4" class="tc">
   <div class="th"><div class="th-l"><b>브라질</b><span class="th-s">대기 중</span></div></div><div class="empty">
@@ -1105,32 +1456,244 @@
 </div>
 </section>
 <section id="t7" class="tc">
-  <div class="th"><div class="th-l"><b>스페인</b><span class="th-s">대기 중</span></div></div><div class="empty">
-  <div class="ic">🎬</div>
-  <p><span class="pulse"></span>수집 대기 중</p>
-  <p class="sub">GitHub Actions가 매일 17:00 KST에 자동 실행됩니다</p>
-</div>
+  <div class="th">
+  <div class="th-l"><b>스페인</b><span class="th-s">트렌딩 3개</span></div>
+  <div class="sp-w">
+    <button class="sp active" onclick="sortBy('t7','views',this)">👁 조회수</button>
+    <button class="sp" onclick="sortBy('t7','date',this)">🕒 최신</button>
+  </div>
+</div><div class='grid'><div class="card" data-views="429082" data-date="2026-05-16" data-title="série - tuumaal - episodes 02 - 03 - bande annonce">
+  <span class="rank top">1</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/5hL7lVfdbUk" target="_blank" rel="noopener" aria-label="Série - Tuumaal - Episodes 02 - 03 - Bande annonce">
+    <img loading="lazy" src="https://img.youtube.com/vi/5hL7lVfdbUk/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">Série - Tuumaal - Episodes 02 - 03 - Bande annonce</p>
+    <div class="meta"><span>👁 42.9만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 ✨ 10만뷰 상승세</p>
+  </div>
+</div><div class="card" data-views="140803" data-date="2026-05-16" data-title="culpa tuya: londres | tráiler oficial | prime video españa">
+  <span class="rank top">2</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/02c0Ay0HsTc" target="_blank" rel="noopener" aria-label="Culpa Tuya: Londres | Tráiler Oficial | Prime Video España">
+    <img loading="lazy" src="https://img.youtube.com/vi/02c0Ay0HsTc/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">Culpa Tuya: Londres | Tráiler Oficial | Prime Video España</p>
+    <div class="meta"><span>👁 14.1만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 ✨ 10만뷰 상승세</p>
+  </div>
+</div><div class="card" data-views="20620" data-date="2026-05-16" data-title="evercade - neogeo arcade 4 trailer - eight great neogeo games!">
+  <span class="rank top">3</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/_NQMgeKWSkM" target="_blank" rel="noopener" aria-label="Evercade - NEOGEO Arcade 4 Trailer - Eight great NEOGEO games!">
+    <img loading="lazy" src="https://img.youtube.com/vi/_NQMgeKWSkM/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">Evercade - NEOGEO Arcade 4 Trailer - Eight great NEOGEO games!</p>
+    <div class="meta"><span>👁 2.1만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 🎯 알고리즘 추천</p>
+  </div>
+</div></div>
 </section>
 <section id="t8" class="tc">
-  <div class="th"><div class="th-l"><b>프랑스</b><span class="th-s">대기 중</span></div></div><div class="empty">
-  <div class="ic">🎬</div>
-  <p><span class="pulse"></span>수집 대기 중</p>
-  <p class="sub">GitHub Actions가 매일 17:00 KST에 자동 실행됩니다</p>
-</div>
+  <div class="th">
+  <div class="th-l"><b>프랑스</b><span class="th-s">트렌딩 6개</span></div>
+  <div class="sp-w">
+    <button class="sp active" onclick="sortBy('t8','views',this)">👁 조회수</button>
+    <button class="sp" onclick="sortBy('t8','date',this)">🕒 최신</button>
+  </div>
+</div><div class='grid'><div class="card" data-views="205670" data-date="2026-05-16" data-title="série - sama wurus - la bande annonce episode 02">
+  <span class="rank top">1</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/IPSqlyAAy4s" target="_blank" rel="noopener" aria-label="Série - Sama WURUS - La bande annonce Episode 02">
+    <img loading="lazy" src="https://img.youtube.com/vi/IPSqlyAAy4s/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">Série - Sama WURUS - La bande annonce Episode 02</p>
+    <div class="meta"><span>👁 20.6만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 ✨ 10만뷰 상승세</p>
+  </div>
+</div><div class="card" data-views="72757" data-date="2026-05-16" data-title="karma bande annonce teaser (2026) marion cotillard, guillaume canet">
+  <span class="rank top">2</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/9kpO-7BGZgA" target="_blank" rel="noopener" aria-label="KARMA Bande Annonce Teaser (2026) Marion Cotillard, Guillaume Canet">
+    <img loading="lazy" src="https://img.youtube.com/vi/9kpO-7BGZgA/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">KARMA Bande Annonce Teaser (2026) Marion Cotillard, Guillaume Canet</p>
+    <div class="meta"><span>👁 7.3만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 🎯 알고리즘 추천</p>
+  </div>
+</div><div class="card" data-views="30603" data-date="2026-05-16" data-title="karma bande annonce (2026) guillaume canet, marion cotillard">
+  <span class="rank top">3</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/2VytREJjh4k" target="_blank" rel="noopener" aria-label="KARMA Bande Annonce (2026) Guillaume Canet, Marion Cotillard">
+    <img loading="lazy" src="https://img.youtube.com/vi/2VytREJjh4k/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">KARMA Bande Annonce (2026) Guillaume Canet, Marion Cotillard</p>
+    <div class="meta"><span>👁 3.1만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 🎯 알고리즘 추천</p>
+  </div>
+</div><div class="card" data-views="24836" data-date="2026-05-16" data-title="à contre-sens 2 : londres | bande-annonce officielle | prime video">
+  <span class="rank">4</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/2lOEMBlyj3I" target="_blank" rel="noopener" aria-label="À contre-sens 2 : Londres | Bande-annonce officielle | Prime Video">
+    <img loading="lazy" src="https://img.youtube.com/vi/2lOEMBlyj3I/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">À contre-sens 2 : Londres | Bande-annonce officielle | Prime Video</p>
+    <div class="meta"><span>👁 2.5만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 🎯 알고리즘 추천</p>
+  </div>
+</div><div class="card" data-views="12215" data-date="2026-05-16" data-title="bande-annonce : la semaine du 18 au 22 mai 2026">
+  <span class="rank">5</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/PFVuDLkhvGE" target="_blank" rel="noopener" aria-label="Bande-annonce : la semaine du 18 au 22 mai 2026">
+    <img loading="lazy" src="https://img.youtube.com/vi/PFVuDLkhvGE/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">Bande-annonce : la semaine du 18 au 22 mai 2026</p>
+    <div class="meta"><span>👁 1.2만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 🎯 알고리즘 추천</p>
+  </div>
+</div><div class="card" data-views="8617" data-date="2026-05-16" data-title="karma - official teaser hd">
+  <span class="rank">6</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/Zd6ylgh9qk4" target="_blank" rel="noopener" aria-label="KARMA - Official teaser HD">
+    <img loading="lazy" src="https://img.youtube.com/vi/Zd6ylgh9qk4/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">KARMA - Official teaser HD</p>
+    <div class="meta"><span>👁 8,617</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 🎯 알고리즘 추천</p>
+  </div>
+</div></div>
 </section>
 <section id="t9" class="tc">
-  <div class="th"><div class="th-l"><b>이탈리아</b><span class="th-s">대기 중</span></div></div><div class="empty">
-  <div class="ic">🎬</div>
-  <p><span class="pulse"></span>수집 대기 중</p>
-  <p class="sub">GitHub Actions가 매일 17:00 KST에 자동 실행됩니다</p>
-</div>
+  <div class="th">
+  <div class="th-l"><b>이탈리아</b><span class="th-s">트렌딩 4개</span></div>
+  <div class="sp-w">
+    <button class="sp active" onclick="sortBy('t9','views',this)">👁 조회수</button>
+    <button class="sp" onclick="sortBy('t9','date',this)">🕒 최신</button>
+  </div>
+</div><div class='grid'><div class="card" data-views="24484" data-date="2026-05-16" data-title="spider-man: brand new day - dal 29 luglio al cinema - vicino amichevole">
+  <span class="rank top">1</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/AgD9aI3v5YA" target="_blank" rel="noopener" aria-label="SPIDER-MAN: BRAND NEW DAY - Dal 29 luglio al cinema - Vicino amichevole">
+    <img loading="lazy" src="https://img.youtube.com/vi/AgD9aI3v5YA/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">SPIDER-MAN: BRAND NEW DAY - Dal 29 luglio al cinema - Vicino amichevole</p>
+    <div class="meta"><span>👁 2.4만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 ⏱ 29초 — 완주율 최적</p>
+  </div>
+</div><div class="card" data-views="18015" data-date="2026-05-16" data-title="la valle dell'eden | teaser ufficiale | netflix italia">
+  <span class="rank top">2</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/TO6dHbyA2Wk" target="_blank" rel="noopener" aria-label="La valle dell'Eden | Teaser ufficiale | Netflix Italia">
+    <img loading="lazy" src="https://img.youtube.com/vi/TO6dHbyA2Wk/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">La valle dell'Eden | Teaser ufficiale | Netflix Italia</p>
+    <div class="meta"><span>👁 1.8만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 🎯 알고리즘 추천</p>
+  </div>
+</div><div class="card" data-views="17715" data-date="2026-05-16" data-title="è colpa tua: londra | trailer ufficiale | prime video">
+  <span class="rank top">3</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/j8rJkToKJG0" target="_blank" rel="noopener" aria-label="È Colpa Tua: Londra | Trailer Ufficiale | Prime Video">
+    <img loading="lazy" src="https://img.youtube.com/vi/j8rJkToKJG0/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">È Colpa Tua: Londra | Trailer Ufficiale | Prime Video</p>
+    <div class="meta"><span>👁 1.8만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 🎯 알고리즘 추천</p>
+  </div>
+</div><div class="card" data-views="9158" data-date="2026-05-16" data-title="backrooms | trailer 2 italiano ufficiale hd">
+  <span class="rank">4</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/AmSzBEpFP3c" target="_blank" rel="noopener" aria-label="BACKROOMS | Trailer 2 Italiano Ufficiale HD">
+    <img loading="lazy" src="https://img.youtube.com/vi/AmSzBEpFP3c/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">BACKROOMS | Trailer 2 Italiano Ufficiale HD</p>
+    <div class="meta"><span>👁 9,158</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 🎯 알고리즘 추천</p>
+  </div>
+</div></div>
 </section>
 <section id="t10" class="tc">
-  <div class="th"><div class="th-l"><b>인도네시아</b><span class="th-s">대기 중</span></div></div><div class="empty">
-  <div class="ic">🎬</div>
-  <p><span class="pulse"></span>수집 대기 중</p>
-  <p class="sub">GitHub Actions가 매일 17:00 KST에 자동 실행됩니다</p>
-</div>
+  <div class="th">
+  <div class="th-l"><b>인도네시아</b><span class="th-s">트렌딩 4개</span></div>
+  <div class="sp-w">
+    <button class="sp active" onclick="sortBy('t10','views',this)">👁 조회수</button>
+    <button class="sp" onclick="sortBy('t10','date',this)">🕒 최신</button>
+  </div>
+</div><div class='grid'><div class="card" data-views="42983" data-date="2026-05-16" data-title="veronika bluetooth">
+  <span class="rank top">1</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/gOZZZAU-Ymw" target="_blank" rel="noopener" aria-label="Veronika Bluetooth">
+    <img loading="lazy" src="https://img.youtube.com/vi/gOZZZAU-Ymw/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">Veronika Bluetooth</p>
+    <div class="meta"><span>👁 4.3만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 🎯 알고리즘 추천</p>
+  </div>
+</div><div class="card" data-views="40490" data-date="2026-05-16" data-title="terikat janji trailer: sena mengincar hans⁉️ davina jadi biduan pantura? - arya saloka,asha assuncao">
+  <span class="rank top">2</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/LvbIWYMY1BA" target="_blank" rel="noopener" aria-label="TERIKAT JANJI TRAILER: SENA MENGINCAR HANS⁉️ DAVINA JADI BIDUAN PANTURA? - Arya Saloka,Asha Assuncao">
+    <img loading="lazy" src="https://img.youtube.com/vi/LvbIWYMY1BA/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">TERIKAT JANJI TRAILER: SENA MENGINCAR HANS⁉️ DAVINA JADI BIDUAN PANTURA? - Arya Saloka,Asha Assuncao</p>
+    <div class="meta"><span>👁 4.0만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 ⏱ 25초 — 완주율 최적</p>
+  </div>
+</div><div class="card" data-views="2248" data-date="2026-05-16" data-title="trending bgm dance tq's for 500k views 😎 #shorts #viral #bgm #dance">
+  <span class="rank top">3</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/FrzaaHPuzmI" target="_blank" rel="noopener" aria-label="Trending BGM Dance Tq's For 500K Views 😎 #shorts #viral #bgm #dance">
+    <img loading="lazy" src="https://img.youtube.com/vi/FrzaaHPuzmI/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">Trending BGM Dance Tq's For 500K Views 😎 #shorts #viral #bgm #dance</p>
+    <div class="meta"><span>👁 2,248</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 ⏱ 10초 — 반복 시청 유도 · 💃 댄스/챌린지 포맷 · 🎵 트렌딩 사운드</p>
+  </div>
+</div><div class="card" data-views="6" data-date="2026-05-16" data-title="😍😍 #shortvideo #viralshorts #shorts #youtubeshorts #youtubeshorts">
+  <span class="rank">4</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/eu5g5hN0ffI" target="_blank" rel="noopener" aria-label="😍😍 #shortvideo #viralshorts #shorts #youtubeshorts #youtubeshorts">
+    <img loading="lazy" src="https://img.youtube.com/vi/eu5g5hN0ffI/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">😍😍 #shortvideo #viralshorts #shorts #youtubeshorts #youtubeshorts</p>
+    <div class="meta"><span>👁 6</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 ⏱ 15초 — 반복 시청 유도 · 🌐 바이럴 챌린지 트렌드</p>
+  </div>
+</div></div>
 </section>
 <section id="t11" class="tc">
   <div class="th"><div class="th-l"><b>필리핀</b><span class="th-s">대기 중</span></div></div><div class="empty">
@@ -1140,18 +1703,118 @@
 </div>
 </section>
 <section id="t12" class="tc">
-  <div class="th"><div class="th-l"><b>베트남</b><span class="th-s">대기 중</span></div></div><div class="empty">
-  <div class="ic">🎬</div>
-  <p><span class="pulse"></span>수집 대기 중</p>
-  <p class="sub">GitHub Actions가 매일 17:00 KST에 자동 실행됩니다</p>
-</div>
+  <div class="th">
+  <div class="th-l"><b>베트남</b><span class="th-s">트렌딩 1개</span></div>
+  <div class="sp-w">
+    <button class="sp active" onclick="sortBy('t12','views',this)">👁 조회수</button>
+    <button class="sp" onclick="sortBy('t12','date',this)">🕒 최신</button>
+  </div>
+</div><div class='grid'><div class="card" data-views="790989" data-date="2026-05-16" data-title="[trailer] giới thiệu phim bóng ma hạnh phúc - tuần cuối | đâu là cái giá phải trả cho kẻ sống vô ơn?">
+  <span class="rank top">1</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/_SSHB7XPzdI" target="_blank" rel="noopener" aria-label="[Trailer] Giới thiệu phim BÓNG MA HẠNH PHÚC - Tuần cuối | Đâu là cái giá phải trả cho kẻ sống vô ơn?">
+    <img loading="lazy" src="https://img.youtube.com/vi/_SSHB7XPzdI/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">[Trailer] Giới thiệu phim BÓNG MA HẠNH PHÚC - Tuần cuối | Đâu là cái giá phải trả cho kẻ sống vô ơn?</p>
+    <div class="meta"><span>👁 79.1만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 ✨ 10만뷰 상승세</p>
+  </div>
+</div></div>
 </section>
 <section id="t13" class="tc">
-  <div class="th"><div class="th-l"><b>일본</b><span class="th-s">대기 중</span></div></div><div class="empty">
-  <div class="ic">🎬</div>
-  <p><span class="pulse"></span>수집 대기 중</p>
-  <p class="sub">GitHub Actions가 매일 17:00 KST에 자동 실행됩니다</p>
-</div>
+  <div class="th">
+  <div class="th-l"><b>일본</b><span class="th-s">트렌딩 7개</span></div>
+  <div class="sp-w">
+    <button class="sp active" onclick="sortBy('t13','views',this)">👁 조회수</button>
+    <button class="sp" onclick="sortBy('t13','date',this)">🕒 최신</button>
+  </div>
+</div><div class='grid'><div class="card" data-views="5767352" data-date="2026-05-16" data-title="darling❤️| #shorts | @energeticsisters">
+  <span class="rank top">1</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/NynCahCnQL0" target="_blank" rel="noopener" aria-label="Darling❤️| #shorts | @EnergeticSisters">
+    <img loading="lazy" src="https://img.youtube.com/vi/NynCahCnQL0/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">Darling❤️| #shorts | @EnergeticSisters</p>
+    <div class="meta"><span>👁 576.7만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 📈 백만뷰 돌파 · ⏱ 17초 — 완주율 최적</p>
+  </div>
+</div><div class="card" data-views="573927" data-date="2026-05-16" data-title="dhoom ka dance || dnacers2.0m || #shorts #trending #viral #bollywood #dhoom #dance">
+  <span class="rank top">2</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/VeUwezUgZfI" target="_blank" rel="noopener" aria-label="Dhoom Ka Dance || Dnacers2.0m || #shorts #trending #viral #bollywood #dhoom #dance">
+    <img loading="lazy" src="https://img.youtube.com/vi/VeUwezUgZfI/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">Dhoom Ka Dance || Dnacers2.0m || #shorts #trending #viral #bollywood #dhoom #dance</p>
+    <div class="meta"><span>👁 57.4만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 ✨ 10만뷰 상승세 · ⏱ 24초 — 완주율 최적 · 💃 댄스/챌린지 포맷</p>
+  </div>
+</div><div class="card" data-views="344089" data-date="2026-05-16" data-title="jaiye sajna #shortsfeed #jaiyesajna #viralshorts #viralshort #trendingshorts #shortvideo #shorts">
+  <span class="rank top">3</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/IShLBD-au3s" target="_blank" rel="noopener" aria-label="Jaiye Sajna #shortsfeed #jaiyesajna #viralshorts #viralshort #trendingshorts #shortvideo #shorts">
+    <img loading="lazy" src="https://img.youtube.com/vi/IShLBD-au3s/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">Jaiye Sajna #shortsfeed #jaiyesajna #viralshorts #viralshort #trendingshorts #shortvideo #shorts</p>
+    <div class="meta"><span>👁 34.4만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 ✨ 10만뷰 상승세 · 🌐 바이럴 챌린지 트렌드</p>
+  </div>
+</div><div class="card" data-views="94610" data-date="2026-05-16" data-title="which version is your favourite? 😇 #remake #edit #shorts #viral">
+  <span class="rank">4</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/t-KJDGWDODw" target="_blank" rel="noopener" aria-label="Which version is your favourite? 😇 #remake #edit #shorts #viral">
+    <img loading="lazy" src="https://img.youtube.com/vi/t-KJDGWDODw/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">Which version is your favourite? 😇 #remake #edit #shorts #viral</p>
+    <div class="meta"><span>👁 9.5만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 ⏱ 14초 — 반복 시청 유도 · 🌐 바이럴 챌린지 트렌드</p>
+  </div>
+</div><div class="card" data-views="30605" data-date="2026-05-16" data-title="illuminati violin cover | aavesham bgm 🎻| fahadh faasil trending shorts #shorts #illumination #viral">
+  <span class="rank">5</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/pTP-VqpTcfo" target="_blank" rel="noopener" aria-label="Illuminati Violin Cover | Aavesham BGM 🎻| Fahadh Faasil Trending Shorts #shorts #illumination #viral">
+    <img loading="lazy" src="https://img.youtube.com/vi/pTP-VqpTcfo/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">Illuminati Violin Cover | Aavesham BGM 🎻| Fahadh Faasil Trending Shorts #shorts #illumination #viral</p>
+    <div class="meta"><span>👁 3.1만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 ⏱ 16초 — 완주율 최적 · 🌐 바이럴 챌린지 트렌드 · 🎵 트렌딩 사운드</p>
+  </div>
+</div><div class="card" data-views="20102" data-date="2026-05-16" data-title="cow is our mother#iscon #shorts #dance #youtubeshorts #villagerlifestyle #viral #viralshorts">
+  <span class="rank">6</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/V9MVuqAGbh8" target="_blank" rel="noopener" aria-label="cow is our mother#iscon #shorts #dance #youtubeshorts #villagerlifestyle #viral #viralshorts">
+    <img loading="lazy" src="https://img.youtube.com/vi/V9MVuqAGbh8/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">cow is our mother#iscon #shorts #dance #youtubeshorts #villagerlifestyle #viral #viralshorts</p>
+    <div class="meta"><span>👁 2.0만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 ⏱ 25초 — 완주율 최적 · 💃 댄스/챌린지 포맷</p>
+  </div>
+</div><div class="card" data-views="14120" data-date="2026-05-16" data-title="surmedaani ♥️ #dancer #motivation #disability #viral #shorts">
+  <span class="rank">7</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/9gbtsQEIQ70" target="_blank" rel="noopener" aria-label="Surmedaani ♥️ #dancer #motivation #disability #viral #shorts">
+    <img loading="lazy" src="https://img.youtube.com/vi/9gbtsQEIQ70/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">Surmedaani ♥️ #dancer #motivation #disability #viral #shorts</p>
+    <div class="meta"><span>👁 1.4만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 💃 댄스/챌린지 포맷</p>
+  </div>
+</div></div>
 </section>
 <section id="t14" class="tc">
   <div class="th"><div class="th-l"><b>한국</b><span class="th-s">대기 중</span></div></div><div class="empty">
@@ -1161,25 +1824,67 @@
 </div>
 </section>
 <section id="t15" class="tc">
-  <div class="th"><div class="th-l"><b>우즈베키스탄</b><span class="th-s">대기 중</span></div></div><div class="empty">
-  <div class="ic">🎬</div>
-  <p><span class="pulse"></span>수집 대기 중</p>
-  <p class="sub">GitHub Actions가 매일 17:00 KST에 자동 실행됩니다</p>
-</div>
+  <div class="th">
+  <div class="th-l"><b>우즈베키스탄</b><span class="th-s">트렌딩 1개</span></div>
+  <div class="sp-w">
+    <button class="sp active" onclick="sortBy('t15','views',this)">👁 조회수</button>
+    <button class="sp" onclick="sortBy('t15','date',this)">🕒 최신</button>
+  </div>
+</div><div class='grid'><div class="card" data-views="211" data-date="2026-05-16" data-title="do you remember rjbeatz mask girl😎💖🫵#kpop#dance#shorts#trend#viral#try#challenge">
+  <span class="rank top">1</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/-vx27xiQqpc" target="_blank" rel="noopener" aria-label="Do you remember Rjbeatz Mask Girl😎💖🫵#kpop#dance#shorts#trend#viral#try#challenge">
+    <img loading="lazy" src="https://img.youtube.com/vi/-vx27xiQqpc/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">Do you remember Rjbeatz Mask Girl😎💖🫵#kpop#dance#shorts#trend#viral#try#challenge</p>
+    <div class="meta"><span>👁 211</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 ⏱ 17초 — 완주율 최적 · 💃 댄스/챌린지 포맷 · 🎤 K-팝 글로벌 팬덤</p>
+  </div>
+</div></div>
 </section>
 <section id="t16" class="tc">
-  <div class="th"><div class="th-l"><b>알제리</b><span class="th-s">대기 중</span></div></div><div class="empty">
-  <div class="ic">🎬</div>
-  <p><span class="pulse"></span>수집 대기 중</p>
-  <p class="sub">GitHub Actions가 매일 17:00 KST에 자동 실행됩니다</p>
-</div>
+  <div class="th">
+  <div class="th-l"><b>알제리</b><span class="th-s">트렌딩 1개</span></div>
+  <div class="sp-w">
+    <button class="sp active" onclick="sortBy('t16','views',this)">👁 조회수</button>
+    <button class="sp" onclick="sortBy('t16','date',this)">🕒 최신</button>
+  </div>
+</div><div class='grid'><div class="card" data-views="183193" data-date="2026-05-16" data-title="mama… look at me now">
+  <span class="rank top">1</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/XXhmVmY4wd8" target="_blank" rel="noopener" aria-label="Mama… look at me now">
+    <img loading="lazy" src="https://img.youtube.com/vi/XXhmVmY4wd8/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">Mama… look at me now</p>
+    <div class="meta"><span>👁 18.3만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 ✨ 10만뷰 상승세</p>
+  </div>
+</div></div>
 </section>
 <section id="t17" class="tc">
-  <div class="th"><div class="th-l"><b>카자흐스탄</b><span class="th-s">대기 중</span></div></div><div class="empty">
-  <div class="ic">🎬</div>
-  <p><span class="pulse"></span>수집 대기 중</p>
-  <p class="sub">GitHub Actions가 매일 17:00 KST에 자동 실행됩니다</p>
-</div>
+  <div class="th">
+  <div class="th-l"><b>카자흐스탄</b><span class="th-s">트렌딩 1개</span></div>
+  <div class="sp-w">
+    <button class="sp active" onclick="sortBy('t17','views',this)">👁 조회수</button>
+    <button class="sp" onclick="sortBy('t17','date',this)">🕒 최신</button>
+  </div>
+</div><div class='grid'><div class="card" data-views="572443" data-date="2026-05-16" data-title="gazan - черемша | премьера клипа">
+  <span class="rank top">1</span>
+  <span class="new">NEW</span>
+  <a class="tw" href="https://www.youtube.com/shorts/tSJTCqP1H-I" target="_blank" rel="noopener" aria-label="Gazan - Черемша | Премьера клипа">
+    <img loading="lazy" src="https://img.youtube.com/vi/tSJTCqP1H-I/maxresdefault.jpg" alt="">
+    <span class="pi">▶</span>
+  </a>
+  <div class="info">
+    <p class="tt">Gazan - Черемша | Премьера клипа</p>
+    <div class="meta"><span>👁 57.2만</span><span>📅 2026-05-16</span></div>
+    <p class="why">💡 ✨ 10만뷰 상승세</p>
+  </div>
+</div></div>
 </section>
 
 </main>
