@@ -91,6 +91,17 @@ def iso_to_sec(dur: str) -> int:
     h, mi, s = (int(x or 0) for x in m.groups())
     return h*3600 + mi*60 + s
 
+def dedup_videos(videos: list[dict]) -> list[dict]:
+    """ID 기준 중복 제거 — 첫 등장(=가장 최신) 유지, 기존 데이터 보존"""
+    seen: set[str] = set()
+    out: list[dict] = []
+    for v in videos:
+        vid = v.get("id")
+        if vid and vid not in seen:
+            seen.add(vid)
+            out.append(v)
+    return out
+
 
 # ── 인기 이유 분석 ───────────────────────────────────────
 DANCE_KW    = ("dance", "댄스", "baile", "tanz", "danca", "nhay", "ballo", "danse", "춤")
@@ -499,7 +510,7 @@ def _grid(videos: list[dict], tab_id: str, name: str, flag: str) -> str:
     if not videos:
         return f"""<div class="th"><div class="th-l"><b>{name}</b><span class="th-s">대기 중</span></div></div>""" + _empty("🎬", "수집 대기 중", "GitHub Actions가 매일 17:00 KST에 자동 실행됩니다")
     header = f"""<div class="th">
-  <div class="th-l"><b>{name}</b><span class="th-s">트렌딩 {len(videos)}개</span></div>
+  <div class="th-l"><b>{name}</b><span class="th-s">누적 {len(videos)}개 · 매일 신규 위로 추가</span></div>
   <div class="sp-w">
     <button class="sp active" onclick="sortBy('{tab_id}','views',this)">👁 조회수</button>
     <button class="sp" onclick="sortBy('{tab_id}','date',this)">🕒 최신</button>
@@ -545,7 +556,7 @@ def _api_section(videos: list[dict], tab_id: str = "t0") -> str:
 </div>"""
 
     header = f"""<div class="th">
-  <div class="th-l"><b>YouTube Data API</b><span class="th-s">전체 {len(videos)}개 · 다국적 검색</span></div>
+  <div class="th-l"><b>YouTube Data API</b><span class="th-s">누적 {len(videos)}개 · 14개 시장 글로벌 통합 · 매일 신규 위로 추가</span></div>
   <div class="sp-w">
     <button class="sp active" onclick="sortBy('{tab_id}','views',this)">👁 조회수</button>
     <button class="sp" onclick="sortBy('{tab_id}','likes',this)">❤️ 좋아요</button>
@@ -1417,22 +1428,22 @@ def main() -> int:
     print("=== YouTube Shorts 수집 시작 ===", flush=True)
     print(f"API_KEY 설정: {'YES' if API_KEY else 'NO'}", flush=True)
 
-    # 글로벌 API 탭 — 매번 통째로 교체 (조회수 순 글로벌 순위)
+    # 글로벌 API 탭 — 신규만 prepend, 기존 데이터 영구 보존 (누적)
     print("\n[🔑 YouTube API 탭 — 글로벌 14개 시장 통합]", flush=True)
     api_stored = load_json(VIDEOS_API)
+    existing_api_videos = api_stored.get("videos", [])
+    existing_api_ids = {v["id"] for v in existing_api_videos}
     try:
-        new_api = fetch_api_tab(existing_ids=set())
-        print(f"[API 탭] fetch_api_tab 반환: {len(new_api)}개", flush=True)
+        new_api = fetch_api_tab(existing_ids=existing_api_ids)  # 이미 본 영상 제외
+        print(f"[API 탭] 신규 {len(new_api)}개 / 누적 {len(existing_api_videos)+len(new_api)}개", flush=True)
         if new_api:
-            api_stored = {"last_updated": "", "videos": new_api}
-        # 매번 last_updated 갱신 (빈 결과여도 시도했음을 기록)
-        save_json(VIDEOS_API, api_stored)
+            api_stored["videos"] = dedup_videos(new_api + existing_api_videos)  # prepend, 누적
+        save_json(VIDEOS_API, api_stored)  # last_updated 갱신
     except Exception as e:
         print(f"[ERROR] API 탭: {e}", flush=True); traceback.print_exc()
-    api_data = api_stored["videos"][:MAX_API]
+    api_data = api_stored.get("videos", [])  # 전체 표시 (cap 없음)
 
-    # 국가별 — 각 국가가 독립적으로 자체 dedup (같은 영상이 여러 국가에서 트렌딩 가능)
-    MAX_KEEP_PER_COUNTRY = 100
+    # 국가별 — 영구 누적 (cap 없음 · 기존 보존 · 위로 prepend)
     all_data = []
     for name, code, geo, query, flag, lang in COUNTRIES:
         print(f"\n[{flag} {name} / {code} / lang={lang}]", flush=True)
@@ -1445,9 +1456,7 @@ def main() -> int:
                 print("  ↳ API 결과 없음 — yt-dlp 폴백 시도", flush=True)
                 new = fetch_country(name, code, geo, query, country_seen)
             if new:
-                # 신규 위, 기존 아래 (prepend)
-                data["videos"] = new + data["videos"]
-                data["videos"] = data["videos"][:MAX_KEEP_PER_COUNTRY]
+                data["videos"] = dedup_videos(new + data["videos"])  # prepend (cap 없음)
             save_json(p, data)
             print(f"  → 신규 {len(new)}개 / 누적 {len(data['videos'])}개", flush=True)
         except Exception as e:
