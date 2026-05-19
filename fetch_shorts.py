@@ -211,7 +211,7 @@ def _api_build():
         return None
 
 def _enrich_videos(youtube, vid_ids: list[str], existing_ids: set,
-                   max_dur: int = 180) -> list[dict]:
+                   max_dur: int = 40) -> list[dict]:
     """비디오 ID → 상세 정보 + 채널 썸네일 (Shorts 필터링 포함)"""
     if not vid_ids: return []
     out: list[dict] = []
@@ -231,7 +231,7 @@ def _enrich_videos(youtube, vid_ids: list[str], existing_ids: set,
             vid_id = item["id"]
             if vid_id in existing_ids: continue
             secs = iso_to_sec(item["contentDetails"]["duration"])
-            if secs == 0 or secs > max_dur: continue
+            if secs == 0 or secs >= max_dur: continue
             snip  = item["snippet"]
             stats = item.get("statistics", {})
             title = snip.get("title", "")
@@ -410,7 +410,7 @@ def fetch_country(name: str, code: str, geo: str | None,
             vid_id = e.get("id", "")
             if not vid_id or vid_id in seen: continue
             dur = e.get("duration") or 0
-            if dur and dur > 180: continue
+            if dur and dur >= 40: continue
             title = e.get("title", "")
             if is_excluded(title): continue
             seen.add(vid_id)
