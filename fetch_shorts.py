@@ -80,6 +80,10 @@ def fmt_views(n: int) -> str:
     if n >= 10_000:      return f"{n/10_000:.1f}만"
     return f"{n:,}" if n else "—"
 
+def engagement_score(v: dict) -> float:
+    """조회수 + 좋아요 가중 점수 (좋아요는 조회수의 1~5%이므로 50배 가중)"""
+    return (v.get("view_count") or 0) + (v.get("like_count") or 0) * 50
+
 def fmt_dur(secs: int) -> str:
     if not secs: return ""
     m, s = divmod(secs, 60)
@@ -211,7 +215,7 @@ def _api_build():
         return None
 
 def _enrich_videos(youtube, vid_ids: list[str], existing_ids: set,
-                   max_dur: int = 40) -> list[dict]:
+                   max_dur: int = 60) -> list[dict]:
     """비디오 ID → 상세 정보 + 채널 썸네일 (Shorts 필터링 포함)"""
     if not vid_ids: return []
     out: list[dict] = []
@@ -231,7 +235,7 @@ def _enrich_videos(youtube, vid_ids: list[str], existing_ids: set,
             vid_id = item["id"]
             if vid_id in existing_ids: continue
             secs = iso_to_sec(item["contentDetails"]["duration"])
-            if secs == 0 or secs >= max_dur: continue
+            if secs == 0 or secs > max_dur: continue
             snip  = item["snippet"]
             stats = item.get("statistics", {})
             title = snip.get("title", "")
@@ -316,7 +320,7 @@ def fetch_api_tab(existing_ids: set) -> list[dict]:
         _write_debug({"candidates": 0, "passed": 0, "regions": region_stats, "errors": errors})
         return []
     new = _enrich_videos(youtube, cands, existing_ids)
-    new.sort(key=lambda v: v["view_count"], reverse=True)
+    new.sort(key=engagement_score, reverse=True)
     result = new[:MAX_API]
     print(f"[API 탭] enrich 후 {len(new)}개 → 상위 {len(result)}개 반환", flush=True)
     _write_debug({
@@ -365,7 +369,7 @@ def fetch_country_api(name: str, region_code: str | None, query: str,
         return []
 
     new = _enrich_videos(youtube, cands, existing_ids)
-    new.sort(key=lambda v: v["view_count"], reverse=True)
+    new.sort(key=engagement_score, reverse=True)
     return new[:max_new]
 
 
@@ -397,7 +401,7 @@ def fetch_country(name: str, code: str, geo: str | None,
 
     # yt-dlp는 quota 없음 — YouTube 웹사이트 직접 스크래핑
     sources: list[tuple[str, dict]] = [
-        (f"ytsearch25:{query}", geo_opts),
+        (f"ytsearch50:{query}", geo_opts),
     ]
     if geo:
         sources.append((f"https://www.youtube.com/feed/trending?gl={geo}", geo_opts))
@@ -410,7 +414,7 @@ def fetch_country(name: str, code: str, geo: str | None,
             vid_id = e.get("id", "")
             if not vid_id or vid_id in seen: continue
             dur = e.get("duration") or 0
-            if dur and dur >= 40: continue
+            if dur and dur > 60: continue
             title = e.get("title", "")
             if is_excluded(title): continue
             seen.add(vid_id)
@@ -425,7 +429,7 @@ def fetch_country(name: str, code: str, geo: str | None,
             })
         time.sleep(1.2)
 
-    new.sort(key=lambda v: v.get("view_count", 0), reverse=True)
+    new.sort(key=engagement_score, reverse=True)
     result = new[:MAX_NEW]
     print(f"    → yt-dlp 폴백 신규 {len(result)}개", flush=True)
     return result
