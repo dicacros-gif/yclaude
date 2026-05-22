@@ -1,5 +1,6 @@
 """
 YouTube Shorts 트렌드 수집 — YouTube API 탭 + 국가별 17개 탭 (GitHub Actions 전용)
+정책: < 40초 영상만 수집 · 영구 누적 · ID 중복 방지 · views+likes*50 정렬
 """
 
 import json, os, re, time
