@@ -13,6 +13,7 @@ INDEX_HTML  = BASE / "index.html"
 VIDEOS_API  = BASE / "videos_api.json"
 MAX_NEW     = 15
 MAX_API     = 40
+MIN_VIEWS   = 50_000   # 5만 미만 영상 제외
 DUR_RE      = re.compile(r'PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?')
 API_KEY     = os.environ.get("YOUTUBE_API_KEY", "")
 
@@ -239,6 +240,8 @@ def _enrich_videos(youtube, vid_ids: list[str], existing_ids: set,
             if secs == 0 or secs >= max_dur: continue
             snip  = item["snippet"]
             stats = item.get("statistics", {})
+            views = int(stats.get("viewCount", 0))
+            if views < MIN_VIEWS: continue   # 5만 미만 제외
             title = snip.get("title", "")
             if is_excluded(title): continue
             existing_ids.add(vid_id)
@@ -252,7 +255,7 @@ def _enrich_videos(youtube, vid_ids: list[str], existing_ids: set,
                 "url":           f"https://www.youtube.com/shorts/{vid_id}",
                 "added_date":    now_kst(),
                 "published_at":  snip.get("publishedAt", "")[:10],
-                "view_count":    int(stats.get("viewCount", 0)),
+                "view_count":    views,
                 "like_count":    int(stats.get("likeCount", 0)),
                 "comment_count": int(stats.get("commentCount", 0)),
                 "duration_sec":  secs,
@@ -416,6 +419,8 @@ def fetch_country(name: str, code: str, geo: str | None,
             if not vid_id or vid_id in seen: continue
             dur = e.get("duration") or 0
             if dur and dur >= 40: continue
+            views = e.get("view_count", 0) or 0
+            if views < MIN_VIEWS: continue  # 5만 미만 제외
             title = e.get("title", "")
             if is_excluded(title): continue
             seen.add(vid_id)
@@ -425,7 +430,7 @@ def fetch_country(name: str, code: str, geo: str | None,
                 "thumbnail":    f"https://img.youtube.com/vi/{vid_id}/hqdefault.jpg",
                 "url":          f"https://www.youtube.com/shorts/{vid_id}",
                 "added_date":   now_kst(),
-                "view_count":   e.get("view_count", 0) or 0,
+                "view_count":   views,
                 "duration_sec": int(dur),
             })
         time.sleep(1.2)
