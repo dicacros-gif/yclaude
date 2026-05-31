@@ -2,3 +2,16 @@
 __pycache__/
 
 _debug_api.json
+
+# Android / Gradle
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+android/captures/
+android/.idea/
+*.iml
+.DS_Store
+
+# Keep wrapper jar out (CI uses system gradle)
+android/gradle/wrapper/gradle-wrapper.jar
