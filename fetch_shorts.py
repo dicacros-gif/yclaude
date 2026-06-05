@@ -11,6 +11,7 @@ KST         = timezone(timedelta(hours=9))
 BASE        = Path(__file__).parent
 INDEX_HTML  = BASE / "index.html"
 VIDEOS_API  = BASE / "videos_api.json"
+DELETED_FILE = BASE / "deleted_videos.json"   # 사이트에서 X로 삭제한 영상 ID(재크롤링 제외)
 MAX_NEW     = 15
 MAX_API     = 40
 MIN_VIEWS   = 50_000   # 5만 미만 영상 제외
@@ -107,6 +108,27 @@ def dedup_videos(videos: list[dict]) -> list[dict]:
             seen.add(vid)
             out.append(v)
     return out
+
+
+def load_blocklist() -> set[str]:
+    """사용자가 사이트에서 X로 삭제한 영상 ID — 다시 크롤링/표시하지 않음.
+    deleted_videos.json 은 ["id", ...] 배열 또는 {"ids": ["id", ...]} 형식 모두 지원."""
+    try:
+        if DELETED_FILE.exists():
+            with open(DELETED_FILE, encoding="utf-8") as f:
+                data = json.load(f)
+            if isinstance(data, dict):
+                data = data.get("ids", [])
+            return {str(x).strip() for x in data if str(x).strip()}
+    except Exception as e:
+        print(f"[blocklist] deleted_videos.json 읽기 실패: {e}", flush=True)
+    return set()
+
+def apply_blocklist(videos: list[dict], block: set[str]) -> list[dict]:
+    """차단 목록에 있는 영상 제거 — 누적 데이터에서도 영구 삭제."""
+    if not block:
+        return videos
+    return [v for v in videos if v.get("id") not in block]
 
 
 # ── 인기 이유 분석 ───────────────────────────────────────
@@ -458,7 +480,7 @@ def _card(v: dict, idx: int) -> str:
     if likes_n: stats += f'<span>❤️ {fmt_views(likes_n)}</span>'
     if comm_n:  stats += f'<span>💬 {fmt_views(comm_n)}</span>'
     stats += f'<span>📅 {date}</span>'
-    return f"""<div class="card" data-views="{v.get('view_count',0)}" data-likes="{likes_n}" data-date="{date}" data-title="{title.lower()}">
+    return f"""<div class="card" data-id="{v.get('id','')}" data-views="{v.get('view_count',0)}" data-likes="{likes_n}" data-date="{date}" data-title="{title.lower()}">
   <span class="{rank_cls}">{idx+1}</span>
   {new_badge}
   <a class="tw" href="{v['url']}" target="_blank" rel="noopener" aria-label="{title}">
@@ -491,7 +513,7 @@ def _api_card(v: dict, idx: int) -> str:
     why       = analyze_video(v)
     added     = v.get("added_date", "")
     new_badge = '<span class="new">NEW</span>' if added == now_kst() else ""
-    return f"""<div class="card api-card" data-views="{v.get('view_count',0)}" data-likes="{v.get('like_count',0)}" data-date="{pub}" data-title="{title.lower()}">
+    return f"""<div class="card api-card" data-id="{v.get('id','')}" data-views="{v.get('view_count',0)}" data-likes="{v.get('like_count',0)}" data-date="{pub}" data-title="{title.lower()}">
   <span class="{rank_cls}">{idx+1}</span>
   {new_badge}
   <a class="tw" href="{v['url']}" target="_blank" rel="noopener" aria-label="{title}">
@@ -863,6 +885,132 @@ def _analysis_section(api_data: list[dict], all_data: list[tuple]) -> str:
 </div>"""
 
 
+# ── 영상 삭제(X) 기능 — CSS/JS (일반 문자열: 중괄호 이스케이프 불필요) ──
+DEL_CSS = """
+    /* ── 영상 삭제 (X) 버튼 ── */
+    .del{position:absolute;top:.42rem;right:.42rem;z-index:30;
+      width:30px;height:30px;padding:0;border:none;border-radius:50%;cursor:pointer;
+      display:flex;align-items:center;justify-content:center;
+      background:rgba(8,8,13,.62);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+      color:#fff;font-size:1.05rem;font-weight:800;line-height:1;
+      box-shadow:0 2px 9px rgba(0,0,0,.45),inset 0 0 0 1px rgba(255,255,255,.18);
+      transition:transform .16s,background .16s,box-shadow .16s;font-family:inherit}
+    .del:hover{background:#ff0033;transform:scale(1.14);
+      box-shadow:0 5px 16px rgba(255,0,51,.55),inset 0 0 0 1px rgba(255,255,255,.3)}
+    .del:active{transform:scale(.9)}
+    @media(max-width:480px){.del{width:32px;height:32px;font-size:1.12rem}}
+    /* 삭제 토스트(되돌리기) */
+    .yc-toast{position:fixed;left:50%;bottom:1.4rem;transform:translateX(-50%) translateY(1.6rem);
+      z-index:9999;display:flex;align-items:center;gap:.7rem;
+      background:rgba(18,18,26,.93);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+      border:1px solid rgba(255,255,255,.14);border-radius:100px;
+      padding:.55rem .6rem .55rem 1.1rem;color:#fff;font-size:.8rem;font-weight:600;
+      box-shadow:0 10px 34px rgba(0,0,0,.5);opacity:0;pointer-events:none;
+      transition:opacity .22s,transform .22s}
+    .yc-toast.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}
+    .yc-toast button{border:none;cursor:pointer;font-family:inherit;font-weight:700;
+      font-size:.76rem;padding:.42rem .9rem;border-radius:100px;
+      background:linear-gradient(135deg,#ff0050,#ff7e3a);color:#fff}
+    .yc-toast button:hover{filter:brightness(1.08)}
+    /* 삭제 관리 칩(서버 차단목록 복사) */
+    .yc-mgr{position:fixed;left:.9rem;bottom:.9rem;z-index:9990;
+      display:none;align-items:center;gap:.35rem;cursor:pointer;
+      background:rgba(18,18,26,.85);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+      border:1px solid rgba(255,255,255,.14);border-radius:100px;
+      padding:.42rem .8rem;color:var(--tx2);font-size:.72rem;font-weight:600;
+      box-shadow:0 6px 20px rgba(0,0,0,.4);transition:all .2s;font-family:inherit}
+    .yc-mgr:hover{color:#fff;border-color:rgba(255,255,255,.3);transform:translateY(-1px)}
+    .yc-mgr.on{display:inline-flex}
+"""
+
+DEL_JS = """
+  /* ── 영상 삭제(X) + 영구 숨김 ── */
+  (function(){
+    var KEY='yc_deleted';
+    function get(){try{return new Set(JSON.parse(localStorage.getItem(KEY)||'[]'))}catch(e){return new Set()}}
+    function save(s){try{localStorage.setItem(KEY,JSON.stringify(Array.from(s)))}catch(e){}}
+    function vidId(el){
+      if(!el)return'';
+      if(el.dataset&&el.dataset.id)return el.dataset.id;
+      var img=el.querySelector('img[src*="/vi/"]'),m;
+      if(img){m=(img.getAttribute('src')||'').match(/\\/vi\\/([^/]+)/);if(m)return m[1];}
+      var a=el.querySelector('a[href*="/shorts/"],a[href*="v="],a[href*="youtu.be/"]');
+      if(a){var h=a.getAttribute('href')||'';
+        m=h.match(/shorts\\/([\\w-]+)/)||h.match(/[?&]v=([\\w-]+)/)||h.match(/youtu\\.be\\/([\\w-]+)/);
+        if(m)return m[1];}
+      return'';
+    }
+    var toast,hideT;
+    function showToast(msg,label,cb){
+      if(!toast){toast=document.createElement('div');toast.className='yc-toast';document.body.appendChild(toast);}
+      toast.innerHTML='';
+      var sp=document.createElement('span');sp.textContent=msg;toast.appendChild(sp);
+      if(label){var b=document.createElement('button');b.type='button';b.textContent=label;
+        b.onclick=function(){toast.classList.remove('show');if(cb)cb();};toast.appendChild(b);}
+      toast.classList.add('show');
+      clearTimeout(hideT);hideT=setTimeout(function(){toast.classList.remove('show');},4500);
+    }
+    function refreshMgr(){
+      var n=get().size,chip=document.getElementById('ycMgr');
+      if(!chip){chip=document.createElement('div');chip.id='ycMgr';chip.className='yc-mgr';
+        chip.title='deleted_videos.json 에 붙여넣으면 재크롤링까지 영구 차단';
+        chip.onclick=copyList;document.body.appendChild(chip);}
+      chip.textContent='🗑 삭제 '+n+'개 · 목록 복사';
+      chip.classList.toggle('on',n>0);
+    }
+    function copyList(){
+      var text=JSON.stringify({ids:Array.from(get())},null,2);
+      function done(){showToast('복사됨 — deleted_videos.json 에 붙여넣으면 영구 적용','확인',null);}
+      if(navigator.clipboard&&navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(done,function(){window.prompt('복사하세요 (deleted_videos.json):',text);});
+      }else{window.prompt('복사하세요 (deleted_videos.json):',text);}
+    }
+    function fade(el){el.style.transition='opacity .2s,transform .2s';el.style.opacity='0';el.style.transform='scale(.86)';}
+    function snap(el){return{el:el,parent:el.parentNode,next:el.nextSibling};}
+    function restore(o){o.el.style.opacity='';o.el.style.transform='';
+      if(!o.el.parentNode){(o.next&&o.next.parentNode===o.parent)?o.parent.insertBefore(o.el,o.next):o.parent.appendChild(o.el);}}
+    function remove(card){
+      var id=vidId(card);
+      if(id){var s=get();s.add(id);save(s);}
+      // 같은 영상(여러 탭에 중복된 카드) + 히어로 모두 제거
+      var targets=id?Array.prototype.filter.call(document.querySelectorAll('.card'),function(c){return vidId(c)===id;}):[card];
+      var hero=document.querySelector('.hero');
+      if(hero&&id&&vidId(hero.querySelector('.hero-thumb'))===id)targets.push(hero);
+      var snaps=targets.map(snap);
+      targets.forEach(fade);
+      var t=setTimeout(function(){targets.forEach(function(el){if(el.parentNode)el.remove();});},210);
+      refreshMgr();
+      showToast('삭제됨','되돌리기',function(){
+        clearTimeout(t);
+        if(id){var s=get();s.delete(id);save(s);}
+        snaps.forEach(restore);
+        refreshMgr();
+      });
+    }
+    function addBtn(card){
+      if(card.querySelector('.del'))return;
+      var b=document.createElement('button');
+      b.className='del';b.type='button';b.title='삭제';b.setAttribute('aria-label','삭제');b.textContent='✕';
+      b.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();remove(card);});
+      card.appendChild(b);
+    }
+    function apply(){
+      var del=get();
+      Array.prototype.forEach.call(document.querySelectorAll('.card'),function(card){
+        var id=vidId(card);
+        if(id&&del.has(id)){card.remove();return;}
+        addBtn(card);
+      });
+      var hero=document.querySelector('.hero');
+      if(hero){var hid=vidId(hero.querySelector('.hero-thumb'))||vidId(hero);
+        if(hid&&del.has(hid))hero.remove();}
+      refreshMgr();
+    }
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply);
+    else apply();
+  })();
+"""
+
 def regenerate_html(api_data: list[dict], all_data: list[tuple]) -> None:
     last_times = [d.get("last_updated","") for _,_,_,d in all_data if d.get("last_updated")]
     last = max(last_times) if last_times else "—"
@@ -1058,7 +1206,7 @@ def regenerate_html(api_data: list[dict], all_data: list[tuple]) -> None:
       font-size:.72rem;font-weight:800;letter-spacing:.02em}}
     .rank.top{{background:linear-gradient(135deg,#ff0050,#ff7e3a);
       box-shadow:0 5px 14px rgba(255,0,80,.5)}}
-    .new{{position:absolute;top:.5rem;right:.5rem;z-index:5;
+    .new{{position:absolute;top:.5rem;right:2.7rem;z-index:5;
       padding:.18rem .42rem;background:linear-gradient(135deg,#00d970,#00b4d8);
       color:#fff;border-radius:6px;font-size:.6rem;font-weight:800;letter-spacing:.05em;
       box-shadow:0 3px 10px rgba(0,217,112,.45);animation:newPop .35s cubic-bezier(.4,0,.2,1)}}
@@ -1332,6 +1480,7 @@ def regenerate_html(api_data: list[dict], all_data: list[tuple]) -> None:
       .h-stats{{gap:.4rem}}
       .stat-chip{{padding:.4rem .6rem}}
     }}
+{DEL_CSS}
   </style>
 </head>
 <body>
@@ -1422,6 +1571,7 @@ def regenerate_html(api_data: list[dict], all_data: list[tuple]) -> None:
     if (e.key === '/'){{ e.preventDefault(); document.getElementById('sIn').focus(); }}
     if (e.key === 't'){{ toggleTheme(); }}
   }});
+{DEL_JS}
 </script>
 </body>
 </html>
@@ -1438,16 +1588,22 @@ def main() -> int:
     print("=== YouTube Shorts 수집 시작 ===", flush=True)
     print(f"API_KEY 설정: {'YES' if API_KEY else 'NO'}", flush=True)
 
+    # 사용자가 사이트에서 X로 삭제한 영상 — 재크롤링/표시 제외
+    block = load_blocklist()
+    if block:
+        print(f"[blocklist] 삭제된 영상 {len(block)}개 — 재크롤링/표시 제외", flush=True)
+
     # 글로벌 API 탭 — 신규만 prepend, 기존 데이터 영구 보존 (누적)
     print("\n[🔑 YouTube API 탭 — 글로벌 14개 시장 통합]", flush=True)
     api_stored = load_json(VIDEOS_API)
     existing_api_videos = api_stored.get("videos", [])
-    existing_api_ids = {v["id"] for v in existing_api_videos}
+    existing_api_ids = {v["id"] for v in existing_api_videos} | block  # 삭제분도 '이미 본' 처리 → 재수집 안 함
     try:
-        new_api = fetch_api_tab(existing_ids=existing_api_ids)  # 이미 본 영상 제외
+        new_api = fetch_api_tab(existing_ids=existing_api_ids)  # 이미 본/삭제 영상 제외
         print(f"[API 탭] 신규 {len(new_api)}개 / 누적 {len(existing_api_videos)+len(new_api)}개", flush=True)
         if new_api:
             api_stored["videos"] = dedup_videos(new_api + existing_api_videos)  # prepend, 누적
+        api_stored["videos"] = apply_blocklist(api_stored.get("videos", []), block)  # 누적분에서도 삭제
         save_json(VIDEOS_API, api_stored)  # last_updated 갱신
     except Exception as e:
         print(f"[ERROR] API 탭: {e}", flush=True); traceback.print_exc()
@@ -1459,7 +1615,7 @@ def main() -> int:
         print(f"\n[{flag} {name} / {code} / lang={lang}]", flush=True)
         p    = json_path(code)
         data = load_json(p)
-        country_seen = {v["id"] for v in data["videos"]}
+        country_seen = {v["id"] for v in data["videos"]} | block  # 삭제분도 '이미 본' 처리
         try:
             new = fetch_country_api(name, geo, query, country_seen, lang=lang)
             if not new:
@@ -1467,6 +1623,7 @@ def main() -> int:
                 new = fetch_country(name, code, geo, query, country_seen)
             if new:
                 data["videos"] = dedup_videos(new + data["videos"])  # prepend (cap 없음)
+            data["videos"] = apply_blocklist(data["videos"], block)  # 누적분에서도 삭제
             save_json(p, data)
             print(f"  → 신규 {len(new)}개 / 누적 {len(data['videos'])}개", flush=True)
         except Exception as e:
