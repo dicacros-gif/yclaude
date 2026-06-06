@@ -1,6 +1,8 @@
 """
 YouTube Shorts 트렌드 수집 — YouTube API 탭 + 국가별 17개 탭 (GitHub Actions 전용)
-정책: < 40초 영상만 수집 · 영구 누적 · ID 중복 방지 · views+likes*50 정렬
+정책: <= 60초 Shorts 수집 · 영구 누적 · ID 중복 방지 · views+likes*50 정렬
+수집 소스: chart=mostPopular(안정적이라 재방문 시 중복↑) + search.list(최근 인기/최신 —
+          신규 누적의 핵심). quota 여유(하루 ~300/10,000 사용)라 search 복원해도 안전.
 """
 
 import json, os, re, time
@@ -12,8 +14,10 @@ BASE        = Path(__file__).parent
 INDEX_HTML  = BASE / "index.html"
 VIDEOS_API  = BASE / "videos_api.json"
 DELETED_FILE = BASE / "deleted_videos.json"   # 사이트에서 X로 삭제한 영상 ID(재크롤링 제외)
-MAX_NEW     = 15
-MAX_API     = 40
+MAX_NEW     = 25       # yt-dlp 폴백 — run당 최대 신규
+MAX_API     = 60       # API 탭 — run당 최대 신규 (기존 40)
+MAX_DUR     = 60       # Shorts 길이 상한(초) — 표준 Shorts 60초까지 (기존 40 → 확대로 누적량↑)
+SEARCH_DAYS = 14       # search.list publishedAfter 윈도우(일) — 최근 영상 위주 신규 수집
 MIN_VIEWS   = 50_000   # 5만 미만 영상 제외
 DUR_RE      = re.compile(r'PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?')
 API_KEY     = os.environ.get("YOUTUBE_API_KEY", "")
@@ -238,8 +242,33 @@ def _api_build():
     except ImportError:
         return None
 
+def _published_after(days: int = SEARCH_DAYS) -> str:
+    """RFC3339(UTC) — search.list publishedAfter용. 최근 days일 이내 영상만."""
+    return (datetime.now(timezone.utc) - timedelta(days=days)).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+def _api_search(youtube, query: str, order: str, region: str | None,
+                lang: str | None, cands: list[str], days: int = SEARCH_DAYS) -> int:
+    """search.list로 '최근' Shorts 후보 ID 주입 (100 units/호출). 신규 추가 수 반환.
+    mostPopular 차트는 안정적이라 재방문 시 거의 중복 → 신규 누적이 정체된다.
+    publishedAfter로 최근 영상만 끌어와 매일 새 영상이 실제로 쌓이게 하는 핵심 경로."""
+    try:
+        params = dict(part="id", q=query, type="video", videoDuration="short",
+                      order=order, maxResults=50, publishedAfter=_published_after(days))
+        if region: params["regionCode"] = region
+        if lang:   params["relevanceLanguage"] = lang
+        resp = youtube.search().list(**params).execute()
+        added = 0
+        for it in resp.get("items", []):
+            vid = (it.get("id") or {}).get("videoId")
+            if vid and vid not in cands:
+                cands.append(vid); added += 1
+        return added
+    except Exception as e:
+        print(f"    [search {order}/{region or 'global'}] {e}", flush=True)
+        return 0
+
 def _enrich_videos(youtube, vid_ids: list[str], existing_ids: set,
-                   max_dur: int = 40) -> list[dict]:
+                   max_dur: int = MAX_DUR) -> list[dict]:
     """비디오 ID → 상세 정보 + 채널 썸네일 (Shorts 필터링 포함)"""
     if not vid_ids: return []
     out: list[dict] = []
@@ -340,6 +369,11 @@ def fetch_api_tab(existing_ids: set) -> list[dict]:
             time.sleep(0.1)
         region_stats[rc] = rs
 
+    # 검색 — 최근 인기/최신 글로벌 Shorts 주입 (mostPopular 정체 보완 · 신선도↑)
+    s1 = _api_search(youtube, "viral shorts trending dance music bgm", "viewCount", None, None, cands)
+    s2 = _api_search(youtube, "shorts dance challenge bgm", "date", None, None, cands, days=7)
+    print(f"  [global search] viewCount +{s1} · date +{s2}", flush=True)
+
     print(f"[API 탭] 후보 ID 합계: {len(cands)}개 / 에러 {len(errors)}개", flush=True)
 
     if not cands:
@@ -364,8 +398,8 @@ def _write_debug(info: dict) -> None:
 
 def fetch_country_api(name: str, region_code: str | None, query: str,
                        existing_ids: set, lang: str = "en",
-                       max_new: int = 12) -> list[dict]:
-    """국가별 — chart=mostPopular(Music) + 다중 검색 + 로컬 언어 가중"""
+                       max_new: int = 25) -> list[dict]:
+    """국가별 — chart=mostPopular(Music) + search.list(최근 인기/최신) + 로컬 언어 가중"""
     youtube = _api_build()
     if not youtube:
         return []
@@ -390,7 +424,13 @@ def fetch_country_api(name: str, region_code: str | None, query: str,
             except Exception as e:
                 print(f"    [trending {rc}/{cat}] {e}")
 
-    # search.list는 100 units/호출로 quota 폭증 — chart만 사용 (1 unit/호출)
+    # ② 검색 — 최근 인기 Shorts (search.list, 100 units). 신규 누적의 핵심:
+    #    mostPopular는 매일 거의 동일 → dedup 후 신규가 1~2개뿐이라 정체됨.
+    #    publishedAfter(최근 14일) + order=viewCount 로 '최근에 뜬' Shorts를 끌어와
+    #    매일 새 영상이 실제로 쌓이게 한다. (국가당 1콜=100units, quota 충분)
+    s_v = _api_search(youtube, query, "viewCount", region_code, lang, cands)
+    print(f"    [search viewCount] +{s_v}", flush=True)
+
     if not cands:
         return []
 
@@ -440,7 +480,7 @@ def fetch_country(name: str, code: str, geo: str | None,
             vid_id = e.get("id", "")
             if not vid_id or vid_id in seen: continue
             dur = e.get("duration") or 0
-            if dur and dur >= 40: continue
+            if dur and dur >= MAX_DUR: continue
             views = e.get("view_count", 0) or 0
             if views < MIN_VIEWS: continue  # 5만 미만 제외
             title = e.get("title", "")
