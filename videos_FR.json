@@ -1,6 +1,58 @@
 {
-  "last_updated": "2026-11-11 05:44 KST",
+  "last_updated": "2026-11-11 17:32 KST",
   "videos": [
+    {
+      "id": "GpKZCOWTUHQ",
+      "title": "Teaser Trailer | Warhammer 40,000: Darktide",
+      "thumbnail": "https://img.youtube.com/vi/GpKZCOWTUHQ/maxresdefault.jpg",
+      "thumbnail_hq": "https://img.youtube.com/vi/GpKZCOWTUHQ/hqdefault.jpg",
+      "url": "https://www.youtube.com/shorts/GpKZCOWTUHQ",
+      "added_date": "2026-11-11",
+      "published_at": "2026-11-10",
+      "view_count": 290692,
+      "like_count": 9878,
+      "comment_count": 1272,
+      "duration_sec": 31,
+      "duration_str": "0:31",
+      "channel_id": "UCfhGCMntOdvnorxaMNCbDOg",
+      "channel_title": "Fatshark",
+      "channel_thumb": "https://yt3.ggpht.com/XgyT7j4SgadFvOzExRJCccA9z7HE_mi5MqpfAIdNxbj067SYQ_ZXcL4eCg_MY03UhN1YXrTglA=s88-c-k-c0x00ffffff-no-rj",
+      "category_id": "20",
+      "tags": [
+        "Fatshark",
+        "Warhammer",
+        "Warhammer 40k",
+        "Game developer",
+        "Video Games"
+      ],
+      "description": "More details coming soon - stay tuned!\n\n\nLearn more about Darktide on our official website:\n► https://fatshark.games/Hdw"
+    },
+    {
+      "id": "ZNmGhB3v0SQ",
+      "title": "Avengers Doomsday - Official Teaser Trailer (2026) Chris Hemsworth, Chris Evans",
+      "thumbnail": "https://img.youtube.com/vi/ZNmGhB3v0SQ/maxresdefault.jpg",
+      "thumbnail_hq": "https://img.youtube.com/vi/ZNmGhB3v0SQ/hqdefault.jpg",
+      "url": "https://www.youtube.com/shorts/ZNmGhB3v0SQ",
+      "added_date": "2026-11-11",
+      "published_at": "2026-10-25",
+      "view_count": 183971,
+      "like_count": 761,
+      "comment_count": 58,
+      "duration_sec": 31,
+      "duration_str": "0:31",
+      "channel_id": "UCWJ5MfdQZ6jXbF5gYuSAf5Q",
+      "channel_title": "IGN Movie Trailers",
+      "channel_thumb": "https://yt3.ggpht.com/7p52P0JMJZs4nLBVAUmoNQGdNGmrZNTtg7PLaEkeAEU5h1NiY5II-tDPSTqLO0KY8TA-cpx7rA=s88-c-k-c0x00ffffff-no-rj",
+      "category_id": "24",
+      "tags": [
+        "Avengers",
+        "Avengers: Doomsday",
+        "MCU - Marvel Connected Universe",
+        "Marvel",
+        "Marvel Studios"
+      ],
+      "description": "In Avengers: Doomsday, beloved heroes from three distinct universes will be set on a deadly collision course and face an"
+    },
     {
       "id": "8L0CzL2V72c",
       "title": "Grand Theft Auto VI - Features Trailer | PS5 Games",
